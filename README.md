@@ -1,5 +1,5 @@
-BigInput
-========
+Input
+=====
 
 Big Input is a TDTFramework core. It is an ET(M)L (Extract, Transform, Map and Load) tool written in PHP to get data in a triple graph store.
 
