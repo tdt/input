@@ -11,15 +11,6 @@ class DataController extends AController {
             //check if resource exists
             if(isset($input[$matches[1]])){
                 $input = $input[$matches[1]];
-
-//                ignore_user_abort(true);
-//                set_time_limit(0);
-//                ob_end_flush();
-                register_shutdown_function("DataController::processInput",$input);
-//                ob_start();
-
-                //shut down the server, so the shutdown function will be called
-                exit();
             }else{
                 throw new TDTException(404,array("data/" . $matches[1]));
             }
