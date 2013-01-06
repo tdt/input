@@ -22,6 +22,8 @@ if(!file_exists("../custom/input.ini")){
     exit();
 }
 
+Log::getInstance()->logInfo("Started input for file...",$configname);
+
 $input = parse_ini_file("../custom/input.ini", true);
 //check if resource exists
 if(!isset($input[$configname])){
@@ -39,7 +41,5 @@ try{
 catch(Exception $e){
     Log::getInstance()->logCrit("ETML Failed: " . $e->getMessage());
 }
-
-
 
 
