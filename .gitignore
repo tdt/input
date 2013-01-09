@@ -1,1 +1,7 @@
 .TDT/
+!/custom/example_extract.ini
+!/custom/example_map.ini
+!/custom/input.example.ini
+custom/input.ini
+nbproject/
+/custom/
