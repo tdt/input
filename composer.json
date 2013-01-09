@@ -1,0 +1,7 @@
+{
+    "require": {
+	"tdt/framework" : "dev-master",
+	"rybakit/phive-queue" : "dev-master"
+    },
+    "minimum-stability" : "dev"
+}
