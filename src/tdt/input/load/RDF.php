@@ -1,6 +1,8 @@
 <?php
 
-class RDFLoader extends ALoader {
+namespace tdt\input\load;
+
+class RDF extends ..\ALoader {
 
     private $endpoint = 'http://157.193.213.125:8890/sparql';
     private $format = 'json';
@@ -46,7 +48,7 @@ class RDFLoader extends ALoader {
         
         echo $msg;
         
-        Log::getInstance()->logInfo($msg);
+        \tdt\framework\Log::getInstance()->logInfo($msg);
     }
 
     private function execSPARQL($query) {

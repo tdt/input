@@ -1,5 +1,7 @@
 <?php
 
+namespace tdt\input;
+
 abstract class AMapper{
     protected $config;
 

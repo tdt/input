@@ -2,8 +2,12 @@
 /**
  * TDTInput is the main model class
  * @author: Pieter Colpaert
+ * @author: Miel Vander Sande
  */
-class TDTInput {
+
+namespace tdt\input;
+
+class Input {
 
     //Extractor, Mapper, Loader
     private $e,$m,$l;
@@ -17,24 +21,9 @@ class TDTInput {
     public function __construct($config){
         $src = $config["source"];
 
-        AutoInclude::bulkRegister(array(
-            //extractors
-            "AExtractor" => "cores/input/model/extract/AExtractor.class.php",
-            "CSVExtractor" => "cores/input/model/extract/CSVExtractor.class.php",
-            //transformers
-            "ATransfomer" => "cores/input/model/extract/ATransformer.class.php",
-            //mappers
-            "AMapper" => "cores/input/model/map/AMapper.class.php",
-            "RDFMapper" => "cores/input/model/map/RDFMapper.class.php",
-            //loaders
-            "ALoader" => "cores/input/model/load/ALoader.class.php",
-            "CLILoader" => "cores/input/model/load/CLILoader.class.php",
-            "RDFLoader" => "cores/input/model/load/RDFLoader.class.php")
-        );
-
         //parse ini file for the extractor and create an instance of the right class
         $extractmethod = $config["extract"];
-        $extractorclass = $extractmethod . "Extractor";
+        $extractorclass = "extract\\" . $extractmethod;
         $extractorconfig = parse_ini_file("custom/" . $config["extractfile"]);
         $this->e = new $extractorclass($src,$extractorconfig);
         
@@ -43,19 +32,20 @@ class TDTInput {
 
         //parse ini file for the mapper
         $mapperconfig = parse_ini_file("custom/" . $config["mapfile"],true);
-        $mapmethod = $config["map"] . "Mapper";
+        $mapmethod = "map\\".$config["map"];
         $this->m = new $mapmethod($mapperconfig);
         
         //parse ini file for the loader
         $loaderconfig = parse_ini_file("custom/" . $config["loadfile"]);
-        $this->l = new RDFLoader($loaderconfig);
+        $loadclass = "load\RDF";
+        $this->l = new $loadclass($loaderconfig);
     }
 
     /**
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute(){
-        Log::getInstance()->logInfo("Starting the extractor");
+        \tdt\framework\Log::getInstance()->logInfo("Starting the extractor");
         $start = microtime(true);
         $numberofchunks = 0;
 
@@ -66,7 +56,7 @@ class TDTInput {
             //2. TRANSFORM
             foreach($this->ts as $t){
                 $chunk = $t->execute($chunk);
-                Log::getInstance()->logInfo("Transform: ",$chunk);
+                \tdt\framework\Log::getInstance()->logInfo("Transform: ",$chunk);
             }
 
             //3. MAP
@@ -85,6 +75,6 @@ class TDTInput {
         $duration = microtime(true) - $start;
         $msg = "Loaded $numberofchunks chunks in the store in $duration ms";
         echo $msg;
-        Log::getInstance()->logInfo($msg);
+        tdt\framework\Log::getInstance()->logInfo($msg);
     }
 }

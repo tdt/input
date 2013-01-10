@@ -1,4 +1,5 @@
 <?php
+namespace tdt\input;
 
 abstract class ALoader{
     protected $config;

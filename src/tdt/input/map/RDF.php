@@ -1,6 +1,5 @@
 <?php
 
-var_dump($_SERVER['DOCUMENT_ROOT']);
 
 define('VERTERE_DIR', '/Applications/MAMP/htdocs/TDTInput/includes/Vertere-RDF/dist/');
 define('MORIARTY_DIR', VERTERE_DIR . 'lib/moriarty/');
@@ -16,7 +15,9 @@ include_once VERTERE_DIR . 'inc/sequencegraph.class.php';
 include_once VERTERE_DIR . 'inc/vertere.class.php';
 include_once VERTERE_DIR . 'inc/diagnostics.php';
 
-class RDFMapper extends AMapper {
+namespace tdt\input\map;
+
+class RDF extends ..\AMapper {
 
     private $vertere;
 
