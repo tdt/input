@@ -1,7 +1,7 @@
 <?php
 namespace tdt\input\extract;
 
-class CSV extends ..\AExtractor{
+class CSV extends \tdt\input\AExtractor{
 
     private $handle;
 

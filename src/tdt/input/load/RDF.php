@@ -2,7 +2,7 @@
 
 namespace tdt\input\load;
 
-class RDF extends ..\ALoader {
+class RDF extends \tdt\input\ALoader {
 
     private $endpoint = 'http://157.193.213.125:8890/sparql';
     private $format = 'json';

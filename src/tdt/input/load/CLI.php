@@ -2,7 +2,7 @@
 
 namespace tdt\input\load;
 
-class CLI extends ALoader{
+class CLI extends \tdt\input\ALoader{
     
     public function execute(&$chunk){
         var_dump($chunk);

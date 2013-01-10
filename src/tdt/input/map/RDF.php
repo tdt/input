@@ -1,5 +1,6 @@
 <?php
 
+namespace tdt\input\map;
 
 define('VERTERE_DIR', '/Applications/MAMP/htdocs/TDTInput/includes/Vertere-RDF/dist/');
 define('MORIARTY_DIR', VERTERE_DIR . 'lib/moriarty/');
@@ -15,9 +16,7 @@ include_once VERTERE_DIR . 'inc/sequencegraph.class.php';
 include_once VERTERE_DIR . 'inc/vertere.class.php';
 include_once VERTERE_DIR . 'inc/diagnostics.php';
 
-namespace tdt\input\map;
-
-class RDF extends ..\AMapper {
+class RDF extends \tdt\input\AMapper {
 
     private $vertere;
 
@@ -26,18 +25,18 @@ class RDF extends ..\AMapper {
         
         $spec_file_name = 'http://localhost:8888/regions.csv.spec.ttl';
         $spec_file = file_get_contents($spec_file_name);
-        $spec = new SimpleGraph();
+        $spec = new \SimpleGraph();
         $spec->from_turtle($spec_file);
 
         //Find the spec in the graph
         $specs = $spec->get_subjects_of_type(NS_CONV . 'Spec');
         if (count($specs) != 1) {
-            throw new Exception('spec document must contain exactly one conversion spec');
+            throw new \Exception('spec document must contain exactly one conversion spec');
         }
         
         //Check if mapping file is the current one
         //Load spec and create new Vertere converter
-        $this->vertere = new Vertere($spec, $specs[0]);
+        $this->vertere = new \Vertere($spec, $specs[0]);
     }
 
     public function execute(&$chunk) {

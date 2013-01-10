@@ -23,7 +23,7 @@ class Input {
 
         //parse ini file for the extractor and create an instance of the right class
         $extractmethod = $config["extract"];
-        $extractorclass = "extract\\" . $extractmethod;
+        $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
         $extractorconfig = parse_ini_file("custom/" . $config["extractfile"]);
         $this->e = new $extractorclass($src,$extractorconfig);
         
@@ -32,12 +32,12 @@ class Input {
 
         //parse ini file for the mapper
         $mapperconfig = parse_ini_file("custom/" . $config["mapfile"],true);
-        $mapmethod = "map\\".$config["map"];
+        $mapmethod = "tdt\\input\\map\\".$config["map"];
         $this->m = new $mapmethod($mapperconfig);
         
         //parse ini file for the loader
         $loaderconfig = parse_ini_file("custom/" . $config["loadfile"]);
-        $loadclass = "load\RDF";
+        $loadclass = "tdt\\input\\load\RDF";
         $this->l = new $loadclass($loaderconfig);
     }
 
