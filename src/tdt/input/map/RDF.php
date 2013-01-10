@@ -2,7 +2,7 @@
 
 namespace tdt\input\map;
 
-define('VERTERE_DIR', '/Applications/MAMP/htdocs/TDTInput/includes/Vertere-RDF/dist/');
+define('VERTERE_DIR', '/Applications/MAMP/htdocs/TDTInput/includes/Vertere/dist/');
 define('MORIARTY_DIR', VERTERE_DIR . 'lib/moriarty/');
 define('MORIARTY_ARC_DIR', VERTERE_DIR . 'lib/arc/');
 
