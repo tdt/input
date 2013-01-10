@@ -3,15 +3,15 @@
 namespace tdt\input;
 
 abstract class AExtractor{
-
-    protected $config;
-
+    
     /**
      * Constructs the extractor according to a config, and opens the right handles.
      */
-    public function __construct($source,$config){
-        $this->open($source);
-        $this->config = $config;
+    public function __construct($config){
+        if (!isset($config["source"]))
+            throw new \Exception('Source not set in config');
+        
+        $this->open($config["source"]);
     }
 
     public function __destruct(){

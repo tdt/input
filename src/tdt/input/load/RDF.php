@@ -4,16 +4,35 @@ namespace tdt\input\load;
 
 class RDF extends \tdt\input\ALoader {
 
-    private $endpoint = 'http://157.193.213.125:8890/sparql';
-    private $format = 'json';
-    private $graph = 'http://mytest.com/regions';
-    
-    private $buffer_size = 1; //amount of chunks that are being inserted into one request
+    private $endpoint;
+    private $format;
+    private $graph;
+    private $buffer_size; //amount of chunks that are being inserted into one request
+    //helper vars
     private $buffer_index = 0;
     private $buffer = "";
 
     public function __construct($config) {
-        parent::__construct($config);
+
+        if (!isset($config["endpoint"]))
+            throw new \Exception('SPARQL endpoint not set in config');
+
+        $this->endpoint = $config["endpoint"];
+
+        if (!isset($config["format"]))
+            $config["format"] = 'json';
+        
+        $this->format = $config["format"];
+
+        if (!isset($config["graph"]))
+            throw new \Exception('Destination graph not set in config');
+        
+        $this->graph = $config["graph"];
+
+        if (!isset($config["buffer_size"]))
+            $config["buffer_size"] = 1;
+            
+        $this->buffer_size = $config["buffer_size"];
     }
 
     public function execute(&$chunk) {
@@ -22,7 +41,7 @@ class RDF extends \tdt\input\ALoader {
         if (!$chunk->is_empty()) {
             $this->buffer .= $chunk->to_ntriples();
             $this->buffer_index += 1;
-            
+
             if ($this->buffer_size <= $this->buffer_index) {
                 $this->query($this->buffer);
                 $this->buffer = "";
@@ -45,9 +64,9 @@ class RDF extends \tdt\input\ALoader {
             $msg = "Query not inserted: $query";
         else
             $msg = $response['results']['bindings'][0]['callret-0']['value'] . '\n';
-        
+
         echo $msg;
-        
+
         \tdt\framework\Log::getInstance()->logInfo($msg);
     }
 
