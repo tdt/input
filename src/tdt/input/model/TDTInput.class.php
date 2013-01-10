@@ -56,6 +56,7 @@ class TDTInput {
      */
     public function execute(){
         Log::getInstance()->logInfo("Starting the extractor");
+        $start = microtime(true);
         $numberofchunks = 0;
 
         while($this->e->hasNext()){
@@ -80,6 +81,10 @@ class TDTInput {
 
             $numberofchunks++;
         }
-        Log::getInstance()->logInfo("Loaded $numberofchunks chunks in the store");
+        
+        $duration = microtime(true) - $start;
+        $msg = "Loaded $numberofchunks chunks in the store in $duration ms";
+        echo $msg;
+        Log::getInstance()->logInfo($msg);
     }
 }
