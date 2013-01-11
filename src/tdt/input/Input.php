@@ -2,8 +2,8 @@
 
 /**
  * TDTInput is the main model class
- * @author: Pieter Colpaert
- * @author: Miel Vander Sande
+ * @author Pieter Colpaert
+ * @author Miel Vander Sande
  */
 
 namespace tdt\input;
@@ -11,7 +11,7 @@ namespace tdt\input;
 class Input {
 
     //Extractor, Mapper, Loader
-            private $e, $m, $l;
+    private $e, $m, $l;
     //$ts is an array of transformers, as more transformations can be 
     private $ts;
 
@@ -20,8 +20,9 @@ class Input {
      */
     public function __construct($config) {
 
-        if (!isset($config["extract"]))
+        if (!isset($config["extract"])){
             throw new \Exception('Extract method not set in config');
+        }
 
         //parse ini file for the extractor and create an instance of the right class
         $extractmethod = $config["extract"];
