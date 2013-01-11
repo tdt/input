@@ -4,6 +4,8 @@ namespace tdt\input;
 
 abstract class AExtractor{
     
+    protected $config;
+    
     /**
      * Constructs the extractor according to a config, and opens the right handles.
      */
@@ -12,6 +14,7 @@ abstract class AExtractor{
             throw new \Exception('Source not set in config');
         
         $this->open($config["source"]);
+        $this->config = $config;
     }
 
     public function __destruct(){

@@ -50,7 +50,7 @@ class RDF extends \tdt\input\ALoader {
         }
 
         $duration = microtime(true) - $start;
-        echo "->Loading executed in $duration ms - buffer $this->buffer_index/$this->buffer_size \n";
+        echo "->Loading executed in $duration ms - buffer $this->buffer_index/$this->buffer_size \n ";
     }
 
     private function query($triples) {
@@ -60,14 +60,10 @@ class RDF extends \tdt\input\ALoader {
 
         $response = json_decode($this->execSPARQL($query), true);
 
-        if (!$response)
-            $msg = "Query not inserted: $query";
-        else
-            $msg = $response['results']['bindings'][0]['callret-0']['value'] . '\n';
+        if ($response)
+            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
 
-        echo $msg;
-
-        \tdt\framework\Log::getInstance()->logInfo($msg);
+        //\tdt\framework\Log::getInstance()->logInfo($msg);
     }
 
     private function execSPARQL($query) {
@@ -88,12 +84,11 @@ class RDF extends \tdt\input\ALoader {
         // return response, don't print/echo
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        /*
-          Here you find more options for curl:
-          http://www.php.net/curl_setopt
-         */
 
         $response = curl_exec($ch);
+        
+        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== "200")
+            echo "Insert failed! \n";
 
         curl_close($ch);
 
