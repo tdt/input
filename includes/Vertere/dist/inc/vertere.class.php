@@ -185,7 +185,9 @@ class Vertere {
 			if (!isset($uris[$source_resource])) {
 				$this->create_uri($record, $uris, $source_resource);
 			}
-			$source_value = $uris[$source_resource];
+            //Quick fix by Miel Vander Sande    
+            if (isset($uris[$source_resource]))
+                $source_value = $uris[$source_resource];
 		} else {
 			return;
 		}

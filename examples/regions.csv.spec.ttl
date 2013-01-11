@@ -1,0 +1,89 @@
+@prefix : <http://example.com/schema/data_conversion#> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix fly: <http://vocab.org/fly/schema/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix georss: <http://www.georss.org/georss/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix places: <http://purl.org/ontology/places#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spacerel: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# 1 id
+# 2 code
+# 3 local_code
+# 4 name
+# 5 continent
+# 6 iso_country
+# 7 wikipedia_link
+# 8 keywords
+
+<#> a :Spec
+; :format :CSV
+; :header_rows 1
+; :expected_header ( "\"id\",\"code\",\"local_code\",\"name\",\"continent\",\"iso_country\",\"wikipedia_link\",\"keywords\"" )
+; :resource <#continent>, <#country>, <#region>, <#ourairports_region_page>, <#wikipedia_page>, <#dbpedia_resource>
+; :base_uri "http://data.kasabi.com/dataset/world_geography/"
+.
+
+<#continent> a :Resource
+; :identity [
+	:source_column 5;
+	:base_uri "http://data.kasabi.com/dataset/world-geography/continents/"
+]
+.
+
+<#country> a :Resource
+; :identity [
+	:source_column 6;
+	:base_uri "http://data.kasabi.com/dataset/world-geography/countries/"
+]
+.
+
+<#region> a :Resource
+; :type places:Region
+; :identity [
+	:source_column 2;
+	:base_uri "http://data.kasabi.com/dataset/world-geography/regions/"
+	]
+; :relationship
+	[ :property spacerel:within; :object_from <#country> ],
+	[ :property owl:sameAs; :object_from <#dbpedia_resource> ],
+	[ :property foaf:isPrimaryTopicOf; :object_from <#wikipedia_page> ],
+	[ :property foaf:isPrimaryTopicOf; :object_from <#ourairports_region_page> ]
+; :attribute
+	[ :property fly:iso_code; :source_column 2 ],
+	[ :property foaf:name; :source_column 4 ]
+.
+
+<#wikipedia_page> a :Resource
+; :type bibo:Webpage
+; :identity [
+	:source_column 7;
+	:base_uri "" ;
+	:process ( :regex );
+	:regex_match " ";
+	:regex_output "";
+	]
+.
+
+<#dbpedia_resource> a :Resource
+; :identity [
+	:source_resource <#wikipedia_page>;
+	:base_uri "" ;
+	:process ( :regex );
+	:regex_match "http://[^/]*/wiki/(.*)";
+	:regex_output "http://dbpedia.org/resource/${1}";
+	]
+.
+
+<#ourairports_region_page> a :Resource
+; :type bibo:Webpage
+; :identity [
+	:source_columns ( 6 3 ) ;
+	:source_column_glue "/" ;
+	:base_uri "http://www.ourairports.com/countries/";
+	]
+.
