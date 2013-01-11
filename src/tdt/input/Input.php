@@ -20,6 +20,7 @@ class Input {
      */
     public function __construct($config) {
 
+        
         if (!isset($config["extract"]))
             throw new \Exception('Extract method not set in config');
 
@@ -45,7 +46,7 @@ class Input {
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute() {
-        \tdt\framework\Log::getInstance()->logInfo("Starting the extractor");
+        //\tdt\framework\Log::getInstance()->logInfo("Starting the extractor");
         $start = microtime(true);
         $numberofchunks = 0;
 
@@ -56,7 +57,7 @@ class Input {
             //2. TRANSFORM
             foreach ($this->ts as $t) {
                 $chunk = $t->execute($chunk);
-                \tdt\framework\Log::getInstance()->logInfo("Transform: ", $chunk);
+                //\tdt\framework\Log::getInstance()->logInfo("Transform: ", $chunk);
             }
 
             //3. MAP
