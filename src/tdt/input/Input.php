@@ -76,7 +76,7 @@ class Input {
         }
 
         $duration = microtime(true) - $start;
-        $msg = "Loaded $numberofchunks chunks in the store in $duration ms";
+        $msg = "Loaded $numberofchunks chunks in the store in " . $duration . "s";
         echo $msg;
     }
 

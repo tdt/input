@@ -48,6 +48,7 @@ class XML extends \tdt\input\AExtractor{
             $document = array();
             $this->makeFlat($document, $this->next);
             unset($this->next); //delete it to clear memory for the next operation
+            $this->index= 0;
             return $document;
         }else{
             throw new Exception("Please check if we have a next item before popping");
@@ -55,14 +56,17 @@ class XML extends \tdt\input\AExtractor{
         
     }
 
+    private $index = 0;
+
     private function parseAttributes(&$document, &$xmlobject,$name){
         if(!empty($xmlobject->attributes)){
             foreach($xmlobject->attributes as $key => $value){
-                $document[$name . "_attr_" . $key] = $value;
+                $document[ $this->index ] = $value->value;
+                $document[$name . "_attr_" . $key] = $value->value;
+                $this->index++;
             }
         }
     }
-    
 
     private function makeFlat(&$document, &$xmlobject, $parentname = ""){
         //prefix for row names
@@ -78,15 +82,17 @@ class XML extends \tdt\input\AExtractor{
         $this->parseAttributes($document, $xmlobject , $prefix . $name);
 
         if(sizeof($xmlobject->childNodes) == 0){
+            // $prefix → Apparently we have to use numbers, added $prefix for clarity
+            $document[ $this->index ] = $xmlobject->nodeValue;
             $document[ $prefix ] = $xmlobject->nodeValue;
+            $this->index++;
         }else{
             //then the children
             foreach($xmlobject->childNodes as $child){   
                 $this->makeFlat($document, $child, $prefix . $name);
             }
-        }
-        
-    }    
+        }   
+    }
 
     /**
      * Finalization, closing a handle can be done here. This function is called from the destructor of this class
