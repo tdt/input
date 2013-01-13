@@ -6,15 +6,15 @@ tdt/input is a package which allows you to set up your own ET(M)L (Extract, Tran
 
 add a require to your composer.json which requires tdt/input then simply perform:
 
-'''bash
+```bash
 $ composer install
-'''
+```
 
 You can then start using input by including the PSR-0 autoloader
 
-'''php 
+```php 
 require 'vendor/autoinclude.php';
-'''
+```
 
 ## Without composer
 
@@ -25,7 +25,7 @@ Include all the classes and continue, but your should really start using compose
 
 ## Example
 
-'''php
+```php
 // Extract Map and Load a CSV file to an ontology using a turtle file (you can find this file in examples directory)
 $input = new Input(array(
          "source"    => "http://localhost/regions.csv",
@@ -38,7 +38,7 @@ $input = new Input(array(
          "delimiter" => ","
 ));
 
-'''
+```
 
 ## Specific configuration options
 
