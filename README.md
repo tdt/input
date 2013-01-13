@@ -1,9 +1,4 @@
-Input
-=====
-
-tdt/input is a package which allows you to . It is an ET(M)L (Extract, Transform, Map and Load) tool written in PHP to get data in a triple graph store.
-
-
+tdt/input is a package which allows you to set up your own ET(M)L (Extract, Transform, Map and Load) tool.
 
 # Installation
 
