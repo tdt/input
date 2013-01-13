@@ -19,7 +19,7 @@ if(!file_exists("examples/custom/input.ini")){
     exit();
 }
 
-echo "Started input for file: " . $configname;
+echo "Started input for file: " . $configname . "\n";
 
 $input = parse_ini_file("examples/custom/input.ini", true);
 //check if resource exists

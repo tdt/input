@@ -1,18 +1,25 @@
 <?php
 namespace tdt\input\extract;
+use \Exception;
+use \XMLReader;
 
 class XML extends \tdt\input\AExtractor{
 
-    private $handle;
+    private $next, $reader;
 
     protected function open($url){
-        $this->handle = fopen('php://temp', 'w+');
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_FILE, $this->handle);
-        curl_exec($curl);
-        curl_close($curl);
-        rewind($this->handle);
+        $this->reader = new XMLReader();
+        if(!$this->reader->open($url)){
+            throw new Exception("$url could not be opened. Are you sure the URL is correct?");
+        }
+        $arraylevel=$this->config["arraylevel"];
+        if(!$this->reader->next()){
+            throw new Exception("could not get next element");
+        }
+        for($i = 1; $i < $arraylevel; $i++){
+            $this->reader->read();
+        }
+        $this->next = $this->reader->expand();
     }
     
     /**
@@ -20,7 +27,16 @@ class XML extends \tdt\input\AExtractor{
      * @return a boolean whether the end of the file has been reached or not
      */
     public function hasNext(){
-        return !feof($this->handle);
+        if(!empty($this->next)){
+            return true;
+        }else{ 
+            if($this->reader->next()){
+                $this->next = $this->reader->expand();
+                return true;
+            }else{
+                return false;
+            }
+        }
     }
 
     /**
@@ -28,22 +44,55 @@ class XML extends \tdt\input\AExtractor{
      * @return a chunk in a php array
      */
     public function pop(){
-        $row;
-        if( ($data = fgetcsv($this->handle, 1000, $this->config["delimiter"])) !== FALSE) {
-            $i=0;
-            foreach($data as &$el){
-                $row[$i] = $el;
-                $i++;
+        if($this->hasNext()){
+            $document = array();
+            $this->makeFlat($document, $this->next);
+            unset($this->next); //delete it to clear memory for the next operation
+            return $document;
+        }else{
+            throw new Exception("Please check if we have a next item before popping");
+        }
+        
+    }
+
+    private function parseAttributes(&$document, &$xmlobject,$name){
+        if(!empty($xmlobject->attributes)){
+            foreach($xmlobject->attributes as $key => $value){
+                $document[$name . "_attr_" . $key] = $value;
             }
         }
-        return $row;
     }
+    
+
+    private function makeFlat(&$document, &$xmlobject, $parentname = ""){
+        //prefix for row names
+        if($parentname == ""){
+            $prefix = "";
+            $name = $xmlobject->nodeName;
+        }else{
+            $prefix = $parentname;
+            $name =  "_" . $xmlobject->nodeName;
+        }
+        
+        //first the attributes
+        $this->parseAttributes($document, $xmlobject , $prefix . $name);
+
+        if(sizeof($xmlobject->childNodes) == 0){
+            $document[ $prefix ] = $xmlobject->nodeValue;
+        }else{
+            //then the children
+            foreach($xmlobject->childNodes as $child){   
+                $this->makeFlat($document, $child, $prefix . $name);
+            }
+        }
+        
+    }    
 
     /**
      * Finalization, closing a handle can be done here. This function is called from the destructor of this class
      */
     protected function close(){
-        fclose($this->handle);
+        $this->reader->close();
     }
 
 }

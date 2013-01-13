@@ -10,11 +10,12 @@ abstract class AExtractor{
      * Constructs the extractor according to a config, and opens the right handles.
      */
     public function __construct($config){
-        if (!isset($config["source"]))
+        if (!isset($config["source"])){
             throw new \Exception('Source not set in config');
+        }
         
-        $this->open($config["source"]);
         $this->config = $config;
+        $this->open($config["source"]);
     }
 
     public function __destruct(){
