@@ -26,7 +26,6 @@ class Input {
 
         //parse ini file for the extractor and create an instance of the right class
         $extractmethod = $config["extract"];
-        
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
         $this->e = new $extractorclass($config);
 
@@ -34,19 +33,23 @@ class Input {
         $this->ts = array();
 
         //parse ini file for the mapper
-        $mapmethod = "tdt\\input\\map\\" . $config["map"];
-        $this->m = new $mapmethod($config);
+        if(!empty($config["map"])){
+            $mapmethod = "tdt\\input\\map\\" . $config["map"];
+            $this->m = new $mapmethod($config);
+        }
 
         //parse ini file for the loader
-        $loadclass = "tdt\\input\\load\RDF";
-        $this->l = new $loadclass($config);
+        if(!empty($config["load"])){
+            $loadclass = "tdt\\input\\load\\" . $config["load"];
+            $this->l = new $loadclass($config);
+        }
     }
 
     /**
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute() {
-        //\tdt\framework\Log::getInstance()->logInfo("Starting the extractor");
+
         $start = microtime(true);
         $numberofchunks = 0;
 
@@ -57,16 +60,15 @@ class Input {
             //2. TRANSFORM
             foreach ($this->ts as $t) {
                 $chunk = $t->execute($chunk);
-                //\tdt\framework\Log::getInstance()->logInfo("Transform: ", $chunk);
             }
 
             //3. MAP
-            if (!is_null($this->m)) {
+            if (!empty($this->m)) {
                 $chunk = $this->m->execute($chunk);
             }
 
             //4. LOAD
-            if (!is_null($this->l)) {
+            if (!empty($this->l)) {
                 $this->l->execute($chunk);
             }
 
@@ -74,9 +76,8 @@ class Input {
         }
 
         $duration = microtime(true) - $start;
-        $msg = "Loaded $numberofchunks chunks in the store in $duration ms";
+        $msg = "Loaded $numberofchunks chunks in the store in " . $duration . "s";
         echo $msg;
-        tdt\framework\Log::getInstance()->logInfo($msg);
     }
 
 }
