@@ -20,7 +20,6 @@ class Input {
      */
     public function __construct($config) {
 
-        
         if (!isset($config["extract"])){
             throw new \Exception('Extract method not set in config');
         }
@@ -50,7 +49,6 @@ class Input {
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute() {
-        \tdt\framework\Log::getInstance()->logInfo("Starting the extractor");
 
         $start = microtime(true);
         $numberofchunks = 0;
