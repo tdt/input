@@ -20,50 +20,52 @@ class RDF extends \tdt\input\ALoader {
 
         if (!isset($config["format"]))
             $config["format"] = 'json';
-        
+
         $this->format = $config["format"];
 
         if (!isset($config["graph"]))
             throw new \Exception('Destination graph not set in config');
-        
+
         $this->graph = $config["graph"];
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 10;
-            
+
         $this->buffer_size = $config["buffer_size"];
     }
 
     public function execute(&$chunk) {
         $start = microtime(true);
-        
-        
 
         if (!$chunk->is_empty()) {
             array_merge($this->buffer, $chunk->get_triples());
-            
+
             if (size($this->buffer) >= $this->buffer_size) {
                 $ntriples = '';
                 $rest = array();
-                
-                for ($i = 0;$i < size($this->buffer); $i++) {
+
+                for ($i = 0; $i < size($this->buffer); $i++) {
                     $triple = $this->buffer[$i];
                     if ($i < $this->buffer_size)
-                        $ntriples .= "<" . $triple["s"] . "> <" . $triple["p"] . "> <" . $triple["o"] ."> . ";
+                        $ntriples .= "<" . $triple["s"] . "> <" . $triple["p"] . "> <" . $triple["o"] . "> . ";
                     else
-                        $rest[] = $triple; 
+                        $rest[] = $triple;
                 }
-                    
+
                 $this->query($ntriples);
                 $this->buffer = $rest;
             }
+        } else {
+            echo "Empty chunk\n";
         }
+
 
         $duration = microtime(true) - $start;
         echo "->Loading executed in $duration ms - buffer $this->buffer_index/$this->buffer_size \n ";
     }
 
     private function query($triples) {
+
         $query = "INSERT IN GRAPH <$this->graph> { ";
         $query .= $triples;
         $query .= ' }';
@@ -95,10 +97,10 @@ class RDF extends \tdt\input\ALoader {
 
         $response = curl_exec($ch);
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        if ( $response_code != "200")
-            echo "Insert failed: " . $response_code  . "\n";
-        
+
+        if ($response_code != "200")
+            echo "Insert failed: " . $response_code . "\n";
+
 
         curl_close($ch);
 

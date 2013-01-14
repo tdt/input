@@ -13,7 +13,6 @@
 <#> a :Spec
 ; :format :CSV
 ; :header_rows 0
-; :expected_header ( "\"Stations_id\",\"Stations_name\",\"Stations_longitude\",\"Stations_latitude\",\"Stations_departures\"" )
 ; :resource <#Station>
 ; :base_uri "http://stations.io/"
 .
