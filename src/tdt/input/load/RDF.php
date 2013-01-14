@@ -29,7 +29,7 @@ class RDF extends \tdt\input\ALoader {
         $this->graph = $config["graph"];
 
         if (!isset($config["buffer_size"]))
-            $config["buffer_size"] = 10;
+            $config["buffer_size"] = 25;
 
         $this->buffer_size = $config["buffer_size"];
     }
@@ -38,22 +38,21 @@ class RDF extends \tdt\input\ALoader {
         $start = microtime(true);
 
         if (!$chunk->is_empty()) {
-            array_merge($this->buffer, $chunk->get_triples());
+            preg_match_all("/(<.*\.)/", $chunk->to_ntriples(), $matches);
+            if ($matches[0])
+                $this->buffer = array_merge($this->buffer, $matches[0]);
 
-            if (size($this->buffer) >= $this->buffer_size) {
-                $ntriples = '';
-                $rest = array();
 
-                for ($i = 0; $i < size($this->buffer); $i++) {
-                    $triple = $this->buffer[$i];
-                    if ($i < $this->buffer_size)
-                        $ntriples .= "<" . $triple["s"] . "> <" . $triple["p"] . "> <" . $triple["o"] . "> . ";
-                    else
-                        $rest[] = $triple;
-                }
+            if (count($this->buffer) >= $this->buffer_size) {
+                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
 
-                $this->query($ntriples);
-                $this->buffer = $rest;
+                $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
+                                    $v = strtr($v[0], array('\\u' => ''));
+                                    return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
+                                }, implode(' ', $triples_to_send));
+
+                $this->query($serialized);
+                $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
         } else {
             echo "Empty chunk\n";
@@ -61,9 +60,9 @@ class RDF extends \tdt\input\ALoader {
 
 
         $duration = microtime(true) - $start;
-        echo "->Loading executed in $duration ms - buffer $this->buffer_index/$this->buffer_size \n ";
+        echo "  Loading executed in $duration s - " . count($this->buffer) . " triples left in buffer \n";
     }
-
+    
     private function query($triples) {
 
         $query = "INSERT IN GRAPH <$this->graph> { ";
@@ -73,7 +72,7 @@ class RDF extends \tdt\input\ALoader {
         $response = json_decode($this->execSPARQL($query), true);
 
         if ($response)
-            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+            echo "      " . $response['results']['bindings'][0]['callret-0']['value'] . "\n";
     }
 
     private function execSPARQL($query) {
@@ -99,7 +98,7 @@ class RDF extends \tdt\input\ALoader {
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($response_code != "200")
-            echo "Insert failed: " . $response_code . "\n";
+            echo "      Insert failed: " . $response_code . "\n" . $response;
 
 
         curl_close($ch);

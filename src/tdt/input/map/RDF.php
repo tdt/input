@@ -58,7 +58,7 @@ class RDF extends \tdt\input\AMapper {
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
         $duration = microtime(true) - $start;
-        //echo "->Mapping executed in $duration ms\n";
+        echo "  Mapping executed in $duration s\n";
 
         return $graph;
     }
