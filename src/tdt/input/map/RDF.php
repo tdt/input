@@ -33,7 +33,7 @@ class RDF extends \tdt\input\AMapper {
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $spec_file = curl_exec($ch);
         curl_close($ch);
-
+        
         if(empty($spec_file)){
             die("Mapping file location not correct\n");
         }

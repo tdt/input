@@ -37,7 +37,7 @@ class RDF extends \tdt\input\ALoader {
 
     public function execute(&$chunk) {
         $start = microtime(true);
-
+        
         if (!$chunk->is_empty()) {
             $this->buffer .= $chunk->to_ntriples();
             $this->buffer_index += 1;
@@ -47,13 +47,17 @@ class RDF extends \tdt\input\ALoader {
                 $this->buffer = "";
                 $this->buffer_index = 0;
             }
+        }else{
+            echo "Empty chunk\n";
         }
+        
 
         $duration = microtime(true) - $start;
         echo "->Loading executed in $duration ms - buffer $this->buffer_index/$this->buffer_size \n ";
     }
 
     private function query($triples) {
+        
         $query = "INSERT IN GRAPH <$this->graph> { ";
         $query .= $triples;
         $query .= ' }';
