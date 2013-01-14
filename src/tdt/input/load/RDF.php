@@ -9,8 +9,7 @@ class RDF extends \tdt\input\ALoader {
     private $graph;
     private $buffer_size; //amount of chunks that are being inserted into one request
     //helper vars
-    private $buffer_index = 0;
-    private $buffer = "";
+    private $buffer = array();
 
     public function __construct($config) {
 
@@ -30,22 +29,33 @@ class RDF extends \tdt\input\ALoader {
         $this->graph = $config["graph"];
 
         if (!isset($config["buffer_size"]))
-            $config["buffer_size"] = 1;
+            $config["buffer_size"] = 10;
             
         $this->buffer_size = $config["buffer_size"];
     }
 
     public function execute(&$chunk) {
         $start = microtime(true);
+        
+        
 
         if (!$chunk->is_empty()) {
-            $this->buffer .= $chunk->to_ntriples();
-            $this->buffer_index += 1;
-
-            if ($this->buffer_size <= $this->buffer_index) {
-                $this->query($this->buffer);
-                $this->buffer = "";
-                $this->buffer_index = 0;
+            array_merge($this->buffer, $chunk->get_triples());
+            
+            if (size($this->buffer) >= $this->buffer_size) {
+                $ntriples = '';
+                $rest = array();
+                
+                for ($i = 0;$i < size($this->buffer); $i++) {
+                    $triple = $this->buffer[$i];
+                    if ($i < $this->buffer_size)
+                        $ntriples .= "<" . $triple["s"] . "> <" . $triple["p"] . "> <" . $triple["o"] ."> . ";
+                    else
+                        $rest[] = $triple; 
+                }
+                    
+                $this->query($ntriples);
+                $this->buffer = $rest;
             }
         }
 
