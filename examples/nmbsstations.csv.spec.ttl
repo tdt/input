@@ -9,10 +9,16 @@
 
 # 1 id
 # 2 code
+# 3 local_code
+# 4 name
+# 5 continent
+# 6 iso_country
+# 7 wikipedia_link
+# 8 keywords
 
 <#> a :Spec
 ; :format :CSV
-; :header_rows 0
+; :header_rows 1
 ; :expected_header ( "\"Stations_id\",\"Stations_name\",\"Stations_longitude\",\"Stations_latitude\",\"Stations_departures\"" )
 ; :resource <#Station>
 ; :base_uri "http://stations.io/"
@@ -21,7 +27,7 @@
 <#Station> a :Resource
 ; :type transit:Stop
 ; :identity [
-	:source_column 0;
+	:source_column 1;
 	:base_uri "http://data.iRail.be/NMBS/Stations/"
         ]
 ; :attribute
