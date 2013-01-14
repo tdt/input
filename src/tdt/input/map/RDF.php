@@ -52,13 +52,13 @@ class RDF extends \tdt\input\AMapper {
         //Load spec and create new Vertere converter
         $this->vertere = new \Vertere($spec, $specs[0]);
     }
-
+    
     public function execute(&$chunk) {
         $start = microtime(true);
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
-        $duration = microtime(true) - $start;
-        echo "  Mapping executed in $duration s\n";
+        $duration = (microtime(true) - $start) * 1000;
+        echo "|_Mapping executed in $duration ms\n";
 
         return $graph;
     }

@@ -34,6 +34,19 @@ class RDF extends \tdt\input\ALoader {
         $this->buffer_size = $config["buffer_size"];
     }
 
+    public function __destruct() {
+        echo "Empty loader buffer...\n";
+
+        while (!empty($this->buffer)) {
+            $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
+            
+            $triples_to_send = array_slice($this->buffer, 0, $count);
+
+            $this->query(implode(' ', $triples_to_send));
+            $this->buffer = array_slice($this->buffer, $count);
+        }
+    }
+
     public function execute(&$chunk) {
         $start = microtime(true);
 
@@ -46,12 +59,8 @@ class RDF extends \tdt\input\ALoader {
             if (count($this->buffer) >= $this->buffer_size) {
                 $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
 
-                $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
-                                    $v = strtr($v[0], array('\\u' => ''));
-                                    return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
-                                }, implode(' ', $triples_to_send));
-
-                $this->query($serialized);
+                $this->query(implode(' ', $triples_to_send));
+                
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
         } else {
@@ -59,27 +68,33 @@ class RDF extends \tdt\input\ALoader {
         }
 
 
-        $duration = microtime(true) - $start;
-        echo "  Loading executed in $duration s - " . count($this->buffer) . " triples left in buffer \n";
+        $duration = (microtime(true) - $start) * 1000;
+        echo "|_Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer \n";
     }
-    
-    private function query($triples) {
 
+    private function query($triples) {
+        $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
+                        $v = strtr($v[0], array('\\u' => ''));
+                        return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
+                    }, $triples);
+        
         $query = "INSERT IN GRAPH <$this->graph> { ";
-        $query .= $triples;
+        $query .= $serialized;
         $query .= ' }';
+        
+        echo " |_Flush buffer... ";
 
         $response = json_decode($this->execSPARQL($query), true);
 
         if ($response)
-            echo "      " . $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
     }
 
     private function execSPARQL($query) {
 
         // is curl installed?
         if (!function_exists('curl_init')) {
-            die('CURL is not installed!');
+            throw new \Exception('CURL is not installed!');
         }
 
         // get curl handle
@@ -95,10 +110,14 @@ class RDF extends \tdt\input\ALoader {
 
 
         $response = curl_exec($ch);
+        
+        if (!$response)
+            echo "endpoint returned error: " . curl_error($ch) . " - ";
+        
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($response_code != "200")
-            echo "      Insert failed: " . $response_code . "\n" . $response;
+            echo "query failed: " . $response_code . "\n" . $response;
 
 
         curl_close($ch);
