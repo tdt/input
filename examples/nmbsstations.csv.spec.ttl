@@ -1,0 +1,31 @@
+@prefix : <http://example.com/schema/data_conversion#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix places: <http://purl.org/ontology/places#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# 1 id
+# 2 code
+
+<#> a :Spec
+; :format :CSV
+; :header_rows 0
+; :expected_header ( "\"Stations_id\",\"Stations_name\",\"Stations_longitude\",\"Stations_latitude\",\"Stations_departures\"" )
+; :resource <#Station>
+; :base_uri "http://stations.io/"
+.
+
+<#Station> a :Resource
+; :type transit:Stop
+; :identity [
+	:source_column 0;
+	:base_uri "http://data.iRail.be/NMBS/Stations/"
+        ]
+; :attribute
+  [ :property rdfs:label; :source_column 1],
+  [ :property geo:long; :source_column 3 ],
+  [ :property geo:lat; :source_column 4 ]
+.

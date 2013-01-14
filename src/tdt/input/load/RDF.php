@@ -86,9 +86,11 @@ class RDF extends \tdt\input\ALoader {
 
 
         $response = curl_exec($ch);
+        $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
-        if (curl_getinfo($ch, CURLINFO_HTTP_CODE) != "200")
-            echo "Insert failed! \n";
+        if ( $response_code != "200")
+            echo "Insert failed: " . $response_code  . "\n";
+        
 
         curl_close($ch);
 

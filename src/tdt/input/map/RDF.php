@@ -21,11 +21,10 @@ class RDF extends \tdt\input\AMapper {
     private $vertere;
 
     function __construct($config) {
-        //$spec_file = file_get_contents($config['mapfile']);
-        
-        //Safer way to get file
-        if (!isset($config['mapfile']))
+
+        if (!isset($config['mapfile'])){
             throw new \Exception('Map document not set in config');
+        }
         
         $ch = curl_init();
         $timeout = 5; // set to zero for no timeout
@@ -35,16 +34,19 @@ class RDF extends \tdt\input\AMapper {
         $spec_file = curl_exec($ch);
         curl_close($ch);
 
-
+        if(empty($spec_file)){
+            die("Mapping file location not correct\n");
+        }
+        
         $spec = new \SimpleGraph();
         $spec->from_turtle($spec_file);
 
         //Find the spec in the graph
         $specs = $spec->get_subjects_of_type(NS_CONV . 'Spec');
         
-        if (count($specs) != 1) 
+        if (count($specs) != 1) {
             throw new \Exception('Map document must contain exactly one conversion spec');
-        
+        }
 
         //Check if mapping file is the current one
         //Load spec and create new Vertere converter
@@ -56,7 +58,7 @@ class RDF extends \tdt\input\AMapper {
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
         $duration = microtime(true) - $start;
-        echo "->Mapping executed in $duration ms \n";
+        //echo "->Mapping executed in $duration ms\n";
 
         return $graph;
     }
