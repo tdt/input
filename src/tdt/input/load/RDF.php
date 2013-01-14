@@ -62,8 +62,6 @@ class RDF extends \tdt\input\ALoader {
 
         if ($response)
             echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
-
-        \tdt\framework\Log::getInstance()->logInfo($msg);
     }
 
     private function execSPARQL($query) {

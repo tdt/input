@@ -62,7 +62,6 @@ class Input {
             //2. TRANSFORM
             foreach ($this->ts as $t) {
                 $chunk = $t->execute($chunk);
-                \tdt\framework\Log::getInstance()->logInfo("Transform: ", $chunk);
             }
 
             //3. MAP
@@ -81,7 +80,6 @@ class Input {
         $duration = microtime(true) - $start;
         $msg = "Loaded $numberofchunks chunks in the store in " . $duration . "s";
         echo $msg;
-        \tdt\framework\Log::getInstance()->logInfo("Summary: ", $msg);
     }
 
 }
