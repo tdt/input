@@ -10,7 +10,8 @@
 	"tdt/scheduler": "Can schedule input configurations to be done every X minutes"
     },
     "require": {
-	"tdt/framework" : "dev-master"
+	"tdt/framework" : "dev-master",
+        "tdt/filehelpers" : "dev-master"
     },
     "minimum-stability" : "dev",
     "autoload": {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TDTInput is the main model class
+ * Input is the main model class
  * @author Pieter Colpaert
  * @author Miel Vander Sande
  */
