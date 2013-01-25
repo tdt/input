@@ -2,11 +2,10 @@
 
 namespace tdt\input\extract;
 
-class CSV extends \tdt\input\AExtractor {
+class ICAL extends \tdt\input\AExtractor {
 
     private $handle;
-    
-    private $element = 'VEVENT';
+    private $element = "VEVENT";
 
     protected function open($url) {
         $this->handle = fopen('php://temp', 'w+');
@@ -30,8 +29,14 @@ class CSV extends \tdt\input\AExtractor {
      * Parses a line containing key:value
      * @return an associative array with one row
      */
-    private function parseLine(){
-        return explode(':', fgets($this->handle));
+    private function parseLine() {
+        $hash = array();
+        $line = explode(':', fgets($this->handle));
+        $key = array_shift($line);
+
+        $hash[$key] = trim(implode(":", $line));
+        
+        return $hash;
     }
 
     /**
@@ -40,21 +45,29 @@ class CSV extends \tdt\input\AExtractor {
      */
     public function pop() {
         $row = array();
-        $line = $this->parseLine();
-        
-        while (empty($line))
-            $line = $this->parseLine();
-        
-        while ($line[0] !== "BEGIN" &&  $line[1] !== $this->element && $this->hasNext())
-            $line = $this->parseLine();
 
+        //Move to first BEGIN of the selected element
         while ($this->hasNext()) {
             $line = $this->parseLine();
-            $key = array_shift($line);
             
-            $row[$key] = implode(":", $row);
+            if (!array_key_exists("BEGIN", $line))
+                continue;
 
-            if ($key !== "END" &&  $line[1] !== $this->element) 
+            if (trim($line["BEGIN"]) == $this->element) {
+                $row = $line;
+                break;
+            }
+        }
+
+        //Add all values
+        while ($this->hasNext()) {
+            $line = $this->parseLine();
+            $row = array_merge($row, $line);
+
+            if (!array_key_exists("END", $line))
+                continue;
+
+            if (trim($line["END"]) === $this->element)
                 break;
         }
 
