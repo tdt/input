@@ -11,7 +11,8 @@
     },
     "require": {
 	"tdt/framework" : "dev-master",
-        "tdt/filehelpers" : "dev-master"
+        "tdt/filehelpers" : "dev-master",
+        "tdt/json" : "dev-master"
     },
     "minimum-stability" : "dev",
     "autoload": {
