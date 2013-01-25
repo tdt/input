@@ -5,7 +5,8 @@ namespace tdt\input\extract;
 class CSV extends \tdt\input\AExtractor {
 
     private $handle;
-    private $begin;
+    
+    private $element = 'VEVENT';
 
     protected function open($url) {
         $this->handle = fopen('php://temp', 'w+');
@@ -15,10 +16,6 @@ class CSV extends \tdt\input\AExtractor {
         curl_exec($curl);
         curl_close($curl);
         rewind($this->handle);
-
-        $this->begin = $this->parseLine();
-        while (!$this->begin['BEGIN'])
-            $this->begin = $this->parseLine();
     }
 
     /**
@@ -28,17 +25,13 @@ class CSV extends \tdt\input\AExtractor {
     public function hasNext() {
         return !feof($this->handle);
     }
-    
+
     /**
      * Parses a line containing key:value
      * @return an associative array with one row
      */
-    private function parseLine($line){
-        $line = explode(':', fgets($this->handle));
-        if (empty($line))
-            return array();
-        
-        return array($line[0] => $line[1]);
+    private function parseLine(){
+        return explode(':', fgets($this->handle));
     }
 
     /**
@@ -46,18 +39,23 @@ class CSV extends \tdt\input\AExtractor {
      * @return a chunk in a php array
      */
     public function pop() {
+        $row = array();
+        $line = $this->parseLine();
         
-        $row = $this->begin;
+        while (empty($line))
+            $line = $this->parseLine();
+        
+        while ($line[0] !== "BEGIN" &&  $line[1] !== $this->element && $this->hasNext())
+            $line = $this->parseLine();
 
         while ($this->hasNext()) {
             $line = $this->parseLine();
-
-            if ($line['BEGIN']) {
-                $this->begin = $line;
-                break;
-            }
+            $key = array_shift($line);
             
-            array_merge($row, $line);
+            $row[$key] = implode(":", $row);
+
+            if ($key !== "END" &&  $line[1] !== $this->element) 
+                break;
         }
 
         return $row;
