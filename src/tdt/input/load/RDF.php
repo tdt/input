@@ -23,10 +23,30 @@ class RDF extends \tdt\input\ALoader {
 
         $this->format = $config["format"];
 
-        if (!isset($config["graph"]))
-            throw new \Exception('Destination graph not set in config');
+        if (!isset($config["datatank_uri"]))
+            throw new \Exception('Destination datatank uri not set in config');
+        
+        $this->datatank_uri = $config["datatank_uri"];
 
-        $this->graph = $config["graph"];
+        if (!isset($config["datatank_package"]))
+            throw new \Exception('Destination datatank package not set in config');
+        
+        $this->datatank_package = $config["datatank_package"];
+
+        if (!isset($config["datatank_resource"]))
+            throw new \Exception('Destination datatank resource not set in config');
+        
+        $this->datatank_resource = $config["datatank_resource"];
+        
+        if (!isset($config["datatank_user"]))
+            throw new \Exception('User for datatank not set in config');
+        
+        $this->datatank_resource = $config["datatank_user"];
+        
+        if (!isset($config["datatank_password"]))
+            throw new \Exception('Password for datatank not set in config');
+        
+        $this->datatank_resource = $config["datatank_password"];
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;
@@ -39,12 +59,31 @@ class RDF extends \tdt\input\ALoader {
 
         while (!empty($this->buffer)) {
             $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
-            
+
             $triples_to_send = array_slice($this->buffer, 0, $count);
 
             $this->query(implode(' ', $triples_to_send));
             $this->buffer = array_slice($this->buffer, $count);
         }
+
+        echo "Inserting resource into datatank...\n";
+        //Add SPARQL resource with describe query to datatank
+        $data = array("endpoint" => $this->endpoint);
+        
+        //Build PUT uri for datatank
+        $uri = $this->datatank_uri . "/TDTAdmin/Resources/" . $this->datatank_package . "/" . $this->datatank_resource . "/";
+        $ch = curl_init($uri);
+        
+        curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
+        $response = curl_exec($ch);
+        if (!$response) 
+            throw new Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
+        
+        echo "Resources available under " . $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource . "/\n";
     }
 
     public function execute(&$chunk) {
@@ -60,7 +99,7 @@ class RDF extends \tdt\input\ALoader {
                 $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
 
                 $this->query(implode(' ', $triples_to_send));
-                
+
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
         } else {
@@ -73,15 +112,17 @@ class RDF extends \tdt\input\ALoader {
     }
 
     private function query($triples) {
-        $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
-                        $v = strtr($v[0], array('\\u' => ''));
-                        return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
-                    }, $triples);
+        $graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource . "/";
         
-        $query = "INSERT IN GRAPH <$this->graph> { ";
+        $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
+                    $v = strtr($v[0], array('\\u' => ''));
+                    return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
+                }, $triples);
+
+        $query = "INSERT IN GRAPH <$graph> { ";
         $query .= $serialized;
         $query .= ' }';
-        
+
         echo " |_Flush buffer... ";
 
         $response = json_decode($this->execSPARQL($query), true);
@@ -110,10 +151,10 @@ class RDF extends \tdt\input\ALoader {
 
 
         $response = curl_exec($ch);
-        
+
         if (!$response)
             echo "endpoint returned error: " . curl_error($ch) . " - ";
-        
+
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($response_code != "200")
