@@ -10,7 +10,11 @@ class Queue {
 
     public function __construct(array $db){
         R::setup($db["system"] . ":host=" . $db["host"] . ";dbname=" . $db["name"], $db["user"], $db["password"]);
-;
+    }
+
+    public function hasNext(){
+        $all = R::findAll('job','timestamp < NOW()');
+        return sizeof($all)>0;
     }
 
     /**
@@ -19,11 +23,10 @@ class Queue {
      */
     public function pop(){
         $all = R::findAll('job','timestamp < NOW()');
-        foreach($all as $key => $val){
-            $configname = $val->job;
-            // I'm not sure what to do here yet - exec the job in the background or just create an instance of Input and executing the job
-            // exec("php Worker.php '" . $configname . "' &");
-        }
+        $job = $all[0];
+        $configname = $job->job;
+        R::trash($job);
+        return $configname;
     }
 
     /**
@@ -39,7 +42,7 @@ class Queue {
 
     public function delete($id){
         $job = R::load('job',$id);
-        R::trash($job); 
+        R::trash($job);
     }
     
     public function showAll(){
