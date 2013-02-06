@@ -30,8 +30,17 @@ class RDF extends \tdt\input\ALoader {
 
         if (!isset($config["graph"]))
             throw new \Exception('Destination graph not set in config');
-
-        $this->graph = $config["graph"];
+		
+		$date_time = R::isoDateTime();
+		
+		$graph_id =  $config["graph"] . $date_time;
+		
+		$graph = R::dispense('graph');
+		$graph->name = $config["graph"];
+		$graph->id = $graph_id;
+		$graph->timestamp = $date_time;
+		
+        $this->graph = $graph_id;
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;

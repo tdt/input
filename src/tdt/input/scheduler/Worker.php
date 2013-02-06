@@ -1,6 +1,6 @@
 <?php
 
-namespace tdt/input/scheduler;
+namespace tdt\input\scheduler;
 
 /**
  * When using tdt/start, you can use this class to map it to a route
