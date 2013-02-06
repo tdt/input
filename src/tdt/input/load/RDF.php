@@ -1,6 +1,7 @@
 <?php
 
 namespace tdt\input\load;
+use RedBean_Facade as R;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -12,7 +13,11 @@ class RDF extends \tdt\input\ALoader {
     private $buffer = array();
 
     public function __construct($config) {
-
+    	if (!isset($config["system"]))
+			throw new \Exception('Redbeans database not set in config');
+		
+		R::setup($config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"], $config["user"], $config["password"]);
+		
         if (!isset($config["endpoint"]))
             throw new \Exception('SPARQL endpoint not set in config');
 
