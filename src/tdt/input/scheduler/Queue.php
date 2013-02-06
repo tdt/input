@@ -13,7 +13,7 @@ class Queue {
     }
 
     public function hasNext(){
-        $all = R::findAll('job','timestamp < NOW()');
+        $all = R::find('job','timestamp < ?',array( (int)date('U') ));
         return sizeof($all)>0;
     }
 
@@ -22,8 +22,7 @@ class Queue {
      * @return an id of a job or FALSE if empty
      */
     public function pop(){
-        $all = R::findAll('job','timestamp < NOW()');
-        $job = $all[0];
+        $job = R::findOne('job','timestamp < ?' ,array( (int)date('U')));
         $configname = $job->job;
         R::trash($job);
         return $configname;
@@ -46,7 +45,7 @@ class Queue {
     }
     
     public function showAll(){
-        $all = R::findAll('job','');
+        $all = R::findAll('job',' Order by timestamp ASC');
         return $all;
     }
     
