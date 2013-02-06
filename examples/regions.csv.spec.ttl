@@ -25,7 +25,7 @@
 ; :header_rows 1
 ; :expected_header ( "\"id\",\"code\",\"local_code\",\"name\",\"continent\",\"iso_country\",\"wikipedia_link\",\"keywords\"" )
 ; :resource <#continent>, <#country>, <#region>, <#ourairports_region_page>, <#wikipedia_page>, <#dbpedia_resource>
-; :base_uri "http://data.kasabi.com/dataset/world_geography/"
+; :base_uri "http://data.kasabi.com/dataset/world-geography/"
 .
 
 <#continent> a :Resource
