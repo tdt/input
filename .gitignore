@@ -2,3 +2,4 @@ vendor
 *.lock
 nbproject/
 examples/custom/input.ini
+examples/custom/db.ini
