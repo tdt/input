@@ -10,7 +10,6 @@
     },
     "require": {
 	"tdt/framework" : "dev-master",
-        "tdt/filehelpers" : "dev-master",
         "gabordemooij/redbean" : "dev-master"
     },
     "minimum-stability" : "dev",

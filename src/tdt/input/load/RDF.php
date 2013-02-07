@@ -15,6 +15,9 @@ class RDF extends \tdt\input\ALoader {
     public function __construct($config) {
     	if (!isset($config["system"]))
 			throw new \Exception('Redbeans database not set in config');
+		$connection = $config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"];
+		
+		print($connection."\n");
 		
 		R::setup($config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"], $config["user"], $config["password"]);
 		
@@ -33,13 +36,17 @@ class RDF extends \tdt\input\ALoader {
 		
 		$date_time = R::isoDateTime();
 		
-		$graph_id =  $config["graph"] . $date_time;
+		$graph_id =  $config["graph"] . "_" . hash('ripemd160',$date_time);
 		
 		$graph = R::dispense('graph');
-		$graph->name = $config["graph"];
-		$graph->id = $graph_id;
-		$graph->timestamp = $date_time;
+		$graph->graph_name = $config["graph"];
+		$graph->graph_id = $graph_id;
+		$graph->version = $date_time;
 		
+		$id = R::store($graph);
+		
+		R::close();
+
         $this->graph = $graph_id;
 
         if (!isset($config["buffer_size"]))
