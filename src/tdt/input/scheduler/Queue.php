@@ -2,6 +2,7 @@
 
 namespace tdt\input\scheduler;
 use RedBean_Facade as R;
+
 /**
  * A recurring job queue
  *
@@ -13,7 +14,7 @@ class Queue {
     }
 
     public function hasNext(){
-        $all = R::find('job','timestamp < ?',array( (int)date('U') ));
+        $all = R::find('queue','timestamp < ?',array( (int)date('U') ));
         return sizeof($all)>0;
     }
 
@@ -22,7 +23,7 @@ class Queue {
      * @return an id of a job or FALSE if empty
      */
     public function pop(){
-        $job = R::findOne('job','timestamp < ?' ,array( (int)date('U')));
+        $job = R::findOne('queue','timestamp < ?' ,array( (int)date('U')));
         $configname = $job->job;
         R::trash($job);
         return $configname;
@@ -33,19 +34,19 @@ class Queue {
      * @return the id of the job
      */
     public function push($jobcmd,$timestamp){
-        $job = R::dispense('job');
+        $job = R::dispense('queue');
         $job->job = $jobcmd;
         $job->timestamp = $timestamp;
         return R::store($job);
     }
 
     public function delete($id){
-        $job = R::load('job',$id);
+        $job = R::load('queue',$id);
         R::trash($job);
     }
     
-    public function showAll(){
-        $all = R::findAll('job',' Order by timestamp ASC');
+    public function getAll(){
+        $all = R::findAll('queue',' Order by timestamp ASC');
         return $all;
     }
     
