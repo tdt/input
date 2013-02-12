@@ -1,12 +1,12 @@
 <?php
 
+
 namespace tdt\input\load;
 
 class RDF extends \tdt\input\ALoader {
 
     private $endpoint;
     private $format;
-    private $graph;
     private $buffer_size; //amount of chunks that are being inserted into one request
     //helper vars
     private $buffer = array();
@@ -41,12 +41,12 @@ class RDF extends \tdt\input\ALoader {
         if (!isset($config["datatank_user"]))
             throw new \Exception('User for datatank not set in config');
         
-        $this->datatank_resource = $config["datatank_user"];
+        $this->datatank_user = $config["datatank_user"];
         
         if (!isset($config["datatank_password"]))
             throw new \Exception('Password for datatank not set in config');
         
-        $this->datatank_resource = $config["datatank_password"];
+        $this->datatank_password = $config["datatank_password"];
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;
@@ -68,10 +68,16 @@ class RDF extends \tdt\input\ALoader {
 
         echo "Inserting resource into datatank...\n";
         //Add SPARQL resource with describe query to datatank
-        $data = array("endpoint" => $this->endpoint);
+        $data = array(
+            "resource_type" => "generic",
+            "generic_type" => "ld",
+            "endpoint" => $this->endpoint,
+            "documentation" => "Linked Data resource inserted by tdt/input for the retrieval of URIs in $this->datatank_package/$this->datatank_resource"
+                );
         
         //Build PUT uri for datatank
-        $uri = $this->datatank_uri . "/TDTAdmin/Resources/" . $this->datatank_package . "/" . $this->datatank_resource . "/";
+        $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource/";
+        var_dump($uri);
         $ch = curl_init($uri);
         
         curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);  
@@ -80,10 +86,14 @@ class RDF extends \tdt\input\ALoader {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
 
         $response = curl_exec($ch);
-        if (!$response) 
-            throw new Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
         
-        echo "Resources available under " . $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource . "/\n";
+        $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch); 
+        var_dump($response_code);
+        if ($response_code >= 400) 
+            throw new \Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
+        
+        echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource/\n";
     }
 
     public function execute(&$chunk) {
