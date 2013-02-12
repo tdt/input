@@ -35,7 +35,7 @@ try{
     $model->execute();
 }
 catch(Exception $e){
-    echo "ETML Failed: " . $e->getMessage();
+    echo "ETML Failed: " . $e->getMessage() . "\n";
 }
 
 

@@ -56,14 +56,19 @@ class RDF extends \tdt\input\ALoader {
 
     public function __destruct() {
         echo "Empty loader buffer...\n";
-
-        while (!empty($this->buffer)) {
-            $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
-
-            $triples_to_send = array_slice($this->buffer, 0, $count);
-
-            $this->query(implode(' ', $triples_to_send));
-            $this->buffer = array_slice($this->buffer, $count);
+        
+        try{
+            while (!empty($this->buffer)) {
+                $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
+                
+                $triples_to_send = array_slice($this->buffer, 0, $count);
+                $this->query(implode(' ', $triples_to_send));
+                
+                $this->buffer = array_slice($this->buffer, $count);
+            }
+        }
+        catch(\Exception $e){
+            echo "ETML Failed: " . $e->getMessage() . "\n";
         }
 
         echo "Inserting resource into datatank...\n";
@@ -153,12 +158,18 @@ class RDF extends \tdt\input\ALoader {
         $response = curl_exec($ch);
 
         if (!$response)
+        {
             echo "endpoint returned error: " . curl_error($ch) . " - ";
-
+            throw new \Exception("Endpoint returned an error!");
+        }
+        
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if ($response_code != "200")
-            echo "query failed: " . $response_code . "\n" . $response;
+        {
+            echo "query failed: " . $response_code . "\n" . $response . "\n";
+            throw new \Exception("Query failed!");
+        }
 
 
         curl_close($ch);
