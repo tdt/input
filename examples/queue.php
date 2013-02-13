@@ -14,9 +14,6 @@ $q = new \tdt\input\scheduler\Queue(parse_ini_file("examples/custom/db.ini", fal
 //schedule for 1 second ago
 $q->push("job1",date("U")-1);
 
-//schedule for 1 second in the future
-$q->push("job1",date("U")+1);
-
 //var_dump($q->showAll());
 
 while($q->hasNext()){
@@ -24,3 +21,4 @@ while($q->hasNext()){
     //execute job
     echo $job . "\n";
 }
+

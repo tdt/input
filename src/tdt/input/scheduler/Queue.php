@@ -34,11 +34,22 @@ class Queue {
      * @return the id of the job
      */
     public function push($jobcmd,$timestamp){
-        $job = R::dispense('queue');
-        $job->job = $jobcmd;
-        $job->timestamp = $timestamp;
-        return R::store($job);
+        $existingqueue=R::findOne('queue','job = ?',array($jobcmd));
+        if(empty($existingqueue)){
+            $job = R::dispense('queue');
+            $job->job = $jobcmd;
+            $job->timestamp = $timestamp;
+            return R::store($job);
+        }else{
+            throw new \Exception("$jobcmd already scheduled for execution");
+        }
     }
+
+    public function deleteByName($jobname){
+        $job = R::findOne('queue',' job = ? ',array($jobname));
+        R::trash($job);
+    }
+    
 
     public function delete($id){
         $job = R::load('queue',$id);
