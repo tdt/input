@@ -55,7 +55,7 @@ class Input {
         
         echo 'Started ETML process';
 
-        while ($this->e->hasNext()) {
+        while ($this->e->hasNext()) {                    
             //1. EXTRACT
             $chunk = $this->e->pop();
 
