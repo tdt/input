@@ -20,10 +20,9 @@ require 'vendor/autoinclude.php';
 
 Include all the classes and continue, but your should really start using composer. It's great for you. 
 
-
 # Construct & config
 
-## Example
+## Example config using Input
 
 ```php
 // Extract Map and Load a CSV file to an ontology using a turtle file (you can find this file in examples directory)
@@ -35,10 +34,51 @@ $input = new Input(array(
          "endpoint"  => "http://localhost:8890/sparql",
          "graph"     => "http://test.com/test"
          "load"      => "RDF",
-         "delimiter" => ","
+         "delimiter" => ",",
+         "name" => "dbname",
+         "host" => "localhost",
+         "user" => "username",
+         "password" => "******",
+
 ));
 
 ```
+
+## Example using the Scheduler to register the jobs
+
+```php
+
+//initialize the scheduler with a database config
+$s = new Schedule(array(
+         "name" => "dbname",
+         "host" => "localhost",
+         "user" => "username",
+         "password" => "******"
+   ));
+
+//add a job with a certain occurence
+$s->add(array(
+            "name" => "test",
+            "occurence" => 60,
+            "config" => array(
+                "source" => "http://data.irail.be/NMBS/Stations.xml",
+                "extract" => "XML",
+                "map" => "RDF",
+                "mapfile" => "http://localhost/nmbsstations.csv.spec.ttl",
+                "load" => "RDF",
+                "arraylevel" => 2,
+                "endpoint" => "http://localhost:8890/sparql",
+                "graph" => "http://example.com/test"
+            )
+       ));
+
+//execute all jobs that are due in the queue (you need to execute this command using cronjobs)
+$s->execute();
+
+//if you want to delete a job, use this:
+$s->delete("test");
+```
+
 
 ## Specific configuration options
 
