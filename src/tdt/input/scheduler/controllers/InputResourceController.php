@@ -17,6 +17,7 @@
 namespace tdt\input\scheduler\controllers;
 use tdt\input\scheduler\Schedule;
 use tdt\core\formatters\FormatterFactory;
+use app\core\Config;
 
 class InputResourceController extends \tdt\core\controllers\AController {
 
@@ -32,19 +33,19 @@ class InputResourceController extends \tdt\core\controllers\AController {
         $db["password"] = Config::get("db", "password");
         return $db;
     }
-    
 
     public function GET($matches){
         if($this->isBasicAuthenticated()){
+            \tdt\core\utility\Config::setConfig(Config::getConfigArray());
             $s = new Schedule($this->getDBConfig());
-            if(isset($matches[1])){
+            if(isset($matches[1]) && $matches[1] != ""){
                 
             }else{
                 //when only TDTInput is requested, we will show all the jobs configured
-                $formatterfactory = FormatterFactory::getInstance($matches["format"]);
                 $links = $s->getAllNames();
-                $printer = $formatterfactory->getPrinter("TDTInput",$links);
-                $printer->printAll();
+
+                $f = new \tdt\formatters\Formatter("CSV");
+                $f->execute($links);
             }
         }else{
             header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
@@ -62,7 +63,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
             exit();
         }
     }
-
+    
 
     public function POST($matches){
         if($this->isBasicAuthenticated()){
@@ -77,6 +78,9 @@ class InputResourceController extends \tdt\core\controllers\AController {
     public function DELETE($matches){
         if($this->isBasicAuthenticated()){
             $s = new Schedule($this->getDBConfig());
+            if(isset($matches[1])){
+                $s->delete($matches[1]);
+            }
         }else{
             header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
             header('HTTP/1.0 401 Unauthorized');
