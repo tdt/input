@@ -88,10 +88,8 @@ class Schedule{
 
     public function getJob($jobname){
         $job = R::findOne('job',' name = ? ',array($jobname));
-        $configbean = $job->config;
-        $result = $job->export;
-        $result["config"] = $configbean->export();
-        return $job->export();
+        $job->config;
+        return $job;
     }
 
     public function getAllNames(){
