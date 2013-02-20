@@ -81,7 +81,7 @@ class RDF extends \tdt\input\AMapper {
             //Re-add modified triple
             $spec->add_literal_triple($s, $p, $o);
         }
-
+        
 
         //Check if mapping file is the current one
         //Load spec and create new Vertere converter

@@ -6,34 +6,58 @@ include_once 'conversions.class.php';
 
 class Vertere {
 
-    private $spec, $spec_uri, $resources, $base_uri, $lookups = array(), $null_values = array();
+    private $spec, $spec_uri, $resources, $base_uri, $lookups = array(), $null_values = array(), $header;
 
-	public function __construct($spec, $spec_uri) {
-		$this->spec = $spec;
-		$this->spec_uri = $spec_uri;
-		
-		// Find resource specs
-		$this->resources = $spec->get_resource_triple_values($this->spec_uri, NS_CONV.'resource');
-		if (empty($this->resources)) { throw new Exception('Unable to find any resource specs to work from'); }
-		
-		$this->base_uri = $spec->get_first_literal($this->spec_uri, NS_CONV.'base_uri');
-		
-    // :null_values is a list of strings that indicate NULL in the source data
-		$null_value_list = $spec->get_first_resource($this->spec_uri, NS_CONV.'null_values');
-		if ($null_value_list) {
-		  foreach($spec->get_list_values($null_value_list) as $null_value_resource) {
-		    if ($null_value_resource["type"] == "literal") {
-    	    array_push($this->null_values, $null_value_resource["value"]);
-		    }
-		  }
-	  } else {
-	    array_push($this->null_values, "");
-	  }
-	  foreach($this->null_values as $value) {
-	  }
-	}
+    public function __construct($spec, $spec_uri, $header = array()) {
+        $this->spec = $spec;
+        $this->spec_uri = $spec_uri;
+        $this->header = $header;
 
-    public function convert_array_to_graph($record) {
+        // Find resource specs
+        $this->resources = $spec->get_resource_triple_values($this->spec_uri, NS_CONV . 'resource');
+        if (empty($this->resources)) {
+            throw new Exception('Unable to find any resource specs to work from');
+        }
+
+        $this->base_uri = $spec->get_first_literal($this->spec_uri, NS_CONV . 'base_uri');
+
+        // :null_values is a list of strings that indicate NULL in the source data
+        $null_value_list = $spec->get_first_resource($this->spec_uri, NS_CONV . 'null_values');
+        if ($null_value_list) {
+            foreach ($spec->get_list_values($null_value_list) as $null_value_resource) {
+                if ($null_value_resource["type"] == "literal") {
+                    array_push($this->null_values, $null_value_resource["value"]);
+                }
+            }
+        } else {
+            array_push($this->null_values, "");
+        }
+        foreach ($this->null_values as $value) {
+            
+        }
+    }
+
+    /*
+     * Method to support named columns (MVS)
+     */
+
+    public function get_record_value($record, $source_column) {
+        $key = array_search($source_column, $this->header);
+        if ($key === false)
+            if (is_numeric($source_column))
+                return $record[$source_column--];
+            else if (is_string($source_column))
+                return $record[$source_column];
+            else
+                throw new Exception("Source column value is not valid");
+
+        if (!array_key_exists($key, $record))
+            throw new Exception("Source column value is not valid");
+
+        return $record[$key];
+    }
+
+    public function convert_array_to_graph($record, $header = array()) {
         $uris = $this->create_uris($record);
         $graph = new SimpleGraph();
         $this->add_default_types($graph, $uris);
@@ -78,8 +102,9 @@ class Vertere {
         if ($value) {
             $source_value = $value;
         } else if ($source_column) {
-            $source_column--;
-            $source_value = $record[$source_column];
+//            $source_column--;
+//            $source_value = $record[$source_column];
+            $source_value = $this->get_record_value($record, $source_column);
         } else if ($source_columns) {
             $source_columns = $this->spec->get_list_values($source_columns);
             $glue = $this->spec->get_first_literal($attribute, NS_CONV . 'source_column_glue');
@@ -91,8 +116,9 @@ class Vertere {
             $source_values = array();
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
-                $source_column--;
-                $value = $record[$source_column];
+//                $source_column--;
+//                $value = $record[$source_column];
+                $source_value = $this->get_record_value($record, $source_column);
                 if (preg_match($filter, $value) != 0 && !in_array($value, $this->null_values)) {
                     $source_values[] = $value;
                 }
@@ -148,8 +174,9 @@ class Vertere {
             // we create a link in situ, from a colum value
             // TODO: this should be merged with the create_uri() code
             $source_column = $this->spec->get_first_literal($identity, NS_CONV . 'source_column');
-            $source_column--;
-            $source_value = $record[$source_column];
+//            $source_column--;
+//            $source_value = $record[$source_column];
+            $source_value = $this->get_record_value($record, $source_column);
             if (empty($source_value)) {
                 return;
             }
@@ -190,18 +217,20 @@ class Vertere {
         $source_resource = $this->spec->get_first_resource($identity, NS_CONV . 'source_resource');
 
         if ($source_column) {
-            $source_column--;
-            $source_value = $record[$source_column];
+//            $source_column--;
+//            $source_value = $record[$source_column];
+            $source_value = $this->get_record_value($record, $source_column);
         } else if ($source_columns) {
             $source_columns = $this->spec->get_list_values($source_columns);
             $glue = $this->spec->get_first_literal($identity, NS_CONV . 'source_column_glue');
             $source_values = array();
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
-                $source_column--;
+                //$source_column--;
                 // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
-				if (!in_array($record[$source_column], $this->null_values)) {
-                    $source_values[] = $record[$source_column];
+                if (!in_array($record[$source_column - 1], $this->null_values)) {
+                    //$source_values[] = $record[$source_column];
+                    $source_value = $this->get_record_value($record, $source_column);
                 }
             }
             $source_value = implode('', $source_values);
