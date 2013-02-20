@@ -90,6 +90,11 @@ class Schedule{
         $job = R::findOne('job',' name = ? ',array($jobname));
         return $job;
     }
+
+    public function getAllNames(){
+        $all = R::getAll("select name from job");
+        return $all;
+    }
     
 
     public function delete($jobname){

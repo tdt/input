@@ -16,7 +16,7 @@
 
 namespace tdt\input\scheduler\controllers;
 use tdt\input\scheduler\Schedule;
-
+use tdt\core\formatters\FormatterFactory;
 
 class InputResourceController extends \tdt\core\controllers\AController {
 
@@ -39,14 +39,27 @@ class InputResourceController extends \tdt\core\controllers\AController {
             $s = new Schedule($this->getDBConfig());
             if(isset($matches[1])){
                 
+            }else{
+                //when only TDTInput is requested, we will show all the jobs configured
+                $formatterfactory = FormatterFactory::getInstance($matches["format"]);
+                $links = $s->getAllNames();
+                $printer = $formatterfactory->getPrinter("TDTInput",$links);
+                $printer->printAll();
             }
-            
+        }else{
+            header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit();
         }
     }
     
     public function PUT($matches){
         if($this->isBasicAuthenticated()){
             $s = new Schedule($this->getDBConfig());
+        }else{
+            header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit();
         }
     }
 
@@ -54,12 +67,20 @@ class InputResourceController extends \tdt\core\controllers\AController {
     public function POST($matches){
         if($this->isBasicAuthenticated()){
             $s = new Schedule($this->getDBConfig());
+        }else{
+            header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit();
         }
     }
 
     public function DELETE($matches){
         if($this->isBasicAuthenticated()){
             $s = new Schedule($this->getDBConfig());
+        }else{
+            header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit();
         }
     }
 }
