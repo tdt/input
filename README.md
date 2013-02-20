@@ -20,10 +20,9 @@ require 'vendor/autoinclude.php';
 
 Include all the classes and continue, but your should really start using composer. It's great for you. 
 
-
 # Construct & config
 
-## Example
+## Example config using Input
 
 ```php
 // Extract Map and Load a CSV file to an ontology using a turtle file (you can find this file in examples directory)
@@ -35,10 +34,113 @@ $input = new Input(array(
          "endpoint"  => "http://localhost:8890/sparql",
          "graph"     => "http://test.com/test"
          "load"      => "RDF",
-         "delimiter" => ","
+         "delimiter" => ",",
+         "name" => "dbname",
+         "host" => "localhost",
+         "user" => "username",
+         "password" => "******",
+
 ));
 
 ```
+
+## Example using the Scheduler to register the jobs
+
+```php
+
+//initialize the scheduler with a database config
+$s = new Schedule(array(
+         "name" => "dbname",
+         "host" => "localhost",
+         "user" => "username",
+         "password" => "******"
+   ));
+
+//add a job with a certain occurence
+$s->add(array(
+            "name" => "test",
+            "occurence" => 60,
+            "config" => array(
+                "source" => "http://data.irail.be/NMBS/Stations.xml",
+                "extract" => "XML",
+                "map" => "RDF",
+                "mapfile" => "http://localhost/nmbsstations.csv.spec.ttl",
+                "load" => "RDF",
+                "arraylevel" => 2,
+                "endpoint" => "http://localhost:8890/sparql",
+                "graph" => "http://example.com/test"
+            )
+       ));
+
+//execute all jobs that are due in the queue (you need to execute this command using cronjobs)
+$s->execute();
+
+//if you want to delete a job, use this:
+$s->delete("test");
+```
+
+## Configuration in tdt/start
+
+Create a new project using composer:
+```bash
+composer create-project tdt/start
+```
+
+Alter composer.json and require:
+
+```json
+"tdt/input" : "dev-master"
+```
+
+Now update your project in order for input to be configured:
+
+```bash
+composer update
+```
+
+When you have configured tdt/start according to the documentation (filling out the configuration files), then you can also add the appropriate routes:
+
+```json
+{
+        "namespace" : "tdt\\input",
+        // Routes for this core
+        "routes" : {
+            "GET | TDTInput/?(?P<format>\\.[a-zA-Z]+)?" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*)\\.(?P<format>[a-zA-Z]+)" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",
+            "PUT | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",
+            "POST | TDTInput/?" : "scheduler\\controllers\\InputResourceController",
+            "DELETE | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController"
+
+        }
+}
+```
+
+Go to http://yourdomain.com/TDTInput
+
+### API documenation when installed with tdt/start
+
+#### PUT - http://data.example.com/TDTInput/{jobname}
+
+overwrites or adds a job
+
+Parameters are documented further on this document.
+
+#### POST - http://data.example.com/TDTInput/
+
+Adds a new job.
+
+#### DELETE - http://data.example.com/TDTInput/{jobname}
+
+Deletes a job
+
+#### GET - http://data.example.com/TDTInput/
+
+Returns a list of URIs to jobs configured in the system
+
+#### GET - http://data.example.com/TDTInput/{jobname}
+
+Returns the configuration of {jobname}
 
 ## Specific configuration options
 

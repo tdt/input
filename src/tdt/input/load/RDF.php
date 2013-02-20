@@ -2,6 +2,7 @@
 
 
 namespace tdt\input\load;
+use RedBean_Facade as R;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -12,7 +13,14 @@ class RDF extends \tdt\input\ALoader {
     private $buffer = array();
 
     public function __construct($config) {
-
+    	if (!isset($config["system"]))
+			throw new \Exception('Redbeans database not set in config');
+		$connection = $config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"];
+		
+		print($connection."\n");
+		
+		R::setup($config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"], $config["user"], $config["password"]);
+		
         if (!isset($config["endpoint"]))
             throw new \Exception('SPARQL endpoint not set in config');
 
@@ -47,6 +55,23 @@ class RDF extends \tdt\input\ALoader {
             throw new \Exception('Password for datatank not set in config');
         
         $this->datatank_password = $config["datatank_password"];
+        if (!isset($config["graph"]))
+            throw new \Exception('Destination graph not set in config');
+		
+		$date_time = R::isoDateTime();
+		
+		$graph_id =  $config["graph"] . "_" . hash('ripemd160',$date_time);
+		
+		$graph = R::dispense('graph');
+		$graph->graph_name = $config["graph"];
+		$graph->graph_id = $graph_id;
+		$graph->version = $date_time;
+		
+		$id = R::store($graph);
+		
+		R::close();
+
+        $this->graph = $graph_id;
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;
