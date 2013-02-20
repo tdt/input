@@ -88,6 +88,9 @@ class Schedule{
 
     public function getJob($jobname){
         $job = R::findOne('job',' name = ? ',array($jobname));
+        if(empty($job)){
+            return null;
+        }
         $job->config;
         return $job->export();
     }

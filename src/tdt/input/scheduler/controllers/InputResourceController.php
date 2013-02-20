@@ -47,7 +47,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
             if(isset($matches["resource"]) && $matches["resource"] != ""){
                 $object->job= $s->getJob($matches["resource"]);
                 if(empty($object->job)){
-                    throw new TDTException("404",$matches["resource"]);
+                    throw new TDTException("404",array($matches["resource"]));
                 }
             }else{
                 //when only TDTInput is requested, we will show all the jobs configured                
@@ -68,22 +68,26 @@ class InputResourceController extends \tdt\core\controllers\AController {
     
     public function PUT($matches){
         if($this->isBasicAuthenticated()){
-            $s = new Schedule($this->getDBConfig());
-            //read all variables in one array
-            $params = array();
-            $HTTPheaders = getallheaders();
-            if (isset($HTTPheaders["Content-Type"]) && $HTTPheaders["Content-Type"] == "application/json") {
-                $params = (array) json_decode(file_get_contents("php://input"));
-            } else {
-                parse_str(file_get_contents("php://input"), $params);
+            if(isset($matches["resource"])){
+                $s = new Schedule($this->getDBConfig());
+                //read all variables in one array
+                $params = array();
+                $HTTPheaders = getallheaders();
+                if (isset($HTTPheaders["Content-Type"]) && $HTTPheaders["Content-Type"] == "application/json") {
+                    $params = (array) json_decode(file_get_contents("php://input"));
+                } else {
+                    parse_str(file_get_contents("php://input"), $params);
+                }
+                
+                $this->checkParams($params);
+                $job = array();
+                $job["config"] = $params;
+                $job["name"] = $matches["resource"];
+                $job["occurence"] = $params["occurence"];
+                $s->add($job);
+            }else{
+                throw new TDTException(452,array("Please add the resourcename"));
             }
-            
-            $this->checkParams($params);
-            $job = array();
-            $job["config"] = $params;
-            $job["name"] = $params["name"];
-            $job["occurence"] = $params["occurence"];
-            $s->add($job);
         }else{
             header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
             header('HTTP/1.0 401 Unauthorized');
@@ -94,23 +98,20 @@ class InputResourceController extends \tdt\core\controllers\AController {
     private function checkParams($params){
         //check whether the right parameters have been setup
         if(!isset($params["source"])){
-            throw new TDTException(452,"parameters source not set. Source is a url to a certain dataset that wants to be processed.");
-        }
-        if(!isset($params["name"])){
-            throw new TDTException(452,"parameters name not set");
+            throw new TDTException(452,array("parameters source not set. Source is a url to a certain dataset that wants to be processed."));
         }
 
         if(!isset($params["occurence"])){
-            throw new TDTException(452,"parameters occurence not set. Occurence should the time in seconds in which this dataset needs to be recovered.");
+            throw new TDTException(452,array("parameters occurence not set. Occurence should the time in seconds in which this dataset needs to be recovered."));
         }
         if(!isset($params["extract"])){
-            throw new TDTException(452,"parameters extract not set. Extract is the name of the strategy to extract a file. For instance for a CSV file you would fill out: CSV");
+            throw new TDTException(452,array("parameters extract not set. Extract is the name of the strategy to extract a file. For instance for a CSV file you would fill out: CSV"));
         }
         if(!isset($params["map"])){
-            throw new TDTException(452,"parameters map not set. Map is the name of the strategy to extract a file. For instance for mapping to RDF, you will need a mapfile and you will fill out RDF in this parameter.");
+            throw new TDTException(452,array("parameters map not set. Map is the name of the strategy to extract a file. For instance for mapping to RDF, you will need a mapfile and you will fill out RDF in this parameter."));
         }
         if(!isset($params["load"])){
-            throw new TDTException(452,"parameters load not set. Load is the name of the strategy to load the result in a store. For instance for loading it into a triple store, you will need to fill out: RDF");
+            throw new TDTException(452,array("parameters load not set. Load is the name of the strategy to load the result in a store. For instance for loading it into a triple store, you will need to fill out: RDF"));
         }
         //TODO: more.
     }
@@ -118,7 +119,28 @@ class InputResourceController extends \tdt\core\controllers\AController {
 
     public function POST($matches){
         if($this->isBasicAuthenticated()){
-            $s = new Schedule($this->getDBConfig());
+            if(isset($matches["resource"])){
+                throw new TDTException(452,array("Cannot post on a resource, maybe you wanted to use PUT?"));
+            }else{
+                $s = new Schedule($this->getDBConfig());                
+                //read all variables in one array
+                $params = $_POST;
+                
+                $this->checkParams($params);
+                $job = array();
+                $job["config"] = $params;
+                if(!isset($params["name"])){
+                    throw new TDTException(452,array("parameter name not set"));
+                }
+
+                if(! is_null($s->getJob($params["name"]))){
+                    throw new TDTException(452,array("Job already exists"));
+                }
+                
+                $job["name"] = $params["name"];
+                $job["occurence"] = $params["occurence"];
+                $s->add($job);
+            }
         }else{
             header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
             header('HTTP/1.0 401 Unauthorized');
