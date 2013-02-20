@@ -37,16 +37,24 @@ class InputResourceController extends \tdt\core\controllers\AController {
     public function GET($matches){
         if($this->isBasicAuthenticated()){
             \tdt\core\utility\Config::setConfig(Config::getConfigArray());
-            $s = new Schedule($this->getDBConfig());
-            if(isset($matches[1]) && $matches[1] != ""){
-                
-            }else{
-                //when only TDTInput is requested, we will show all the jobs configured
-                $links = $s->getAllNames();
-
-                $f = new \tdt\formatters\Formatter("CSV");
-                $f->execute($links);
+            $format="";
+            $object = new \stdClass();
+            if(!empty($matches["format"])){
+                $format= ltrim($matches["format"],'.');
             }
+            $s = new Schedule($this->getDBConfig());
+            if(isset($matches["resource"]) && $matches["resource"] != ""){
+                $object->job= $s->getJob($matches["resource"]);
+            }else{
+                //when only TDTInput is requested, we will show all the jobs configured                
+                $allnames = $s->getAllNames();
+                foreach($allnames as $name){
+                    $object->jobs[] = $this->hostname . $this->subdir . "TDTInput/" . $name["name"];   
+                }
+            }
+
+            $f = new \tdt\formatters\Formatter(strtoupper($format));
+            $f->execute("TDTInput",$object);
         }else{
             header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
             header('HTTP/1.0 401 Unauthorized');

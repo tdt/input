@@ -88,7 +88,7 @@ class Schedule{
 
     public function getJob($jobname){
         $job = R::findOne('job',' name = ? ',array($jobname));
-        return $job;
+        return $job->export();
     }
 
     public function getAllNames(){
