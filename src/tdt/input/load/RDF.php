@@ -76,8 +76,8 @@ class RDF extends \tdt\input\ALoader {
                 );
         
         //Build PUT uri for datatank
-        $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource/";
-        var_dump($uri);
+        $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource";
+
         $ch = curl_init($uri);
         
         curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);  
