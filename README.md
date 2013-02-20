@@ -79,6 +79,68 @@ $s->execute();
 $s->delete("test");
 ```
 
+## Configuration in tdt/start
+
+Create a new project using composer:
+```bash
+composer create-project tdt/start
+```
+
+Alter composer.json and require:
+
+```json
+"tdt/input" : "dev-master"
+```
+
+Now update your project in order for input to be configured:
+
+```bash
+composer update
+```
+
+When you have configured tdt/start according to the documentation (filling out the configuration files), then you can also add the appropriate routes:
+
+```json
+{
+        "namespace" : "tdt\\input",
+        // Routes for this core
+        "routes" : {
+            "GET | TDTInput/?(?P<format>\\.[a-zA-Z]+)?" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*)\\.(?P<format>[a-zA-Z]+)" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",
+            "PUT | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",
+            "POST | TDTInput/?" : "scheduler\\controllers\\InputResourceController",
+            "DELETE | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController"
+
+        }
+}
+```
+
+Go to http://yourdomain.com/TDTInput
+
+### API documenation when installed with tdt/start
+
+#### PUT - http://data.example.com/TDTInput/{jobname}
+
+overwrites or adds a job
+
+Parameters are documented further on this document.
+
+#### POST - http://data.example.com/TDTInput/
+
+Adds a new job.
+
+#### DELETE - http://data.example.com/TDTInput/{jobname}
+
+Deletes a job
+
+#### GET - http://data.example.com/TDTInput/
+
+Returns a list of URIs to jobs configured in the system
+
+#### GET - http://data.example.com/TDTInput/{jobname}
+
+Returns the configuration of {jobname}
 
 ## Specific configuration options
 
