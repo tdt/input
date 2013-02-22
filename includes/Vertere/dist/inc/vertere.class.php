@@ -58,6 +58,9 @@ class Vertere {
     }
 
     public function convert_array_to_graph($record, $header = array()) {
+        if (!empty($header))
+            $this->header = $header;
+        
         $uris = $this->create_uris($record);
         $graph = new SimpleGraph();
         $this->add_default_types($graph, $uris);
