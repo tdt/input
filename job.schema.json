@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "tdt/input job configuration schema",
+    "type": "object",
+    "properties": {
+        "name" : {
+            "type":"string"
+        },
+        "occurence" : {
+            "type" : "integer"
+        },
+	"extract": {
+            "type": "object",
+            "properties": {
+                "source": {"type": "string"}
+            },
+            "required": ["source"]
+	},
+	"map": {
+	    "type": "string"
+	},
+	"load": {
+	    "description": "Age in years",
+	    "type": "integer",
+	    "minimum": 0
+	}
+    },
+    "required": ["name","occurence","extract", "map", "load"]
+}
