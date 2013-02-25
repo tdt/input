@@ -105,6 +105,7 @@ When you have configured tdt/start according to the documentation (filling out t
         "namespace" : "tdt\\input",
         // Routes for this core
         "routes" : {
+            "GET | TDTInput/Worker/?" : "scheduler\\controllers\\Worker",
             "GET | TDTInput/?(?P<format>\\.[a-zA-Z]+)?" : "scheduler\\controllers\\InputResourceController",
             "GET | TDTInput/(?P<resource>.*)\\.(?P<format>[a-zA-Z]+)" : "scheduler\\controllers\\InputResourceController",
             "GET | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",

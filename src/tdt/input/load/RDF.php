@@ -1,6 +1,5 @@
 <?php
 
-
 namespace tdt\input\load;
 use RedBean_Facade as R;
 

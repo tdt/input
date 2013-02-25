@@ -20,6 +20,7 @@ class Input {
      */
     public function __construct($config) {
 
+
         if (!isset($config["extract"])){
             throw new \Exception('Extract method not set in config');
         }
@@ -44,6 +45,7 @@ class Input {
             $this->l = new $loadclass($config);
         }
     }
+    
 
     /**
      * Execute our model according to the configuration parsed in the constructor

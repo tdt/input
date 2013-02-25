@@ -47,4 +47,5 @@ abstract class AExtractor{
      */
     abstract protected function close();
 
+
 }

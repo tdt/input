@@ -3,6 +3,5 @@ namespace tdt\input;
 
 abstract class ALoader{
 
-    abstract public function execute(&$chunk);
-
+    abstract public function execute(&$chunk););
 }

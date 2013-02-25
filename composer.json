@@ -12,6 +12,7 @@
         "tdt/filehelpers" : "dev-master",
         "tdt/json" : "dev-master",
 	"tdt/formatters" : "dev-master",
+        "justinrainbow/json-schema" : "1.3.0",
         "gabordemooij/redbean" : "dev-master"
     },
     "minimum-stability" : "dev",
