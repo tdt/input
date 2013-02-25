@@ -1,7 +1,7 @@
 <?php
 
 namespace tdt\input\map;
-
+set_include_path(get_include_path() . PATH_SEPARATOR . "vendor/tdt/input/");
 define('VERTERE_DIR', 'includes/Vertere/dist/');
 define('MORIARTY_DIR', VERTERE_DIR . 'lib/moriarty/');
 define('MORIARTY_ARC_DIR', VERTERE_DIR . 'lib/arc/');

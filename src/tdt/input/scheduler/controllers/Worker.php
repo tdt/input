@@ -1,8 +1,10 @@
 <?php
 
-namespace tdt\input\scheduler;
-
-class Worker{
+namespace tdt\input\scheduler\controllers;
+use tdt\input\scheduler\Schedule;
+use tdt\exceptions\TDTException;
+use app\core\Config;
+class Worker extends \tdt\core\controllers\AController {
     /**
      * Only works with tdt/start
      */

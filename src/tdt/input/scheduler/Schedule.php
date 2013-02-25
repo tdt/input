@@ -26,13 +26,20 @@ class Schedule{
     public function execute(){
         while($this->queue->hasNext()){
             $jobname = $this->queue->pop();
+            echo "Executing: " . $jobname . "\n <br/>";
+            echo "#####################################\n<br/>";
             $job = $this->getJob($jobname);
-            $configbean = $job->config;
-            $config = $configbean->export();
+            $config = $job["config"];
             //execute job using the configuration in the database
             $input = new Input(array_merge($config,$this->db));
-            $input->execute();
+            try{
+                $input->execute();
+            }catch(Exception $e){
+                echo $e->getMessage() . "\n<br/>";
+            }
             $this->reSchedule($jobname);
+            echo "$jobname rescheduled";
+            echo "<br/><br/>\n\n";
         }
     }
 
@@ -103,8 +110,10 @@ class Schedule{
 
     public function delete($jobname){
         $job = R::findOne('job',' name = ?',array($jobname));
-        $this->queue->deleteByName($jobname);
-        R::trash($job);
+        if(!empty($job)){
+            $this->queue->deleteByName($jobname);
+            R::trash($job);
+        }
     }
 
 }

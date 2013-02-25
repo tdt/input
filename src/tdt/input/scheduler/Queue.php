@@ -47,13 +47,17 @@ class Queue {
 
     public function deleteByName($jobname){
         $job = R::findOne('queue',' job = ? ',array($jobname));
-        R::trash($job);
+        if(!empty($job)){
+            R::trash($job);
+        }
     }
     
 
     public function delete($id){
         $job = R::load('queue',$id);
-        R::trash($job);
+        if(!empty($job)){
+            R::trash($job);
+        }
     }
     
     public function getAll(){
