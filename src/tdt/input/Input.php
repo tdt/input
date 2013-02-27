@@ -20,26 +20,27 @@ class Input {
      */
     public function __construct($config) {
 
-
-        if (!isset($config["extract"])){
-            throw new \Exception('Extract method not set in config');
-        }
-
-        //parse ini file for the extractor and create an instance of the right class
+        /*$validator = new JsonSchema\Validator();
+        
+        $validator->check(json_decode(json_encode($config),false), json_decode($schema));
+        if (!$validator->isValid()) {
+            throw new TDTException("551",$validator->getErrors());
+            }*/
+        // create an instance of the right extract class
         $extractmethod = $config["extract"];
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
         $this->e = new $extractorclass($config);
 
-        //parse ini files for the transformers
+        //transformers
         $this->ts = array();
 
-        //parse ini file for the mapper
+        // mapper
         if(!empty($config["map"])){
             $mapmethod = "tdt\\input\\map\\" . $config["map"];
             $this->m = new $mapmethod($config);
         }
 
-        //parse ini file for the loader
+        // loader
         if(!empty($config["load"])){
             $loadclass = "tdt\\input\\load\\" . $config["load"];
             $this->l = new $loadclass($config);

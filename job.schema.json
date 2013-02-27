@@ -33,5 +33,5 @@
             "required": ["type"]
 	}
     },
-    "required": ["name","occurence","extract", "map", "load"]
+    "required": ["name","occurence","extract", "load"]
 }
