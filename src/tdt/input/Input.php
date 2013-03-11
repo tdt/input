@@ -7,43 +7,36 @@
  */
 
 namespace tdt\input;
+use JsonSchema\Validator;
 
 class Input {
 
     //Extractor, Mapper, Loader
     private $e, $m, $l;
-    //$ts is an array of transformers, as more transformations can be 
-    private $ts;
 
     /**
      * Reads the input.ini file and initiates all classes according to their configuration
+     * The configuration is not (yet) validated here.
      */
-    public function __construct($config) {
+    public function __construct($config,$db) {
 
-        /*$validator = new JsonSchema\Validator();
-        
-        $validator->check(json_decode(json_encode($config),false), json_decode($schema));
-        if (!$validator->isValid()) {
-            throw new TDTException("551",$validator->getErrors());
-            }*/
-        // create an instance of the right extract class
-        $extractmethod = $config["extract"];
+        $extractmethod = $config["extract"]["type"];
+        $extract = $config["extract"];
+        $load = $config["load"];
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
-        $this->e = new $extractorclass($config);
-
-        //transformers
-        $this->ts = array();
+        $this->e = new $extractorclass($extract,$db);
 
         // mapper
         if(!empty($config["map"])){
-            $mapmethod = "tdt\\input\\map\\" . $config["map"];
-            $this->m = new $mapmethod($config);
+            $map = $config["map"];
+            $mapmethod = "tdt\\input\\map\\" . $config["map"]["type"];
+            $this->m = new $mapmethod($map,$db);
         }
 
         // loader
         if(!empty($config["load"])){
-            $loadclass = "tdt\\input\\load\\" . $config["load"];
-            $this->l = new $loadclass($config);
+            $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
+            $this->l = new $loadclass($load,$db);
         }
     }
     
@@ -58,21 +51,16 @@ class Input {
         
         echo 'Started ETML process';
 
-        while ($this->e->hasNext()) {                    
+        while ($this->e->hasNext()) {
             //1. EXTRACT
             $chunk = $this->e->pop();
 
-            //2. TRANSFORM
-            foreach ($this->ts as $t) {
-                $chunk = $t->execute($chunk);
-            }
-
-            //3. MAP
+            //2. MAP
             if (!empty($this->m)) {
                 $chunk = $this->m->execute($chunk);
             }
 
-            //4. LOAD
+            //3. LOAD
             if (!empty($this->l)) {
                 $this->l->execute($chunk);
             }

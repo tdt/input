@@ -1,0 +1,102 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "tdt/input job configuration schema",
+    "type": "object",
+    "properties": {
+        "name" : {
+            "type":"string",
+            "pattern": ".+"
+        },
+        "occurence" : {
+            "type" : "integer"
+        },
+	"extract": {
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/extract/JSON" },
+                { "$ref": "#/definitions/extract/CSV" },
+                { "$ref": "#/definitions/extract/SHP" },
+                { "$ref": "#/definitions/extract/ICAL" },
+                { "$ref": "#/definitions/extract/XML" }
+            ]
+	},
+	"map": {
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/map/RDF" }
+            ]
+	},
+	"load": {
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/extract/RDF" },
+                { "$ref": "#/definitions/extract/CLI" },
+                { "$ref": "#/definitions/extract/HEADER" }
+            ]
+	}
+    },
+    "required": ["name","occurence","map","extract", "load"],
+    "definitions" : {
+        "extract": {
+            "JSON" : {
+                "properties": {
+                    "type": {"enum": [ "JSON" ]}
+                },
+                "required" : ["type"]
+            },
+            "XML" : {
+                "properties": {
+                    "type": {"enum": [ "XML" ]}
+                },
+                "required" : ["type"]
+            },
+            "ICAL" : {
+                "properties": {
+                    "type": {"enum": [ "ICAL" ]}
+                },
+                "required" : ["type"]
+            },
+            "SHP" : {
+                "properties": {
+                    "type": {"enum": [ "SHP" ]}
+                },
+                "required" : ["type"]
+            },
+            "CSV" : {
+                "properties": {
+                    "type": {"enum": [ "CSV" ]}
+                },
+                "required" : ["type"]
+            }
+        },
+        "map" : {
+            "RDF" : {
+                "properties": {
+                    "type": {"enum": [ "RDF" ]},
+                    "mapfile" : {"type" : "string"}
+                },
+                "required" : ["type","mapfile"]
+            }
+        },
+        "load" : {
+            "RDF" : {
+                "properties": {
+                    "type": {"enum": [ "RDF" ]}
+                },
+                "required" : ["type"]
+            },
+            "CLI" : {
+                "properties": {
+                    "type": {"enum": [ "CLI" ]}
+                },
+                "required" : ["type"]
+            },
+            "HEAD" : {
+                "properties": {
+                    "type": {"enum": [ "HEAD" ]}
+                },
+                "required" : ["type"]
+            }
+        }
+    }
+}
