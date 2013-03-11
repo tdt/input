@@ -89,6 +89,7 @@ class RDF extends \tdt\input\AMapper {
     }
 
     public function execute(&$chunk) {
+        //var_dump($chunk);
         $start = microtime(true);
         $graph = $this->vertere->convert_array_to_graph($chunk);
 

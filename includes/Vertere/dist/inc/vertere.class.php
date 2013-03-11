@@ -43,13 +43,18 @@ class Vertere {
 
     public function get_record_value($record, $source_column) {
         $key = array_search($source_column, $this->header);
-        if ($key === false)
+        if ($key === false) {
             if (is_numeric($source_column))
-                return $record[$source_column--];
-            else if (is_string($source_column))
+                $source_column--;
+            else if (!is_string($source_column))
+                throw new Exception("Source column value is not valid: string or numeric");
+
+            if (array_key_exists($source_column, $record))
                 return $record[$source_column];
-            else
-                throw new Exception("Source column value is not valid");
+
+            echo "Column reference $source_column is not found in source\n";
+            return;
+        }
 
         if (!array_key_exists($key, $record))
             throw new Exception("Source column value is not valid");
@@ -60,7 +65,7 @@ class Vertere {
     public function convert_array_to_graph($record, $header = array()) {
         if (!empty($header))
             $this->header = $header;
-        
+
         $uris = $this->create_uris($record);
         $graph = new SimpleGraph();
         $this->add_default_types($graph, $uris);
@@ -161,7 +166,10 @@ class Vertere {
     }
 
     private function create_relationship(&$graph, $uris, $resource, $relationship, $record) {
-        $subject = $uris[$resource];
+        $subject = null;
+        if (array_key_exists($resource, $uris))
+            $subject = $uris[$resource];
+
         $property = $this->spec->get_first_resource($relationship, NS_CONV . 'property');
 
         $object_from = $this->spec->get_first_resource($relationship, NS_CONV . 'object_from');
@@ -230,10 +238,14 @@ class Vertere {
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
                 //$source_column--;
-                // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
-                if (!in_array($record[$source_column - 1], $this->null_values)) {
-                    //$source_values[] = $record[$source_column];
-                    $source_value = $this->get_record_value($record, $source_column);
+                //Quick fix
+                if (array_key_exists($source_column - 1, $record)) {
+
+                    // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
+                    if (!in_array($record[$source_column - 1], $this->null_values)) {
+                        //$source_values[] = $record[$source_column];
+                        $source_value = $this->get_record_value($record, $source_column);
+                    }
                 }
             }
             $source_value = implode('', $source_values);
