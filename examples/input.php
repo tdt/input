@@ -37,5 +37,3 @@ try{
 catch(Exception $e){
     echo "ETML Failed: " . $e->getMessage() . "\n";
 }
-
-
