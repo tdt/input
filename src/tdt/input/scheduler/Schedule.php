@@ -31,9 +31,6 @@ class Schedule{
             echo "Executing: " . $jobname . "\n <br/>";
             echo "#####################################\n<br/>";
             $job = $this->getJob($jobname);
-            /*$extract = $job["extract"];
-            $map = $job["map"];
-            $load = $job["load"];*/
             //execute job using the configuration in the database
             $input = new Input($job,$this->db);
             try{
@@ -87,7 +84,8 @@ class Schedule{
     public function add($jobtoadd,$overwrite = false){
         $this->validateConfig($jobtoadd,"job.schema.json");
         $this->validateConfig($jobtoadd->extract, $jobtoadd->extract->type . ".extract.schema.json");
-        $this->validateConfig($jobtoadd->map,$jobtoadd->map->type .".map.schema.json");
+        if(isset($jobtoadd->map))
+            $this->validateConfig($jobtoadd->map,$jobtoadd->map->type .".map.schema.json");
         $this->validateConfig($jobtoadd->load, $jobtoadd->load->type .".load.schema.json");
         
         $existingjobs = R::findOne('job','name = ?',array($jobtoadd->name));
@@ -102,8 +100,10 @@ class Schedule{
             $job->extract = $extract;
             
             $map = R::dispense('map');
-           foreach(get_object_vars($jobtoadd->map) as $k=>$v){
-                $map->$k = $v;
+            if(isset($jobtoadd->map)){
+                foreach(get_object_vars($jobtoadd->map) as $k=>$v){
+                    $map->$k = $v;
+                }
             }
             $job->map = $map;
             
