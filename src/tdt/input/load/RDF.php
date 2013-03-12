@@ -118,7 +118,7 @@ class RDF extends \tdt\input\ALoader {
         
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch); 
-        var_dump($response_code);
+
         if ($response_code >= 400) 
             throw new \Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
         
@@ -134,10 +134,11 @@ class RDF extends \tdt\input\ALoader {
                 $this->buffer = array_merge($this->buffer, $matches[0]);
 
 
-            if (count($this->buffer) >= $this->buffer_size) {
+            while (count($this->buffer) >= $this->buffer_size) {
                 $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
 
                 $this->query(implode(' ', $triples_to_send));
+                
 
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }

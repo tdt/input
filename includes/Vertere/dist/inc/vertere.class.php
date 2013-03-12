@@ -2,16 +2,16 @@
 
 include_once MORIARTY_DIR . 'moriarty.inc.php';
 include_once MORIARTY_DIR . 'simplegraph.class.php';
-include_once 'conversions.class.php';
+include_once VERTERE_DIR . 'custom/conversions.class.php';
+include_once 'UriTemplate/UriTemplate.php';
 
 class Vertere {
 
     private $spec, $spec_uri, $resources, $base_uri, $lookups = array(), $null_values = array(), $header;
 
-    public function __construct($spec, $spec_uri, $header = array()) {
+    public function __construct($spec, $spec_uri) {
         $this->spec = $spec;
         $this->spec_uri = $spec_uri;
-        $this->header = $header;
 
         // Find resource specs
         $this->resources = $spec->get_resource_triple_values($this->spec_uri, NS_CONV . 'resource');
@@ -43,13 +43,18 @@ class Vertere {
 
     public function get_record_value($record, $source_column) {
         $key = array_search($source_column, $this->header);
-        if ($key === false)
+        if ($key === false) {
             if (is_numeric($source_column))
-                return $record[$source_column--];
-            else if (is_string($source_column))
+                $source_column--;
+            else if (!is_string($source_column))
+                throw new Exception("Source column value is not valid: string or numeric");
+
+            if (array_key_exists($source_column, $record))
                 return $record[$source_column];
-            else
-                throw new Exception("Source column value is not valid");
+
+            echo "Column reference $source_column is not found in source\n";
+            return;
+        }
 
         if (!array_key_exists($key, $record))
             throw new Exception("Source column value is not valid");
@@ -58,6 +63,11 @@ class Vertere {
     }
 
     public function convert_array_to_graph($record, $header = array()) {
+        if (!is_array($header))
+            throw new Exception("Supplied header is no array!");
+
+        $this->header = $header;
+
         $uris = $this->create_uris($record);
         $graph = new SimpleGraph();
         $this->add_default_types($graph, $uris);
@@ -158,7 +168,10 @@ class Vertere {
     }
 
     private function create_relationship(&$graph, $uris, $resource, $relationship, $record) {
-        $subject = $uris[$resource];
+        $subject = null;
+        if (array_key_exists($resource, $uris))
+            $subject = $uris[$resource];
+
         $property = $this->spec->get_first_resource($relationship, NS_CONV . 'property');
 
         $object_from = $this->spec->get_first_resource($relationship, NS_CONV . 'object_from');
@@ -167,7 +180,7 @@ class Vertere {
         $new_subject = $this->spec->get_first_resource($relationship, NS_CONV . 'subject');
 
         if ($object_from) {
-            //Quick fix by Miel Vander Sande    
+            //Prevents PHP warning on key not being present  
             if (isset($uris[$object_from]))
                 $object = $uris[$object_from];
         } else if ($identity) {
@@ -208,6 +221,19 @@ class Vertere {
         return $uris;
     }
 
+    private function create_template_uri($record, $template, $vars) {
+        $var_arr = array();
+        foreach ($vars as $var) {
+            $name = $this->spec->get_first_literal($var, NS_CONV . 'variable');
+            $source_column = $this->spec->get_first_literal($var, NS_CONV . 'source_column');
+            $value = $this->get_record_value($record, $source_column);
+            $var_arr[$name] = $value;
+        }
+
+        $processor = new \Guzzle\Parser\UriTemplate\UriTemplate();
+        return $processor->expand($template, $var_arr);
+    }
+
     private function create_uri($record, &$uris, $resource, $identity = null) {
         if (!$identity) {
             $identity = $this->spec->get_first_resource($resource, NS_CONV . 'identity');
@@ -215,8 +241,18 @@ class Vertere {
         $source_column = $this->spec->get_first_literal($identity, NS_CONV . 'source_column');
         $source_columns = $this->spec->get_first_resource($identity, NS_CONV . 'source_columns');
         $source_resource = $this->spec->get_first_resource($identity, NS_CONV . 'source_resource');
+        //Support for URI templates
+        $template = $this->spec->get_first_literal($identity, NS_CONV . 'template');
 
-        if ($source_column) {
+        if ($template) {
+            //Retrieve all declared variables and expand template
+            //For now, only an unprocessed single column value is supported as a template variable
+            //Future: support source_columns, source_resource, lookup and process as well => refactor whole method
+            $vars = $this->spec->get_resource_triple_values($identity, NS_CONV . 'template_vars');
+            $uri = $this->create_template_uri($record, $template, $vars);
+            $uris[$resource] = $uri;
+            return;
+        } else if ($source_column) {
 //            $source_column--;
 //            $source_value = $record[$source_column];
             $source_value = $this->get_record_value($record, $source_column);
@@ -227,10 +263,13 @@ class Vertere {
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
                 //$source_column--;
-                // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
-                if (!in_array($record[$source_column - 1], $this->null_values)) {
-                    //$source_values[] = $record[$source_column];
-                    $source_value = $this->get_record_value($record, $source_column);
+                //Check if the decremented index exists before using its value 
+                if (array_key_exists($source_column - 1, $record)) {
+                    // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
+                    if (!in_array($record[$source_column - 1], $this->null_values)) {
+                        //$source_values[] = $record[$source_column];
+                        $source_value = $this->get_record_value($record, $source_column);
+                    }
                 }
             }
             $source_value = implode('', $source_values);
@@ -241,7 +280,7 @@ class Vertere {
             if (!isset($uris[$source_resource])) {
                 $this->create_uri($record, $uris, $source_resource);
             }
-            //Quick fix by Miel Vander Sande    
+            //Prevents PHP warning on key not being present   
             if (isset($uris[$source_resource]))
                 $source_value = $uris[$source_resource];
         } else {
@@ -283,7 +322,7 @@ class Vertere {
             $container .= '/';
         }
 
-        //Quick fix by Miel Vander Sande    
+        //Prevents PHP warning on key not being present  
         if (!isset($source_value))
             $source_value = null;
 
@@ -305,24 +344,25 @@ class Vertere {
         if ($processes != null) {
             $process_steps = $this->spec->get_list_values($processes);
             foreach ($process_steps as $step) {
-                switch ($step['value']) {
-                    case NS_CONV . 'normalise':
+                $function = str_replace(NS_CONV, "", $step['value']);
+                switch ($function) {
+                    case 'normalise':
                         $value = strtolower(str_replace(' ', '_', trim($value)));
                         break;
 
-                    case NS_CONV . 'trim_quotes':
+                    case 'trim_quotes':
                         $value = trim($value, '"');
                         break;
 
-                    case NS_CONV . 'flatten_utf8':
+                    case 'flatten_utf8':
                         $value = preg_replace('/[^-\w]+/', '', iconv('UTF-8', 'ascii//TRANSLIT', $value));
                         break;
 
-                    case NS_CONV . 'title_case':
+                    case 'title_case':
                         $value = ucwords($value);
                         break;
 
-                    case NS_CONV . 'regex':
+                    case 'regex':
                         $regex_pattern = $this->spec->get_first_literal($resource, NS_CONV . 'regex_match');
                         foreach (array('%', '/', '@', '!', '^', ',', '.', '-') as $candidate_delimeter) {
                             if (strpos($candidate_delimeter, $regex_pattern) === false) {
@@ -333,23 +373,28 @@ class Vertere {
                         $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'regex_output');
                         $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
                         break;
+//                    Now accesible under default
+//                    case 'feet_to_metres':
+//                        $value = Conversions::feet_to_metres($value);
+//                        break;
 
-                    case NS_CONV . 'feet_to_metres':
-                        $value = Conversions::feet_to_metres($value);
-                        break;
-
-                    case NS_CONV . 'round':
+                    case 'round':
                         $value = round($value);
                         break;
 
-                    case NS_CONV . 'substr':
+                    case 'substr':
                         $substr_start = $this->spec->get_first_literal($resource, NS_CONV . 'substr_start');
                         $substr_length = $this->spec->get_first_literal($resource, NS_CONV . 'substr_length');
                         $value = substr($value, $substr_start, $substr_length);
                         break;
 
                     default:
-                        throw new Exception("Unknown process requested: ${step}");
+                        //When no built in function matches, a custom process function in called
+                        //Made Conversion a little more flexible
+                        if (method_exists("Conversions", $function))
+                            $value = Conversions::$function($value);
+                        else
+                            throw new Exception("Unknown process requested: $function\n");
                 }
             }
         }

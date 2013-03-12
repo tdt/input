@@ -55,7 +55,7 @@ class Input {
         $start = microtime(true);
         $numberofchunks = 0;
         
-        echo 'Started ETML process';
+        echo "Started ETML process\n";
 
         while ($this->e->hasNext()) {                    
             //1. EXTRACT
