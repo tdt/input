@@ -45,17 +45,17 @@ class InputResourceController extends \tdt\core\controllers\AController {
             }
             $s = new Schedule($this->getDBConfig());
             if(isset($matches["resource"]) && $matches["resource"] != ""){
-                $object = $s->getJob($matches["resource"]);
-                unset($object->id);
-                if(isset($object->map)){
-                    unset($object->map->id);
-                    unset($object->map_id);
+                $object->job = $s->getJob($matches["resource"]);
+                unset($object->job["id"]);
+                if(isset($object->job["map"])){
+                    unset($object->job["map"]["id"]);
+                    unset($object->job["map_id"]);
                 }
-                unset($object->load->id);
-                unset($object->extract->id);
+                unset($object->job["load"]["id"]);
+                unset($object->job["extract"]["id"]);
 
-                unset($object->load_id);
-                unset($object->extract_id);
+                unset($object->job["load_id"]);
+                unset($object->job["extrac"]["id"]);
                 if(empty($object->job)){
                     throw new TDTException("404",array($matches["resource"]));
                 }
