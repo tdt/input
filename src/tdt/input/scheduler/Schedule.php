@@ -64,22 +64,32 @@ class Schedule{
         $this->queue->push($jobname,date('U'));
     }
 
+    private function validateConfig($config,$schemapath){
+        $validator = new Validator();
+        $schema = file_get_contents($schemapath,true);
+        $validator->check(json_decode(json_encode($config),false), json_decode($schema));
+        if (!$validator->isValid()) {
+            echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
+            foreach ($validator->getErrors() as $error) {
+                echo sprintf("[%s] %s -- ",$error['property'], $error['message']);
+            }
+            set_error_header(462, "JSON invalid");
+            die();
+        }
+    }
+    
+
     /**
      * Adds a job description to the system
      * Validation is done by a json schema which you find in jobs.schema.json
      * @param jobtoadd is an array with properties: name, occurence and config. Config in itself is a new array containing the ETML recipe
      */
     public function add($jobtoadd,$overwrite = false){
-        $validator = new Validator();
-        $schema = file_get_contents("job.schema.json",true);
-        $validator->check(json_decode(json_encode($jobtoadd),false), json_decode($schema));
-        if (!$validator->isValid()) {
-            echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
-            foreach ($validator->getErrors() as $error) {
-                echo sprintf("[%s] %s -- ",$error['property'], $error['message']);
-            }
-            die();
-        }
+        $this->validateConfig($jobtoadd,"job.schema.json");
+        $this->validateConfig($jobtoadd->extract, $jobtoadd->extract->type . ".extract.schema.json");
+        $this->validateConfig($jobtoadd->map,$jobtoadd->map->type .".map.schema.json");
+        $this->validateConfig($jobtoadd->load, $jobtoadd->load->type .".load.schema.json");
+        
         $existingjobs = R::findOne('job','name = ?',array($jobtoadd->name));
         if(empty($existingjobs)){
             $job = R::dispense('job');

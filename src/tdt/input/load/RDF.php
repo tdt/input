@@ -11,24 +11,14 @@ class RDF extends \tdt\input\ALoader {
     //helper vars
     private $buffer = array();
 
+    /**
+     * validation already done earlier
+     */
     public function __construct($config) {
-    	if (!isset($config["system"]))
-			throw new \Exception('Redbeans database not set in config');
-		$connection = $config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"];
-		
-		print($connection."\n");
-		
-		R::setup($config["system"] . ":host=" . $config["host"] . ";dbname=" . $config["name"], $config["user"], $config["password"]);
-		
         if (!isset($config["endpoint"]))
             throw new \Exception('SPARQL endpoint not set in config');
-
         $this->endpoint = $config["endpoint"];
-
-        if (!isset($config["format"]))
-            $config["format"] = 'json';
-
-        $this->format = $config["format"];
+        $this->format = "json";
 
         if (!isset($config["datatank_uri"]))
             throw new \Exception('Destination datatank uri not set in config');
@@ -56,19 +46,6 @@ class RDF extends \tdt\input\ALoader {
         $this->datatank_password = $config["datatank_password"];
         if (!isset($config["graph"]))
             throw new \Exception('Destination graph not set in config');
-		
-		$date_time = R::isoDateTime();
-		
-		$graph_id =  $config["graph"] . "_" . hash('ripemd160',$date_time);
-		
-		$graph = R::dispense('graph');
-		$graph->graph_name = $config["graph"];
-		$graph->graph_id = $graph_id;
-		$graph->version = $date_time;
-		
-		$id = R::store($graph);
-		
-		R::close();
 
         $this->graph = $graph_id;
 
@@ -102,7 +79,7 @@ class RDF extends \tdt\input\ALoader {
             "generic_type" => "ld",
             "endpoint" => $this->endpoint,
             "documentation" => "Linked Data resource inserted by tdt/input for the retrieval of URIs in $this->datatank_package/$this->datatank_resource"
-                );
+        );
         
         //Build PUT uri for datatank
         $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource";
@@ -154,9 +131,9 @@ class RDF extends \tdt\input\ALoader {
         $graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource . "/";
         
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
-                    $v = strtr($v[0], array('\\u' => ''));
-                    return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
-                }, $triples);
+                $v = strtr($v[0], array('\\u' => ''));
+                return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
+            }, $triples);
 
         $query = "INSERT IN GRAPH <$graph> { ";
         $query .= $serialized;
@@ -182,8 +159,8 @@ class RDF extends \tdt\input\ALoader {
 
         // set request url
         curl_setopt($ch, CURLOPT_URL, $this->endpoint
-                . '?query=' . urlencode($query)
-                . '&format=' . $this->format);
+                    . '?query=' . urlencode($query)
+                    . '&format=' . $this->format);
 
         // return response, don't print/echo
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

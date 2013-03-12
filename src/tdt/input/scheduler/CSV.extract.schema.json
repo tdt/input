@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "tdt/input job configuration schema for a CSV extractor",
+    "type": "object",
+    "properties": {
+        "source" : {
+            "type":"string",
+            "pattern": ".+",
+            "required" : true
+        },
+        "delimiter" : {
+            "type" : "string",
+            "required" : true
+        }
+    }
+}

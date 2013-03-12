@@ -1,0 +1,15 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "tdt/input job configuration schema for a SHP extractor",
+    "type": "object",
+    "properties": {
+        "source" : {
+            "type":"string",
+            "pattern": ".+",
+            "required" : true
+        },
+        "arraylevel" : {
+            "type" : "int"
+        }  
+    }
+}
