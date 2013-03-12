@@ -82,15 +82,16 @@ class RDF extends \tdt\input\AMapper {
             $spec->add_literal_triple($s, $p, $o);
         }
         
+        $process_classpath = "examples/custom/process.class.php";
 
         //Check if mapping file is the current one
         //Load spec and create new Vertere converter
-        $this->vertere = new \Vertere($spec, $specs[0]);
+        $this->vertere = new \Vertere($spec, $specs[0],$process_classpath);
     }
 
     public function execute(&$chunk) {
-        //var_dump($chunk);
         $start = microtime(true);
+        //Apply mapping to chunk
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
         $duration = (microtime(true) - $start) * 1000;

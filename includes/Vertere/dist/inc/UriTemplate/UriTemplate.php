@@ -11,6 +11,7 @@ furnished to do so, subject to the following conditions:
 */
 
 namespace Guzzle\Parser\UriTemplate;
+include_once 'UriTemplateInterface.php';
 
 /**
  * Expands URI templates using an array of variables
