@@ -91,7 +91,7 @@ class XML extends \tdt\input\AExtractor{
             foreach($xmlobject->childNodes as $child){   
                 $this->makeFlat($document, $child, $prefix . $name);
             }
-        }   
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 namespace tdt\input;
+use JsonSchema\Validator;
 
 abstract class AExtractor{
     
@@ -10,8 +11,15 @@ abstract class AExtractor{
      * Constructs the extractor according to a config, and opens the right handles.
      */
     public function __construct($config){
-        if (!isset($config["source"])){
-            throw new \Exception('Source not set in config');
+        $validator = new Validator();
+        $schema = file_get_contents("extract/" . $config["type"] . ".schema.json",true);
+        $validator->check(json_decode(json_encode($config),false), json_decode($schema));
+        if (!$validator->isValid()) {
+            echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
+            foreach ($validator->getErrors() as $error) {
+                echo sprintf("[%s] %s -- ",$error['property'], $error['message']);
+            }
+            die();
         }
         
         $this->config = $config;
