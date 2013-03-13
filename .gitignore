@@ -3,3 +3,5 @@ vendor
 nbproject/
 examples/custom/input.ini
 examples/custom/db.ini
+.DS_Store
+includes/Vertere/dist/lib/moriarty/.svn/text-base/simplegraph.class.php.netbeans-base
