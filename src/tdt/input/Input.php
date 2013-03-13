@@ -8,35 +8,42 @@
 
 namespace tdt\input;
 use JsonSchema\Validator;
+use RedBean_Facade as R;
 
 class Input {
 
     //Extractor, Mapper, Loader
     private $e, $m, $l;
 
+    private $db;
+    
     /**
      * Reads the input.ini file and initiates all classes according to their configuration
      * The configuration is not (yet) validated here.
      */
-    public function __construct($config,$db) {
+    public function __construct($config,$db = array()) {
+        if(!empty($db)){
+            $this->db = $db;
+            R::setup($this->db["system"] . ":host=" . $this->db["host"] . ";dbname=" . $this->db["name"], $this->db["user"], $this->db["password"]);
+        }
 
         $extractmethod = $config["extract"]["type"];
         $extract = $config["extract"];
         $load = $config["load"];
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
-        $this->e = new $extractorclass($extract,$db);
+        $this->e = new $extractorclass($extract);
 
         // mapper
-        if(!empty($config["map"])){
+        if(!empty($config["map"]) && !empty($config["map"]["type"])){
             $map = $config["map"];
             $mapmethod = "tdt\\input\\map\\" . $config["map"]["type"];
-            $this->m = new $mapmethod($map,$db);
+            $this->m = new $mapmethod($map);
         }
 
         // loader
-        if(!empty($config["load"])){
+        if(!empty($config["load"]) && !empty($config["load"]["type"])){
             $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
-            $this->l = new $loadclass($load,$db);
+            $this->l = new $loadclass($load);
         }
     }
     
