@@ -61,7 +61,7 @@ class RDF extends \tdt\input\ALoader {
 
 		R::close();
 
-        $this->graph = $graph_id;
+        $this->graph = $config["graph"];
 
 
         if (!isset($config["buffer_size"]))
@@ -111,10 +111,15 @@ class RDF extends \tdt\input\ALoader {
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch); 
 
-        if ($response_code >= 400) 
-            throw new \Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
+        if ($response_code >= 400) {
+            echo "PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!\n";
+            echo "Response code given was: " . $response_code . "\n";
+            echo $response . "\n";
+            
+        }else{
+            echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
+        }
         
-        echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
     }
 
     public function execute(&$chunk) {
