@@ -590,7 +590,8 @@ class SimpleGraph {
     if ($turtle) {
       $parser = ARC2::getTurtleParser();
       $parser->parse($base, $turtle );
-      $this->_add_arc2_triple_list($parser->getTriples());
+      $triples = $parser->getTriples();
+      $this->_add_arc2_triple_list($triples);
       unset($parser);
     }
   }
