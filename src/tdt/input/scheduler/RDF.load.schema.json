@@ -11,10 +11,6 @@
             "type" : "string",
             "required" : true
         },
-        "datatank_uri" : {
-            "type" : "string",
-            "required" : true
-        },
 "datatank_package": {
             "type" : "string",
             "required" : true
@@ -28,10 +24,6 @@
             "required" : true
         },
 "datatank_password": {
-            "type" : "string",
-            "required" : true
-        },
-        "graph": {
             "type" : "string",
             "required" : true
         },

@@ -44,10 +44,25 @@ class RDF extends \tdt\input\ALoader {
             throw new \Exception('Password for datatank not set in config');
         
         $this->datatank_password = $config["datatank_password"];
-        if (!isset($config["graph"]))
-            throw new \Exception('Destination graph not set in config');
+        
+        //Store graph in database
+        $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+
+		$date_time = R::isoDateTime();
+
+		$graph_id =  $this->graph . "_" . hash('ripemd160',$date_time);
+
+		$graph = R::dispense('graph');
+		$graph->graph_name = $this->graph;
+		$graph->graph_id = $graph_id;
+		$graph->version = $date_time;
+
+		$id = R::store($graph);
+
+		R::close();
 
         $this->graph = $graph_id;
+
 
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;
@@ -99,7 +114,7 @@ class RDF extends \tdt\input\ALoader {
         if ($response_code >= 400) 
             throw new \Exception("PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!");
         
-        echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource/\n";
+        echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
     }
 
     public function execute(&$chunk) {
@@ -129,14 +144,13 @@ class RDF extends \tdt\input\ALoader {
     }
 
     private function query($triples) {
-        $graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource . "/";
         
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
                 $v = strtr($v[0], array('\\u' => ''));
                 return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
             }, $triples);
 
-        $query = "INSERT IN GRAPH <$graph> { ";
+        $query = "INSERT IN GRAPH <$this->graph> { ";
         $query .= $serialized;
         $query .= ' }';
 
