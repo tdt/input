@@ -16,6 +16,7 @@
 
 namespace tdt\input\scheduler\controllers;
 use tdt\input\scheduler\Schedule;
+use tdt\input\Input;
 use tdt\core\formatters\FormatterFactory;
 use tdt\exceptions\TDTException;
 use app\core\Config;
@@ -55,9 +56,16 @@ class InputResourceController extends \tdt\core\controllers\AController {
                 unset($object->job["extract"]["id"]);
 
                 unset($object->job["load_id"]);
-                unset($object->job["extrac"]["id"]);
+                unset($object->job["load"]["id"]);
                 if(empty($object->job)){
                     throw new TDTException("404",array($matches["resource"]));
+                }
+                if(isset($matches["test"])){
+                    //convert object to array
+                    $job = json_decode(json_encode($object->job) ,true);
+                    $input = new Input($job);
+                    $input->execute();
+                    exit();
                 }
             }else{
                 //when only TDTInput is requested, we will show all the jobs configured                
