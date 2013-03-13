@@ -61,7 +61,7 @@ class RDF extends \tdt\input\ALoader {
 
 		R::close();
 
-        $this->graph = $config["graph"];
+        $this->graph = $graph_id;
 
 
         if (!isset($config["buffer_size"]))
@@ -101,7 +101,7 @@ class RDF extends \tdt\input\ALoader {
 
         $ch = curl_init($uri);
         
-        curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);  
+        curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
@@ -199,7 +199,7 @@ class RDF extends \tdt\input\ALoader {
         if ($response_code != "200")
         {
             echo "query failed: " . $response_code . "\n" . $response . "\n";
-            throw new \Exception("Query failed!");
+            throw new \Exception("Query failed: $response");
         }
 
 
