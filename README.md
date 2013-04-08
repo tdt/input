@@ -104,6 +104,7 @@ composer update
 ```
 
 When you have configured tdt/start according to the documentation (filling out the configuration files), then you can also add the appropriate routes:
+Note: (obviously this is not done in routes.json but:) in app/configuration/cores.json
 
 ```json
 {
