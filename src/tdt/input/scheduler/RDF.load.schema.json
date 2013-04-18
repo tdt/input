@@ -27,6 +27,14 @@
             "type" : "string",
             "required" : true
         },
+        "endpoint_user": {
+            "type" : "string",
+            "required" : false
+        },
+"endpoint_password": {
+            "type" : "string",
+            "required" : false
+        },
         "buffer_size": {
             "type" : "string",
             "required" : false

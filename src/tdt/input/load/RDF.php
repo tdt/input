@@ -45,6 +45,16 @@ class RDF extends \tdt\input\ALoader {
         
         $this->datatank_password = $config["datatank_password"];
         
+        if (!isset($config["endpoint_user"]))
+            echo 'User for endpoint not set in config\n';
+        
+        $this->endpoint_user = $config["endpoint_user"];
+        
+        if (!isset($config["endpoint_password"]))
+            echo 'Password for endpoint not set in config\n';
+        
+        $this->endpoint_password = $config["endpoint_password"];
+        
         //Store graph in database
         $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
 
@@ -120,6 +130,7 @@ class RDF extends \tdt\input\ALoader {
             echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
         }
         
+        $this->insertMetadata();
     }
 
     public function execute(&$chunk) {
@@ -148,6 +159,21 @@ class RDF extends \tdt\input\ALoader {
         echo "|_Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer \n";
     }
 
+    private function insertMetadata(){
+        
+        $time = date("c", time());
+        
+        $query = "INSERT IN GRAPH <$this->graph> { ";
+        $query .= "<$this->graph> <http://purl.org/dc/terms/created> \"$time\"^^xsd:dateTime";
+        $query .= ' }';
+        
+        $response = json_decode($this->execSPARQL($query), true);
+
+        if ($response)
+            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+        echo " |_Graph $this->graph added on $time. Metadata added!";
+    }
+    
     private function query($triples) {
         
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
@@ -177,6 +203,9 @@ class RDF extends \tdt\input\ALoader {
         // get curl handle
         $ch = curl_init();
 
+        curl_setopt($ch, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->endpoint_user . ":" . $this->endpoint_password);
+        
         // set request url
         curl_setopt($ch, CURLOPT_URL, $this->endpoint
                     . '?query=' . urlencode($query)
