@@ -117,6 +117,7 @@ class RDF extends \tdt\input\ALoader {
             echo $response . "\n";
             
         }else{
+            echo "Request to add resource in The DataTank succeeded with code " . $response_code . " and message \"$response\"\n";
             echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
         }
         
