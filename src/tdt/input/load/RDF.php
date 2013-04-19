@@ -1,6 +1,7 @@
 <?php
 
 namespace tdt\input\load;
+
 use RedBean_Facade as R;
 
 class RDF extends \tdt\input\ALoader {
@@ -22,54 +23,54 @@ class RDF extends \tdt\input\ALoader {
 
         if (!isset($config["datatank_uri"]))
             throw new \Exception('Destination datatank uri not set in config');
-        
+
         $this->datatank_uri = $config["datatank_uri"];
 
         if (!isset($config["datatank_package"]))
             throw new \Exception('Destination datatank package not set in config');
-        
+
         $this->datatank_package = $config["datatank_package"];
 
         if (!isset($config["datatank_resource"]))
             throw new \Exception('Destination datatank resource not set in config');
-        
+
         $this->datatank_resource = $config["datatank_resource"];
-        
+
         if (!isset($config["datatank_user"]))
             throw new \Exception('User for datatank not set in config');
-        
+
         $this->datatank_user = $config["datatank_user"];
-        
+
         if (!isset($config["datatank_password"]))
             throw new \Exception('Password for datatank not set in config');
-        
+
         $this->datatank_password = $config["datatank_password"];
-        
+
         if (!isset($config["endpoint_user"]))
             echo 'User for endpoint not set in config\n';
-        
+
         $this->endpoint_user = $config["endpoint_user"];
-        
+
         if (!isset($config["endpoint_password"]))
             echo 'Password for endpoint not set in config\n';
-        
+
         $this->endpoint_password = $config["endpoint_password"];
-        
+
         //Store graph in database
         $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
 
-		$date_time = R::isoDateTime();
+        $date_time = R::isoDateTime();
 
-		$graph_id =  $this->graph . "_" . hash('ripemd160',$date_time);
+        $graph_id = $this->graph . "_" . hash('ripemd160', $date_time);
 
-		$graph = R::dispense('graph');
-		$graph->graph_name = $this->graph;
-		$graph->graph_id = $graph_id;
-		$graph->version = $date_time;
+        $graph = R::dispense('graph');
+        $graph->graph_name = $this->graph;
+        $graph->graph_id = $graph_id;
+        $graph->version = $date_time;
 
-		$id = R::store($graph);
+        $id = R::store($graph);
 
-		R::close();
+        R::close();
 
         $this->graph = $graph_id;
 
@@ -82,18 +83,17 @@ class RDF extends \tdt\input\ALoader {
 
     public function __destruct() {
         echo "Empty loader buffer...\n";
-        
-        try{
+
+        try {
             while (!empty($this->buffer)) {
                 $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
-                
+
                 $triples_to_send = array_slice($this->buffer, 0, $count);
                 $this->query(implode(' ', $triples_to_send));
-                
+
                 $this->buffer = array_slice($this->buffer, $count);
             }
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             echo "ETML Failed: " . $e->getMessage() . "\n";
         }
 
@@ -105,31 +105,35 @@ class RDF extends \tdt\input\ALoader {
             "endpoint" => $this->endpoint,
             "documentation" => "Linked Data resource inserted by tdt/input for the retrieval of URIs in $this->datatank_package/$this->datatank_resource"
         );
-        
+        if (isset($config["endpoint_user"]))
+            $data["endpoint_user"] = $this->endpoint_user;
+            
+        if (isset($config["endpoint_password"]))
+            $data["endpoint_password"] = $this->endpoint_password;
+
         //Build PUT uri for datatank
         $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource";
 
         $ch = curl_init($uri);
-        
+
         curl_setopt($ch, CURLOPT_USERPWD, $this->datatank_user . ":" . $this->datatank_password);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
 
         $response = curl_exec($ch);
-        
+
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch); 
+        curl_close($ch);
 
         if ($response_code >= 400) {
             echo "PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!\n";
             echo "Response code given was: " . $response_code . "\n";
             echo $response . "\n";
-            
-        }else{
+        } else {
             echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
         }
-        
+
         $this->insertMetadata();
     }
 
@@ -146,7 +150,7 @@ class RDF extends \tdt\input\ALoader {
                 $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
 
                 $this->query(implode(' ', $triples_to_send));
-                
+
 
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
@@ -159,27 +163,27 @@ class RDF extends \tdt\input\ALoader {
         echo "|_Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer \n";
     }
 
-    private function insertMetadata(){
-        
+    private function insertMetadata() {
+
         $time = date("c", time());
-        
+
         $query = "INSERT IN GRAPH <$this->graph> { ";
         $query .= "<$this->graph> <http://purl.org/dc/terms/created> \"$time\"^^xsd:dateTime";
         $query .= ' }';
-        
+
         $response = json_decode($this->execSPARQL($query), true);
 
         if ($response)
             echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
         echo " |_Graph $this->graph added on $time. Metadata added!";
     }
-    
+
     private function query($triples) {
-        
+
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
-                $v = strtr($v[0], array('\\u' => ''));
-                return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
-            }, $triples);
+                    $v = strtr($v[0], array('\\u' => ''));
+                    return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
+                }, $triples);
 
         $query = "INSERT IN GRAPH <$this->graph> { ";
         $query .= $serialized;
@@ -205,11 +209,11 @@ class RDF extends \tdt\input\ALoader {
 
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_USERPWD, $this->endpoint_user . ":" . $this->endpoint_password);
-        
+
         // set request url
         curl_setopt($ch, CURLOPT_URL, $this->endpoint
-                    . '?query=' . urlencode($query)
-                    . '&format=' . $this->format);
+                . '?query=' . urlencode($query)
+                . '&format=' . $this->format);
 
         // return response, don't print/echo
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -217,16 +221,14 @@ class RDF extends \tdt\input\ALoader {
 
         $response = curl_exec($ch);
 
-        if (!$response)
-        {
+        if (!$response) {
             echo "endpoint returned error: " . curl_error($ch) . " - ";
             throw new \Exception("Endpoint returned an error!");
         }
-        
+
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        if ($response_code != "200")
-        {
+        if ($response_code != "200") {
             echo "query failed: " . $response_code . "\n" . $response . "\n";
             throw new \Exception("Query failed: $response");
         }

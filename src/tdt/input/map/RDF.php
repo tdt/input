@@ -34,12 +34,17 @@ class RDF extends \tdt\input\AMapper {
         curl_setopt($ch, CURLOPT_URL, $config['mapfile']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        $spec_file = curl_exec($ch);
+
+        if (!$spec_file = curl_exec($ch)) {
+            var_dump(curl_error($ch));
+        }
+
         curl_close($ch);
 
         if (empty($spec_file)) {
             die("Mapping file location not correct\n");
         }
+
 
         $spec = new \SimpleGraph();
         $spec->from_turtle($spec_file);
