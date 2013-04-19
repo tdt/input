@@ -203,7 +203,7 @@ class RDF extends \tdt\input\ALoader {
         // get curl handle
         $ch = curl_init();
 
-        curl_setopt($ch, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         curl_setopt($ch, CURLOPT_USERPWD, $this->endpoint_user . ":" . $this->endpoint_password);
         
         // set request url
