@@ -11,6 +11,7 @@ class RDF extends \tdt\input\ALoader {
     private $buffer_size; //amount of chunks that are being inserted into one request
     //helper vars
     private $buffer = array();
+    private $old_graphs;
 
     /**
      * validation already done earlier
@@ -68,6 +69,8 @@ class RDF extends \tdt\input\ALoader {
         $graph->graph_id = $graph_id;
         $graph->version = $date_time;
 
+        $this->old_graphs = \tdt\core\model\DBQueries::getAllGraphs($this->graph);
+
         $id = R::store($graph);
 
         R::close();
@@ -107,7 +110,7 @@ class RDF extends \tdt\input\ALoader {
         );
         if (isset($this->endpoint_user))
             $data["endpoint_user"] = $this->endpoint_user;
-            
+
         if (isset($this->endpoint_password))
             $data["endpoint_password"] = $this->endpoint_password;
 
@@ -134,7 +137,7 @@ class RDF extends \tdt\input\ALoader {
             echo "Request to add resource in The DataTank succeeded with code " . $response_code . " and message \"$response\"\n";
             echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
         }
-
+        $this->clearOldGraphs();
         $this->insertMetadata();
     }
 
@@ -162,6 +165,22 @@ class RDF extends \tdt\input\ALoader {
 
         $duration = (microtime(true) - $start) * 1000;
         echo "|_Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer \n";
+    }
+
+    private function clearOldGraphs() {
+        foreach ($this->old_graphs as $graph) {
+            $graph_id = $graph["graph_id"];
+            $query = "CLEAR GRAPH <$graph_id>;";
+
+            $response = json_decode($this->execSPARQL($query), true);
+
+            if ($response)
+                echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+
+            \tdt\core\model\DBQueries::deleteGraph($graph);
+
+            echo " |_Old version of graph $graph is cleared!";
+        }
     }
 
     private function insertMetadata() {
@@ -196,6 +215,47 @@ class RDF extends \tdt\input\ALoader {
 
         if ($response)
             echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+    }
+
+    private function execGraphStore($triples) {
+        // is curl installed?
+        if (!function_exists('curl_init')) {
+            throw new \Exception('CURL is not installed!');
+        }
+
+        // get curl handle
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->endpoint_user . ":" . $this->endpoint_password);
+
+        // set request url
+        curl_setopt($ch, CURLOPT_URL, $this->endpoint
+                . '?query=' . urlencode($query)
+                . '&format=' . $this->format);
+
+        // return response, don't print/echo
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+
+        $response = curl_exec($ch);
+
+        if (!$response) {
+            echo "endpoint returned error: " . curl_error($ch) . " - ";
+            throw new \Exception("Endpoint returned an error!");
+        }
+
+        $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if ($response_code != "200") {
+            echo "query failed: " . $response_code . "\n" . $response . "\n";
+            throw new \Exception("Query failed: $response");
+        }
+
+
+        curl_close($ch);
+
+        return $response;
     }
 
     private function execSPARQL($query) {
