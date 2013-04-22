@@ -105,10 +105,10 @@ class RDF extends \tdt\input\ALoader {
             "endpoint" => $this->endpoint,
             "documentation" => "Linked Data resource inserted by tdt/input for the retrieval of URIs in $this->datatank_package/$this->datatank_resource"
         );
-        if (isset($config["endpoint_user"]))
+        if (isset($this->endpoint_user))
             $data["endpoint_user"] = $this->endpoint_user;
             
-        if (isset($config["endpoint_password"]))
+        if (isset($this->endpoint_password))
             $data["endpoint_password"] = $this->endpoint_password;
 
         //Build PUT uri for datatank
