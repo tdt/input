@@ -50,7 +50,7 @@ class Vertere {
                 throw new Exception("Source column value is not valid: string or numeric");
 
             if (array_key_exists($source_column, $record))
-                return $record[$source_column];
+                return trim($record[$source_column]);
 
             echo "Column reference $source_column is not found in source\n";
             return;
@@ -59,7 +59,21 @@ class Vertere {
         if (!array_key_exists($key, $record))
             throw new Exception("Source column value is not valid");
 
-        return $record[$key];
+        return trim($record[$key]);
+    }
+    
+    public function record_key_exists($source_column, $record) {
+        $key = array_search($source_column, $this->header);
+        if ($key === false) {
+            if (is_numeric($source_column))
+                $source_column--;
+            else if (!is_string($source_column))
+                throw new Exception("Source column value is not valid: string or numeric");
+
+            return array_key_exists($source_column, $record);
+        }
+
+        return !array_key_exists($key, $record);
     }
 
     public function convert_array_to_graph($record, $header = array()) {
@@ -108,7 +122,7 @@ class Vertere {
         $value = $this->spec->get_first_literal($attribute, NS_CONV . 'value');
         $source_column = $this->spec->get_first_literal($attribute, NS_CONV . 'source_column');
         $source_columns = $this->spec->get_first_resource($attribute, NS_CONV . 'source_columns');
-
+        
         if ($value) {
             $source_value = $value;
         } else if ($source_column) {
@@ -126,9 +140,11 @@ class Vertere {
             $source_values = array();
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
+                
 //                $source_column--;
 //                $value = $record[$source_column];
-                $source_value = $this->get_record_value($record, $source_column);
+                $value = $this->get_record_value($record, $source_column);
+                
                 if (preg_match($filter, $value) != 0 && !in_array($value, $this->null_values)) {
                     $source_values[] = $value;
                 }
@@ -260,18 +276,24 @@ class Vertere {
             $source_columns = $this->spec->get_list_values($source_columns);
             $glue = $this->spec->get_first_literal($identity, NS_CONV . 'source_column_glue');
             $source_values = array();
+
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
                 //$source_column--;
                 //Check if the decremented index exists before using its value 
-                if (array_key_exists($source_column - 1, $record)) {
+                $key = is_numeric($source_column) ? $source_column - 1 : $source_column;
+
+                if (array_key_exists($key, $record)) {
                     // if (!empty($record[$source_column])) {  // empty() is not a good idea: empty(0) == TRUE
-                    if (!in_array($record[$source_column - 1], $this->null_values)) {
+                    if (!in_array($record[$key], $this->null_values)) {
                         //$source_values[] = $record[$source_column];
-                        $source_value = $this->get_record_value($record, $source_column);
+                        $source_values[] = $this->get_record_value($record, $source_column);
+                    } else {
+                        $source_values[] = "<unknown>";
                     }
                 }
             }
+
             $source_value = implode('', $source_values);
             if (!empty($source_value)) {
                 $source_value = implode($glue, $source_values);
