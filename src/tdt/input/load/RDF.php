@@ -233,7 +233,7 @@ class RDF extends \tdt\input\ALoader {
             "update" => $query
         );
 
-        $url = $this->endpoint ;
+        $url = $this->endpoint ."?query=".  urlencode($query);
 
         $defaults = array(
             CURLOPT_CUSTOMREQUEST => $method,
@@ -258,12 +258,12 @@ class RDF extends \tdt\input\ALoader {
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        echo "Endpoint $url returned: $response_code";
+        echo "Endpoint returned: $response_code";
         if ($response_code >= 400) {
             echo " - query failed: " . $response_code . "\n" . $response . "\n";
             throw new \Exception("Query failed: $response");
         } else
-            echo " - SPARQL query succeeded\n";
+            echo " - SPARQL query succeeded\n $response \n";
 
         curl_close($ch);
 
