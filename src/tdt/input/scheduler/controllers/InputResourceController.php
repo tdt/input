@@ -57,6 +57,12 @@ class InputResourceController extends \tdt\core\controllers\AController {
 
                 unset($object->job["load_id"]);
                 unset($object->job["extract_id"]);
+                $object->job = array_filter($object->job);
+
+                $object->job["extract"] = array_filter($object->job["extract"]);
+                $object->job["map"] = array_filter($object->job["map"]);
+                $object->job["load"] = array_filter($object->job["load"]);
+
                 if(empty($object->job)){
                     throw new TDTException("404",array($matches["resource"]));
                 }
