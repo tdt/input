@@ -82,6 +82,9 @@ class Schedule{
      * @param jobtoadd is an array with properties: name, occurence and config. Config in itself is a new array containing the ETML recipe
      */
     public function add($jobtoadd,$overwrite = false){
+        if(isset($jobtoadd->job)){
+            $jobtoadd = $jobtoadd->job;
+        }
         $this->validateConfig($jobtoadd,"job.schema.json");
         $this->validateConfig($jobtoadd->extract, $jobtoadd->extract->type . ".extract.schema.json");
         if(isset($jobtoadd->map))
