@@ -20,9 +20,11 @@ include_once VERTERE_DIR . 'inc/diagnostics.php';
 class RDF extends \tdt\input\AMapper {
 
     private $vertere;
-
-    function __construct($config) {
-
+    public $log;
+    
+    function __construct($config, &$log) {
+        $this->log = &$log;
+        
         if (!isset($config["mapfile"]))
             throw new \Exception("Map document not set in config");
 
@@ -36,13 +38,13 @@ class RDF extends \tdt\input\AMapper {
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 
         if (!$spec_file = curl_exec($ch)) {
-            var_dump(curl_error($ch));
+            throw new \Exception(curl_error($ch));
         }
 
         curl_close($ch);
 
         if (empty($spec_file)) {
-            die("Mapping file location not correct\n");
+            throw new \Exception("Mapping file location not correct\n");
         }
 
 
@@ -57,7 +59,7 @@ class RDF extends \tdt\input\AMapper {
         }
 
         if (!isset($config["datatank_package"]) || !isset($config["datatank_resource"]))
-            echo 'Destination datatank package or resource not set in config. A Datatank will not be used as base URI in the RDF output, this prevents automatically URI resolvement';
+            throw new \Exception('Destination datatank package or resource not set in config. A Datatank will not be used as base URI in the RDF output, this prevents automatically URI resolvement');
         else {
             $this->base_uri = $config["datatank_uri"] . $config["datatank_package"] . "/" . $config["datatank_resource"] . "/";
 
@@ -97,7 +99,7 @@ class RDF extends \tdt\input\AMapper {
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
         $duration = (microtime(true) - $start) * 1000;
-        echo " |_Mapping executed in $duration ms\n";
+        $this->log[] = "Mapping executed in $duration ms";
 
         return $graph;
     }

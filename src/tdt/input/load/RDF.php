@@ -13,10 +13,13 @@ class RDF extends \tdt\input\ALoader {
     private $buffer = array();
     private $old_graphs;
 
+    public $log;
+
     /**
      * validation already done earlier
      */
-    public function __construct($config) {
+    public function __construct($config, &$log) {
+        $this->log = &$log;
         if (!isset($config["endpoint"]))
             throw new \Exception('SPARQL endpoint not set in config');
         $this->endpoint = $config["endpoint"];
@@ -48,12 +51,12 @@ class RDF extends \tdt\input\ALoader {
         $this->datatank_password = $config["datatank_password"];
 
         if (!isset($config["endpoint_user"]))
-            echo "User for endpoint not set in config\n";
+            throw new \Exception("User for endpoint not set in config");
 
         $this->endpoint_user = $config["endpoint_user"];
 
         if (!isset($config["endpoint_password"]))
-            echo "Password for endpoint not set in config\n";
+            throw new \Exception("Password for endpoint not set in config");
 
         $this->endpoint_password = $config["endpoint_password"];
 
@@ -87,7 +90,7 @@ class RDF extends \tdt\input\ALoader {
     }
 
     public function __destruct() {
-        echo "Empty loader buffer...\n";
+        $this->log[] = "Empty loader buffer";
 
         try {
             while (!empty($this->buffer)) {
@@ -99,10 +102,10 @@ class RDF extends \tdt\input\ALoader {
                 $this->buffer = array_slice($this->buffer, $count);
             }
         } catch (\Exception $e) {
-            echo "ETML Failed: " . $e->getMessage() . "\n";
+            throw new \Exception("ETML Failed: " . $e->getMessage());
         }
 
-        echo "Inserting resource into datatank...\n";
+        $this->log[] =  "Inserting resource into your datatank";
         //Add SPARQL resource with describe query to datatank
         $data = array(
             "resource_type" => "generic",
@@ -133,12 +136,11 @@ class RDF extends \tdt\input\ALoader {
         curl_close($ch);
 
         if ($response_code >= 400) {
-            echo "PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!\n";
-            echo "Response code given was: " . $response_code . "\n";
-            echo $response . "\n";
+            $this->log[] = "PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!";
+            $this->log[] = "Response code given was: " . $response_code;
         } else {
-            echo "Request to add resource in The DataTank succeeded with code " . $response_code . " and message \"$response\"\n";
-            echo "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource\n";
+            $this->log[] = "Request to add resource in The DataTank succeeded with code " . $response_code;
+            $this->log[] = "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource";
         }
         $this->clearOldGraphs();
     }
@@ -158,13 +160,10 @@ class RDF extends \tdt\input\ALoader {
                 $this->addTriples(implode(' ', $triples_to_send));
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
-        } else {
-            echo "Empty chunk\n";
         }
 
-
         $duration = (microtime(true) - $start) * 1000;
-        echo "|_Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer \n";
+        $this->log[] = "Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer";
     }
 
     private function clearOldGraphs() {
@@ -175,11 +174,11 @@ class RDF extends \tdt\input\ALoader {
             $response = json_decode($this->execSPARQL($query), true);
 
             if ($response)
-                echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
+                $this->log[] = $response['results']['bindings'][0]['callret-0']['value'];
 
             \tdt\core\model\DBQueries::deleteGraph($graph);
 
-            echo " |_Old version of graph $graph is cleared!";
+            $this->log[] ="Old version of graph $graph is cleared!";
         }
     }
 
@@ -191,10 +190,7 @@ class RDF extends \tdt\input\ALoader {
         $query .= ' }';
 
         $response = json_decode($this->execSPARQL($query), true);
-
-        if ($response)
-            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
-        echo " |_Graph $this->graph added on $datetime. Metadata added!";
+        $this->log[] = "Graph $this->graph added on $datetime. Metadata added!";
     }
 
     private function addTriples($triples) {
@@ -208,12 +204,10 @@ class RDF extends \tdt\input\ALoader {
         $query .= ' }';
 
 
-        echo " |_Flush buffer... ";
+        $this->log[] = "Flush buffer... ";
 
         $response = json_decode($this->execSPARQL($query), true);
 
-        if ($response)
-            echo $response['results']['bindings'][0]['callret-0']['value'] . "\n";
     }
 
     /**
@@ -258,12 +252,11 @@ class RDF extends \tdt\input\ALoader {
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        echo "Endpoint returned: $response_code";
+        $this->log[] = "Endpoint returned: $response_code";
         if ($response_code >= 400) {
-            echo " - query failed: " . $response_code . "\n" . $response . "\n";
+            $this->log[] = " - query failed: " . $response_code . ": " . $response;
             throw new \Exception("Query failed: $response");
-        } else
-            echo " - SPARQL query succeeded\n $response \n";
+        } 
 
         curl_close($ch);
 

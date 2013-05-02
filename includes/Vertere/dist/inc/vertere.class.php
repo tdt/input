@@ -8,7 +8,6 @@ include_once 'UriTemplate/UriTemplate.php';
 class Vertere {
 
     private $spec, $spec_uri, $resources, $base_uri, $lookups = array(), $null_values = array(), $header;
-
     public function __construct($spec, $spec_uri) {
         $this->spec = $spec;
         $this->spec_uri = $spec_uri;
@@ -52,7 +51,7 @@ class Vertere {
             if (array_key_exists($source_column, $record))
                 return trim($record[$source_column]);
 
-            echo "Column reference $source_column is not found in source\n";
+            //echo "Column reference $source_column is not found in source\n";
             return;
         }
 
