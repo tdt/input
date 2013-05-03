@@ -169,7 +169,6 @@ class Vertere {
         }
 
         $source_value = $this->process($attribute, $source_value);
-
         $graph->add_literal_triple($subject, $property, $source_value, $language, $datatype);
     }
 
@@ -391,6 +390,8 @@ class Vertere {
                                 break;
                             }
                         }
+                        //MVS: Added this as a correction, not sure what above foreach does but breaking the regex
+                        $delimeter = "/";
                         $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'regex_output');
                         $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
                         break;
