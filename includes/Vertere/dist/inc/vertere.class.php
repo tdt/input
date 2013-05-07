@@ -8,6 +8,7 @@ include_once 'UriTemplate/UriTemplate.php';
 class Vertere {
 
     private $spec, $spec_uri, $resources, $base_uri, $lookups = array(), $null_values = array(), $header;
+
     public function __construct($spec, $spec_uri) {
         $this->spec = $spec;
         $this->spec_uri = $spec_uri;
@@ -60,7 +61,7 @@ class Vertere {
 
         return trim($record[$key]);
     }
-    
+
     public function record_key_exists($source_column, $record) {
         $key = array_search($source_column, $this->header);
         if ($key === false) {
@@ -121,7 +122,7 @@ class Vertere {
         $value = $this->spec->get_first_literal($attribute, NS_CONV . 'value');
         $source_column = $this->spec->get_first_literal($attribute, NS_CONV . 'source_column');
         $source_columns = $this->spec->get_first_resource($attribute, NS_CONV . 'source_columns');
-        
+
         if ($value) {
             $source_value = $value;
         } else if ($source_column) {
@@ -139,11 +140,11 @@ class Vertere {
             $source_values = array();
             foreach ($source_columns as $source_column) {
                 $source_column = $source_column['value'];
-                
+
 //                $source_column--;
 //                $value = $record[$source_column];
                 $value = $this->get_record_value($record, $source_column);
-                
+
                 if (preg_match($filter, $value) != 0 && !in_array($value, $this->null_values)) {
                     $source_values[] = $value;
                 }
@@ -367,7 +368,22 @@ class Vertere {
                 $function = str_replace(NS_CONV, "", $step['value']);
                 switch ($function) {
                     case 'normalise':
-                        $value = strtolower(str_replace(' ', '_', trim($value)));
+                        //$value = strtolower(str_replace(' ', '_', trim($value)));
+                        // Swap out Non "Letters" with a _
+                        $value = preg_replace('/[^\\pL\d]+/u', '_', $value);
+
+                        // Trim out extra -'s
+                        $value = trim($value, '-');
+
+                        // Convert letters that we have left to the closest ASCII representation
+                        $value = iconv('utf-8', 'us-ascii//TRANSLIT', $value);
+
+                        // Make text lowercase
+                        $value = strtolower($value);
+
+                        // Strip out anything we haven't been able to convert
+                        $value = preg_replace('/[^-\w]+/', '', $value);
+
                         break;
 
                     case 'trim_quotes':
