@@ -101,7 +101,7 @@ class RDF extends \tdt\input\ALoader {
 
         try {
             while (!empty($this->buffer)) {
-                $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
+                $count = count($this->buffer) <= $this->buffer_size ? count($this->buffer) : $this->buffer_size;
 
                 $triples_to_send = array_slice($this->buffer, 0, $count);
                 $this->addTriples(implode(' ', $triples_to_send));
