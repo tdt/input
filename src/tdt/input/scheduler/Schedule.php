@@ -61,17 +61,25 @@ class Schedule{
         $this->queue->push($jobname,date('U'));
     }
 
-    private function validateConfig($config,$schemapath){
+    private function validateConfig($config,$schemapath,$die=true){
         $validator = new Validator();
-        $schema = file_get_contents($schemapath,true);
-        $validator->check(json_decode(json_encode($config),false), json_decode($schema));
-        if (!$validator->isValid()) {
-            echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
-            foreach ($validator->getErrors() as $error) {
-                echo sprintf("[%s] %s -- ",$error['property'], $error['message']);
+        if(file_exists($schemapath)){
+            $schema = file_get_contents($schemapath,true);
+            $validator->check(json_decode(json_encode($config),false), json_decode($schema));
+            if (!$validator->isValid()) {
+                $errors = array();
+                $errors[]= echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
+                foreach ($validator->getErrors() as $error) {
+                    $errors[] = sprintf("[%s] %s -- ",$error['property'], $error['message']);
+                }
+                if($die){
+                    set_error_header(462, "JSON invalid");
+                    foreach($errors as $error) {
+                        echo "$error \n";
+                    }
+                    die();
+                }
             }
-            set_error_header(462, "JSON invalid");
-            die();
         }
     }
     
