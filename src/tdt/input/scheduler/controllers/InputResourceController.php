@@ -66,6 +66,8 @@ class InputResourceController extends \tdt\core\controllers\AController {
                 throw new TDTException("404",array($matches["resource"]));
             }
             if(isset($matches["test"])){
+                ignore_user_abort(true);
+                set_time_limit(0);
                 //convert object to array
                 $job = json_decode(json_encode($object->job) ,true);
                 $input = new Input($job);

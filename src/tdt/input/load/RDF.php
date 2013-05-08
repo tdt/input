@@ -9,10 +9,9 @@ class RDF extends \tdt\input\ALoader {
     private $endpoint;
     private $format;
     private $buffer_size; //amount of chunks that are being inserted into one request
-    //helper vars
+//helper vars
     private $buffer = array();
     private $old_graphs;
-
     public $log;
 
     /**
@@ -24,6 +23,7 @@ class RDF extends \tdt\input\ALoader {
             throw new \Exception('SPARQL endpoint not set in config');
         $this->endpoint = $config["endpoint"];
         $this->format = "json";
+
 
         if (!isset($config["datatank_uri"]))
             throw new \Exception('Destination datatank uri not set in config');
@@ -40,34 +40,41 @@ class RDF extends \tdt\input\ALoader {
 
         $this->datatank_resource = $config["datatank_resource"];
 
-        if (!isset($config["datatank_user"]))
-            throw new \Exception('User for datatank not set in config');
+        if (!isset($config["datatank_user"])) {
+            //echo 'User for datatank not set in config\n';
+            $this->datatank_user = "";
+        } else {
+            $this->datatank_user = $config["datatank_user"];
+        }
+        
+        if (!isset($config["datatank_password"])) {
+            //echo 'Password for datatank not set in config\n';
+            $this->datatank_password = "";
+        } else {
+            $this->datatank_password = $config["datatank_password"];
+        }
+        
+        if (!isset($config["endpoint_user"])) {
+            //echo "User for endpoint not set in config\n";
+            $this->endpoint_user = "";
+        } else {
+            $this->endpoint_user = $config["endpoint_user"];
+        }
 
-        $this->datatank_user = $config["datatank_user"];
-
-        if (!isset($config["datatank_password"]))
-            throw new \Exception('Password for datatank not set in config');
-
-        $this->datatank_password = $config["datatank_password"];
-
-        if (!isset($config["endpoint_user"]))
-            throw new \Exception("User for endpoint not set in config");
-
-        $this->endpoint_user = $config["endpoint_user"];
-
-        if (!isset($config["endpoint_password"]))
-            throw new \Exception("Password for endpoint not set in config");
-
-        $this->endpoint_password = $config["endpoint_password"];
+        if (!isset($config["endpoint_password"])){
+            //echo "Password for endpoint not set in config\n";
+            $this->endpoint_password = "";
+        }else {
+            $this->endpoint_password = $config["endpoint_password"];
+        }
 
         //Store graph in database
         $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
 
         $date_time = date("c");
+        
         $graph_id = $this->graph . "#" . hash('ripemd160', $date_time);
-        
-        
-        
+
         $graph = R::dispense('graph');
         $graph->graph_name = $this->graph;
         $graph->graph_id = $graph_id;
@@ -94,7 +101,7 @@ class RDF extends \tdt\input\ALoader {
 
         try {
             while (!empty($this->buffer)) {
-                $count = count($this->buffer) <= $this->buffer_size ? $this->buffer_size : count($this->buffer);
+                $count = count($this->buffer) <= $this->buffer_size ? count($this->buffer) : $this->buffer_size;
 
                 $triples_to_send = array_slice($this->buffer, 0, $count);
                 $this->addTriples(implode(' ', $triples_to_send));
@@ -105,8 +112,8 @@ class RDF extends \tdt\input\ALoader {
             throw new \Exception("ETML Failed: " . $e->getMessage());
         }
 
-        $this->log[] =  "Inserting resource into your datatank";
-        //Add SPARQL resource with describe query to datatank
+        $this->log[] = "Inserting resource into your datatank";
+//Add SPARQL resource with describe query to datatank
         $data = array(
             "resource_type" => "generic",
             "generic_type" => "ld",
@@ -120,7 +127,7 @@ class RDF extends \tdt\input\ALoader {
         if (isset($this->endpoint_password))
             $data["endpoint_password"] = $this->endpoint_password;
 
-        //Build PUT uri for datatank
+//Build PUT uri for datatank
         $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource";
 
         $ch = curl_init($uri);
@@ -178,13 +185,11 @@ class RDF extends \tdt\input\ALoader {
 
             \tdt\core\model\DBQueries::deleteGraph($graph);
 
-            $this->log[] ="Old version of graph $graph is cleared!";
+            $this->log[] = "Old version of graph $graph is cleared!";
         }
     }
 
     private function addTimestamp($datetime) {
-
-        $query = "";
         $query = "INSERT DATA INTO <$this->graph> {";
         $query .= "<$this->graph> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
@@ -207,7 +212,6 @@ class RDF extends \tdt\input\ALoader {
         $this->log[] = "Flush buffer... ";
 
         $response = json_decode($this->execSPARQL($query), true);
-
     }
 
     /**
@@ -218,7 +222,7 @@ class RDF extends \tdt\input\ALoader {
      * @return string 
      */
     private function execSPARQL($query, $method = "POST") {
-        // is curl installed?
+// is curl installed?
         if (!function_exists('curl_init')) {
             throw new \Exception('CURL is not installed!');
         }
@@ -227,7 +231,7 @@ class RDF extends \tdt\input\ALoader {
             "update" => $query
         );
 
-        $url = $this->endpoint ."?query=".  urlencode($query);
+        $url = $this->endpoint . "?query=" . urlencode($query);
 
         $defaults = array(
             CURLOPT_CUSTOMREQUEST => $method,
@@ -240,14 +244,14 @@ class RDF extends \tdt\input\ALoader {
             CURLOPT_FORBID_REUSE => 1,
             CURLOPT_TIMEOUT => 4,
             CURLOPT_POSTFIELDS => http_build_query($post)
-            //CURLOPT_PFIELDS => http_build_query($query)
+//CURLOPT_PFIELDS => http_build_query($query)
         );
 
-        // get curl handle
+// get curl handle
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
-        //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/plain"));
-        
+//curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/plain"));
+
         $response = curl_exec($ch);
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -256,7 +260,7 @@ class RDF extends \tdt\input\ALoader {
         if ($response_code >= 400) {
             $this->log[] = " - query failed: " . $response_code . ": " . $response;
             throw new \Exception("Query failed: $response");
-        } 
+        }
 
         curl_close($ch);
 
