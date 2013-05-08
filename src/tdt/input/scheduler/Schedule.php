@@ -68,7 +68,7 @@ class Schedule{
             $validator->check(json_decode(json_encode($config),false), json_decode($schema));
             if (!$validator->isValid()) {
                 $errors = array();
-                $errors[]= echo "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
+                $errors[]= "The given configuration file for the schedule does not validate. Violations are (split with -- ):\n";
                 foreach ($validator->getErrors() as $error) {
                     $errors[] = sprintf("[%s] %s -- ",$error['property'], $error['message']);
                 }
