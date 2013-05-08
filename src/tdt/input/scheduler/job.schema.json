@@ -17,7 +17,6 @@
             "properties": {
                 "type" : {
                     "type" : "string",
-                    "enum" : ["JSON", "CSV" , "SHP", "ICAL", "XML"],
                     "required" : true
                 }
             },
