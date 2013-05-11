@@ -6,12 +6,13 @@ use JsonSchema\Validator;
 abstract class AExtractor{
     
     protected $config;
+    public $log;
     
     /**
      * Constructs the extractor according to a config, and opens the right handles.
      */
-    public function __construct($config){
-        
+    public function __construct($config, &$log){
+        $this->log = &$log;
         $this->config = $config;
         $this->open($config["source"]);
     }

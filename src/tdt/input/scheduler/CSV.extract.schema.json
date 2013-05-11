@@ -11,6 +11,10 @@
         "delimiter" : {
             "type" : "string",
             "required" : true
+        },
+        "has_header_row" : {
+            "type" : "string",
+            "required" : true
         }
     }
 }

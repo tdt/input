@@ -15,6 +15,8 @@ class Input {
     //Extractor, Mapper, Loader
     private $e, $m, $l;
 
+    public $log;
+
     private $db;
     
     /**
@@ -31,19 +33,19 @@ class Input {
         $extract = $config["extract"];
         $load = $config["load"];
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
-        $this->e = new $extractorclass($extract);
+        $this->e = new $extractorclass($extract,$this->log);
 
         // mapper
         if(!empty($config["map"]) && !empty($config["map"]["type"])){
             $map = $config["map"];
             $mapmethod = "tdt\\input\\map\\" . $config["map"]["type"];
-            $this->m = new $mapmethod($map);
+            $this->m = new $mapmethod($map, $this->log);
         }
 
         // loader
         if(!empty($config["load"]) && !empty($config["load"]["type"])){
             $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
-            $this->l = new $loadclass($load);
+            $this->l = new $loadclass($load, $this->log);
         }
     }
     
@@ -52,11 +54,11 @@ class Input {
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute() {
-
+        
         $start = microtime(true);
         $numberofchunks = 0;
         
-        echo "Started ETML process\n";
+        $this->log[] = "Started ETML process";
 
         while ($this->e->hasNext()) {
             //1. EXTRACT
@@ -76,8 +78,8 @@ class Input {
         }
 
         $duration = microtime(true) - $start;
-        $msg = "Loaded $numberofchunks chunks in the store in " . $duration . "s. \n";
-        echo $msg;
+        $this->log[] = "Loaded $numberofchunks chunks in the store in " . $duration . "s.";
+        echo json_encode($this->log);
     }
 
 }

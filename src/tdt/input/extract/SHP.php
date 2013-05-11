@@ -52,7 +52,7 @@ class SHP extends \tdt\input\AExtractor{
                 $this->shape_file_wrapper = new \ShapeFile($uri, $options); // along this file the class will use file.shx and file.dbf						
             }
         }catch(Exception $ex){        	
-            echo "Something went wrong during the configuration of the SHP Loader: $ex->getMessage()";
+            throw new \Exception("Something went wrong during the configuration of the SHP Loader: $ex->getMessage()");
         }
     }
 

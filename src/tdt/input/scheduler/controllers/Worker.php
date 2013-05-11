@@ -20,17 +20,11 @@ class Worker extends \tdt\core\controllers\AController {
 
 
     public function GET($matches){
-        if($this->isBasicAuthenticated()){
-            ignore_user_abort(true);
-            set_time_limit(0);
-            \tdt\core\utility\Config::setConfig(Config::getConfigArray());
-            $s = new Schedule($this->getDBConfig());
-            $s->execute();
-        }else{
-            header('WWW-Authenticate: Basic realm="' . $this->hostname . $this->subdir . '"');
-            header('HTTP/1.0 401 Unauthorized');
-            exit();
-        }
+        ignore_user_abort(true);
+        set_time_limit(0);
+        \tdt\core\utility\Config::setConfig(Config::getConfigArray());
+        $s = new Schedule($this->getDBConfig());
+        $s->execute();
         
     }
 }
