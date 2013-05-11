@@ -5,6 +5,8 @@ class CSV extends \tdt\input\AExtractor{
 
     private $handle;
 
+    private $header;
+
     protected function open($url){
         $this->handle = fopen('php://temp', 'w+');
         $curl = curl_init();
@@ -13,6 +15,14 @@ class CSV extends \tdt\input\AExtractor{
         curl_exec($curl);
         curl_close($curl);
         rewind($this->handle);
+
+        if($this->config["has_header_row"] && ($data = fgetcsv($this->handle, 1000, $this->config["delimiter"])) !== FALSE) {
+            $i=0;
+            foreach($data as &$el){
+                $this->header[$i] = $el;
+                $i++;
+            }
+        }
     }
     
     /**
@@ -32,6 +42,9 @@ class CSV extends \tdt\input\AExtractor{
         if( ($data = fgetcsv($this->handle, 1000, $this->config["delimiter"])) !== FALSE) {
             $i=0;
             foreach($data as &$el){
+                if($this->config["has_header_row"]){
+                    $row[$this->header[$i]] = $el;
+                }
                 $row[$i] = $el;
                 $i++;
             }

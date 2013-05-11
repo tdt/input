@@ -13,15 +13,11 @@
         },
         "datatank_package" : {
             "type" : "string",
-            "required" : true
+            "required" : false
         },
         "datatank_resource" : {
             "type" : "string",
-            "required" : true
-        },
-        "datatank_uri" : {
-            "type" : "string",
-            "required" : true
+            "required" : false
         }
     }
 }

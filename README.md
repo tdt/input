@@ -111,17 +111,19 @@ Note: (obviously this is not done in routes.json but:) in app/configuration/core
         "namespace" : "tdt\\input",
         // Routes for this core
         "routes" : {
-            "GET | TDTInput/Worker/?" : "scheduler\\controllers\\Worker",
-            "GET | TDTInput/?(?P<format>\\.[a-zA-Z]+)?" : "scheduler\\controllers\\InputResourceController",
-            "GET | TDTInput/(?P<resource>.*)\\.(?P<format>[a-zA-Z]+)" : "scheduler\\controllers\\InputResourceController",
-            "GET | TDTInput/(?P<resource>.*?)(?P<test>/test)?" : "scheduler\\controllers\\InputResourceController",
-            "PUT | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController",
-            "POST | TDTInput/?" : "scheduler\\controllers\\InputResourceController",
-            "DELETE | TDTInput/(?P<resource>.*)" : "scheduler\\controllers\\InputResourceController"
+            "GET | TDTInput/Worker/? | @worker" : "scheduler\\controllers\\Worker",
+            "GET | TDTInput/?(?P<format>\\.[a-zA-Z]+)? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*)\\.(?P<format>[a-zA-Z]+) | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "GET | TDTInput/(?P<resource>.*?)(?P<test>/test)? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "PUT | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "POST | TDTInput/? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "DELETE | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController"
 
         }
 }
 ```
+
+Now also add the right users to your auth.json
 
 Go to http://yourdomain.com/TDTInput
 
