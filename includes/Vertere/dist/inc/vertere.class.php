@@ -205,6 +205,7 @@ class Vertere {
 //            $source_column--;
 //            $source_value = $record[$source_column];
             $source_value = $this->get_record_value($record, $source_column);
+            
             if (empty($source_value)) {
                 return;
             }
@@ -258,6 +259,7 @@ class Vertere {
         $source_resource = $this->spec->get_first_resource($identity, NS_CONV . 'source_resource');
         //Support for URI templates
         $template = $this->spec->get_first_literal($identity, NS_CONV . 'template');
+        
 
         if ($template) {
             //Retrieve all declared variables and expand template
@@ -268,9 +270,8 @@ class Vertere {
             $uris[$resource] = $uri;
             return;
         } else if ($source_column) {
-//            $source_column--;
-//            $source_value = $record[$source_column];
             $source_value = $this->get_record_value($record, $source_column);
+            
         } else if ($source_columns) {
             $source_columns = $this->spec->get_list_values($source_columns);
             $glue = $this->spec->get_first_literal($identity, NS_CONV . 'source_column_glue');
@@ -348,7 +349,7 @@ class Vertere {
             $source_value = null;
 
         $source_value = $this->process($identity, $source_value);
-
+        
         if (!empty($source_value)) {
             $uri = "${base_uri}${container}${source_value}";
             $uris[$resource] = $uri;
@@ -396,6 +397,10 @@ class Vertere {
 
                     case 'title_case':
                         $value = ucwords($value);
+                        break;
+                    
+                    case 'url_encode':
+                        $value = urlencode($value);
                         break;
 
                     case 'regex':

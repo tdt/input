@@ -97,7 +97,7 @@ class RDF extends \tdt\input\AMapper {
         $start = microtime(true);
         //Apply mapping to chunk
         $graph = $this->vertere->convert_array_to_graph($chunk);
-
+        
         $duration = (microtime(true) - $start) * 1000;
         $this->log[] = "Mapping executed in $duration ms";
 
