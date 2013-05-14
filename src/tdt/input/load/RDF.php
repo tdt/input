@@ -149,7 +149,7 @@ class RDF extends \tdt\input\ALoader {
             $this->log[] = "Request to add resource in The DataTank succeeded with code " . $response_code;
             $this->log[] = "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource";
         }
-        $this->clearOldGraphs($this->graph);
+        $this->clearOldGraphs($this->graph_name);
     }
 
     public function execute(&$chunk) {
