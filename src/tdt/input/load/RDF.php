@@ -81,7 +81,7 @@ class RDF extends \tdt\input\ALoader {
         $graph->graph_id = $graph_id;
         $graph->version = $date_time;
 
-        $this->old_graphs = \tdt\core\model\DBQueries::getAllGraphs($this->graph);
+        $this->old_graphs = \tdt\core\model\DBQueries::getAllGraphs($this->graph_name);
 
         R::store($graph);
         R::close();
