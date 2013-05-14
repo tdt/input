@@ -184,7 +184,7 @@ class RDF extends \tdt\input\ALoader {
             if ($response)
                 $this->log[] = $response['results']['bindings'][0]['callret-0']['value'];
 
-            \tdt\core\model\DBQueries::deleteGraph($graph);
+            \tdt\core\model\DBQueries::deleteGraph($graph_id);
 
             $this->log[] = "Old version of graph $graph is cleared!";
         }
