@@ -149,7 +149,7 @@ class RDF extends \tdt\input\ALoader {
             $this->log[] = "Request to add resource in The DataTank succeeded with code " . $response_code;
             $this->log[] = "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource";
         }
-        $this->clearOldGraphs();
+        $this->clearOldGraphs($this->graph);
     }
 
     public function execute(&$chunk) {
@@ -173,8 +173,9 @@ class RDF extends \tdt\input\ALoader {
         $this->log[] = "Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer";
     }
 
-    private function clearOldGraphs() {
-        foreach ($this->old_graphs as $graph) {
+    private function clearOldGraphs($currentgraph) {
+       $old_graphs = \tdt\core\model\DBQueries::getAllGraphs($currentgraph);
+       foreach ($old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
             $query = "CLEAR GRAPH <$graph_id>";
 
