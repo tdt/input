@@ -12,6 +12,7 @@ class RDF extends \tdt\input\ALoader {
 //helper vars
     private $buffer = array();
     private $old_graphs;
+    private $graph,$graph_name;
     public $log;
 
     /**
@@ -69,11 +70,11 @@ class RDF extends \tdt\input\ALoader {
         }
 
         //Store graph in database
-        $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
 
         $date_time = date("c");
         
-        $graph_id = $this->graph . "#" . hash('ripemd160', $date_time);
+        $graph_id = $this->graph_name . "#" . hash('ripemd160', $date_time);
 
         $graph = R::dispense('graph');
         $graph->graph_name = $this->graph;
@@ -98,7 +99,6 @@ class RDF extends \tdt\input\ALoader {
 
     public function cleanUp() {
         $this->log[] = "Empty loader buffer";
-
         try {
             while (!empty($this->buffer)) {
                 $count = count($this->buffer) <= $this->buffer_size ? count($this->buffer) : $this->buffer_size;
