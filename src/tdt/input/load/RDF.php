@@ -71,13 +71,13 @@ class RDF extends \tdt\input\ALoader {
 
         //Store graph in database
         $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
-
+        
         $date_time = date("c");
         
         $graph_id = $this->graph_name . "#" . hash('ripemd160', $date_time);
 
         $graph = R::dispense('graph');
-        $graph->graph_name = $this->graph;
+        $graph->graph_name = $this->graph_name;
         $graph->graph_id = $graph_id;
         $graph->version = $date_time;
 
