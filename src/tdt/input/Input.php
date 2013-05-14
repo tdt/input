@@ -77,7 +77,7 @@ class Input {
 
                 $numberofchunks++;
         }
-
+        $this->l->cleanUp();
         $duration = microtime(true) - $start;
         $this->log[] = "Loaded $numberofchunks chunks in the store in " . $duration . "s.";
         echo json_encode($this->log);

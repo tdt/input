@@ -96,7 +96,7 @@ class RDF extends \tdt\input\ALoader {
         $this->buffer_size = $config["buffer_size"];
     }
 
-    public function __destruct() {
+    public function cleanUp() {
         $this->log[] = "Empty loader buffer";
 
         try {
