@@ -192,12 +192,12 @@ class RDF extends \tdt\input\ALoader {
     }
 
     private function addTimestamp($datetime) {
-        $query = "INSERT DATA INTO <$this->graph> {";
-        $query .= "<$this->graph> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
+        $query = "INSERT DATA INTO <" . $this->graph_name . "> {";
+        $query .= "<" . $this->graph_name . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
         $response = json_decode($this->execSPARQL($query), true);
-        $this->log[] = "Graph $this->graph added on $datetime. Metadata added!";
+        $this->log[] = "Graph ". $this->graph_name ." added on $datetime. Metadata added!";
     }
 
     private function addTriples($triples) {
@@ -260,7 +260,7 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Endpoint returned: $response_code";
         if ($response_code >= 400) {
-            $this->log["errors"][] = " - query failed: " . $response_code . ": " . $response;
+            $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
         }
 
         curl_close($ch);
