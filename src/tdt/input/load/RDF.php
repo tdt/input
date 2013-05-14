@@ -258,8 +258,7 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Endpoint returned: $response_code";
         if ($response_code >= 400) {
-            $this->log[] = " - query failed: " . $response_code . ": " . $response;
-            throw new \Exception("Query failed: $response");
+            $this->log["errors"][] = " - query failed: " . $response_code . ": " . $response;
         }
 
         curl_close($ch);

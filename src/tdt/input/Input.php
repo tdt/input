@@ -59,22 +59,23 @@ class Input {
         $numberofchunks = 0;
         
         $this->log[] = "Started ETML process";
-
+        $this->errors = array();
+            
         while ($this->e->hasNext()) {
-            //1. EXTRACT
-            $chunk = $this->e->pop();
+                //1. EXTRACT
+                $chunk = $this->e->pop();
 
-            //2. MAP
-            if (!empty($this->m)) {
-                $chunk = $this->m->execute($chunk);
-            }
+                //2. MAP
+                if (!empty($this->m)) {
+                    $chunk = $this->m->execute($chunk);
+                }
 
-            //3. LOAD
-            if (!empty($this->l)) {
-                $this->l->execute($chunk);
-            }
+                //3. LOAD
+                if (!empty($this->l)) {
+                    $this->l->execute($chunk);
+                }
 
-            $numberofchunks++;
+                $numberofchunks++;
         }
 
         $duration = microtime(true) - $start;
