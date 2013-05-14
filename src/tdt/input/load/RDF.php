@@ -175,6 +175,7 @@ class RDF extends \tdt\input\ALoader {
 
     private function clearOldGraphs($currentgraph) {
        $old_graphs = \tdt\core\model\DBQueries::getAllGraphs($currentgraph);
+       $this->log[] = "deleting: " . print_r($old_graphs,true);
        foreach ($old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
             $query = "CLEAR GRAPH <$graph_id>";
@@ -182,7 +183,7 @@ class RDF extends \tdt\input\ALoader {
             $response = json_decode($this->execSPARQL($query), true);
 
             if ($response)
-                $this->log[] = $response['results']['bindings'][0]['callret-0']['value'];
+                $this->log[] = print_r($response['results'],true);
 
             \tdt\core\model\DBQueries::deleteGraph($graph_id);
 
