@@ -404,6 +404,15 @@ class Vertere {
                         $value = str_replace("+","%20",$value);
                         break;
 
+                    case 'regex_createurl':
+                        $regex_pattern = $this->spec->get_first_literal($resource, NS_CONV . 'regex_match');
+                        $delimeter = "/";
+                        $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'regex_output');
+                        $value = urlencode($value);
+                        $value = str_replace("+","%20",$value);
+                        $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
+                        break;
+
                     case 'regex':
                         $regex_pattern = $this->spec->get_first_literal($resource, NS_CONV . 'regex_match');
                         foreach (array('%', '/', '@', '!', '^', ',', '.', '-') as $candidate_delimeter) {
