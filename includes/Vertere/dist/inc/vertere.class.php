@@ -401,6 +401,7 @@ class Vertere {
                     
                     case 'url_encode':
                         $value = urlencode($value);
+                        $value = str_replace("+","%20",$value);
                         break;
 
                     case 'regex':
