@@ -415,7 +415,7 @@ class Vertere {
                         if(preg_match($regex_pattern, $value)){
                             $value = urlencode($value);
                             $value = str_replace("+","%20",$value);
-                            $value = preg_replace("{regex_pattern}", $regex_output, $value);
+                            $value = preg_replace("${regex_pattern}", $regex_output, $value);
                         }
                         break;
 
