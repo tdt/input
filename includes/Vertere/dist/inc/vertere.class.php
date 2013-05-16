@@ -410,13 +410,12 @@ class Vertere {
                       * If it isn't, it will prepend the begining of the url, and it will url encode the value
                       */
                     case 'create_url':
-                        $regex_pattern = "^(?!http.+)";
-                        $delimeter = "/";
                         $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'url');
+                        $regex_pattern = "/^(?!http.+)/";
                         if(preg_match($regex_pattern, $value)){
                             $value = urlencode($value);
                             $value = str_replace("+","%20",$value);
-                            $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
+                            $value = preg_replace("{regex_pattern}", $regex_output, $value);
                         }
                         break;
 
