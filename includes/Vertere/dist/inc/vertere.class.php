@@ -404,13 +404,20 @@ class Vertere {
                         $value = str_replace("+","%20",$value);
                         break;
 
-                    case 'regex_createurl':
-                        $regex_pattern = $this->spec->get_first_literal($resource, NS_CONV . 'regex_match');
+                    /**
+                      * create_url wil check whether the argument is not a url yet. 
+                      * If it is, it will keep the url as is. 
+                      * If it isn't, it will prepend the begining of the url, and it will url encode the value
+                      */
+                    case 'create_url':
+                        $regex_pattern = "^(?!http.+)";
                         $delimeter = "/";
-                        $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'regex_output');
-                        $value = urlencode($value);
-                        $value = str_replace("+","%20",$value);
-                        $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
+                        $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'url');
+                        if(preg_match($regex_pattern, $value)){
+                            $value = urlencode($value);
+                            $value = str_replace("+","%20",$value);
+                            $value = preg_replace("${delimeter}${regex_pattern}${delimeter}", $regex_output, $value);
+                        }
                         break;
 
                     case 'regex':
