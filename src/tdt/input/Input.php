@@ -84,9 +84,11 @@ class Input {
 
                 //1.5 TRANSFORM
                 foreach($this->t as $t){
-                    $chunk= $this->t->execute();
+                    // TODO: this needs to change towards a streaming method for subchunks: 1 chunk can produce a lot of subchunks.
+                    $subchunks = $this->t->execute($chunk);
                 }
-
+                
+                
                 //2. MAP
                 if (!empty($this->m)) {
                     $chunk = $this->m->execute($chunk);
