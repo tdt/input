@@ -14,6 +14,9 @@ class Input {
 
     //Extractor, Mapper, Loader
     private $e, $m, $l;
+    
+    //transformers, an array
+    private $t;
 
     public $log;
 
@@ -24,16 +27,30 @@ class Input {
      * The configuration is not (yet) validated here.
      */
     public function __construct($config,$db = array()) {
+
+        //set db up
         if(!empty($db)){
             $this->db = $db;
             R::setup($this->db["system"] . ":host=" . $this->db["host"] . ";dbname=" . $this->db["name"], $this->db["user"], $this->db["password"]);
         }
 
+        //extractors
         $extractmethod = $config["extract"]["type"];
         $extract = $config["extract"];
         $load = $config["load"];
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
         $this->e = new $extractorclass($extract,$this->log);
+        
+        //transformers
+        $this->t = array();        
+        if(is_array($config["transform"]) && !empty($config["transform"])){
+            foreach($config["transform"] as $t){
+                if(!empty($config["transform"]["type"])){
+                    $transformclass = "tdt\\input\\transform\\" . $config["transform"]["type"];
+                    $this->t[] = new $transformclass($config["transform"],$this->log);
+                }
+            }
+        }
 
         // mapper
         if(!empty($config["map"]) && !empty($config["map"]["type"])){
@@ -64,6 +81,11 @@ class Input {
         while ($this->e->hasNext()) {
                 //1. EXTRACT
                 $chunk = $this->e->pop();
+
+                //1.5 TRANSFORM
+                foreach($this->t as $t){
+                    $chunk= $this->t->execute();
+                }
 
                 //2. MAP
                 if (!empty($this->m)) {
