@@ -81,7 +81,7 @@ class RDF extends \tdt\input\ALoader {
         $graph->graph_id = $graph_id;
         $graph->version = $date_time;
 
-        $this->old_graphs = \tdt\core\model\DBQueries::getAllGraphs($this->graph_name);
+        $this->old_graphs = $this->getAllGraphs($this->graph_name);
 
         R::store($graph);
         R::close();
@@ -184,7 +184,7 @@ class RDF extends \tdt\input\ALoader {
             if ($response)
                 $this->log[] = print_r($response['results'],true);
 
-            \tdt\core\model\DBQueries::deleteGraph($graph_id);
+            $this->deleteGraph($graph_id);
 
             $this->log[] = "Old version of graph $graph is cleared!";
         }
@@ -265,6 +265,21 @@ class RDF extends \tdt\input\ALoader {
         curl_close($ch);
 
         return $response;
+    }
+
+    
+    private function getAllGraphs($graph_name) {
+        return R::getAll(
+                "SELECT x.graph_id
+            FROM graph x WHERE x.graph_name = :graph_name",array(":graph_name" => $graph_name)
+                );
+
+    }
+    
+    private function deleteGraph($graph_id) {
+        return R::exec(
+                "DELETE FROM graph x WHERE graph_id=:graph_id);",array(":graph_id"=> $graph_id));
+
     }
 
 }
