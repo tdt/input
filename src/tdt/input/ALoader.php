@@ -9,4 +9,9 @@ abstract class ALoader{
     }
     
     abstract public function execute(&$chunk);
+
+    // when not implemented, do nothing
+    public function cleanUp(){
+        
+    }
 }
