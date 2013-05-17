@@ -32,7 +32,7 @@ class JSON extends \tdt\input\AExtractor{
     public function pop(){
         while(!$this->processor->hasNew() && !feof($this->handle)){
             $char = fread($this->handle, 1);
-            if($char && $char != "\n"){
+            if($char !== "" && $char != "\n"){
                 $this->reader->readChar($char);
             }
         }
