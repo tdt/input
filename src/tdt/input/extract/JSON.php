@@ -59,7 +59,7 @@ class JSONInputProcessor implements \tdt\json\JSONChunkProcessor{
     public function process($chunk){
         //set the flag: a new object is loaded
         $this->new = true;
-        $this->obj = json_decode($chunk);
+        $this->obj = json_decode($chunk, true);
     }
 
     public function hasNew(){
