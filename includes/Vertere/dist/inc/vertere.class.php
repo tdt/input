@@ -169,9 +169,8 @@ class Vertere {
         if (empty($source_value)) {
             return;
         }
-        var_dump($source_value);
+        
         $source_value = $this->process($attribute, $source_value);
-        var_dump($source_value);
         $graph->add_literal_triple($subject, $property, $source_value, $language, $datatype);
     }
 
