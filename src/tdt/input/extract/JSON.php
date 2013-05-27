@@ -59,8 +59,25 @@ class JSONInputProcessor implements \tdt\json\JSONChunkProcessor{
     public function process($chunk){
         //set the flag: a new object is loaded
         $this->new = true;
-        $this->obj = json_decode($chunk, true);
+        $this->obj = $this->flatten(json_decode($chunk, true));
     }
+
+    private function flatten(&$ar){
+        $new = array();
+        foreach($ar as $k => $v) {
+            if(is_array($v)){
+                $prefix = $k;
+                $flat = $this->flatten($v);
+                foreach($flat as $fkey => $fval){
+                    $new[$prefix . "_" . $fkey] = $fval;
+                }
+            }else{
+                $new[$k] = $v;
+            }
+        }
+        return $new;
+    }
+    
 
     public function hasNew(){
         return $this->new;
