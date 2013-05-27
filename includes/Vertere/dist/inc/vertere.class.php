@@ -157,6 +157,7 @@ class Vertere {
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
             $lookup_value = $this->lookup($lookup, $source_value);
+            
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
                 return;
@@ -168,7 +169,7 @@ class Vertere {
         if (empty($source_value)) {
             return;
         }
-
+        
         $source_value = $this->process($attribute, $source_value);
         $graph->add_literal_triple($subject, $property, $source_value, $language, $datatype);
     }

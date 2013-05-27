@@ -74,8 +74,12 @@ class Input {
                 if (!empty($this->l)) {
                     $this->l->execute($chunk);
                 }
+            
+            $numberofchunks++;
+            //debug
+            //if ($numberofchunks > 0)
+            //    break;
 
-                $numberofchunks++;
         }
         $this->l->cleanUp();
         $duration = microtime(true) - $start;
