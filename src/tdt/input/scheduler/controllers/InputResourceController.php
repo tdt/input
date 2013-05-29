@@ -71,7 +71,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
                 //convert object to array
                 $job = json_decode(json_encode($object->job) ,true);
                 $input = new Input($job);
-                $input->execute();
+                echo $input->execute();
                 exit();
             }
         }else{
