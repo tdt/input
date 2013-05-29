@@ -15,20 +15,21 @@ class TestController extends \tdt\core\controllers\AController {
      */
     public function POST($matches){
         //loads all input in an array
-        $params = json_decode(file_get_contents("php://input"),true);
+        $paramsjson = file_get_contents("php://input");
+        $params = json_decode($paramsjson,true);
         //start checking the parameters
-        if(!isset($params["chunk"]) || !empty($params["chunk"])){
+        if(!isset($params["chunk"]) || empty($params["chunk"])){
             throw new TDTException(452, array("The chunk you want to map is empty or not set."));
         }
 
-        if(!isset($params["extract"]) || !empty($params["extract"])){
+        if(!isset($params["extract"]) || empty($params["extract"])){
             throw new TDTException(452, array("The extract configuration is not set or empty."));
         }
 
-        if(!isset($params["mapping"]) || !empty($params["mapping"])){
+        if(!isset($params["mapping"]) || empty($params["mapping"])){
             throw new TDTException(452, array("The mapping configuration is not set or empty."));
         }
-
+        $extract = $params["extract"];
         if($extract["type"] === "JSON"){
             $params["chunk"] = "[" . $params["chunk"]. "]";
         }
@@ -41,24 +42,29 @@ class TestController extends \tdt\core\controllers\AController {
         $maphandle = fopen($mapfile, "w");
         fwrite($maphandle,$params["mapping"]);
         fclose($maphandle);
-        $extract = $params["extract"];
-        $extract["source"] = $urlsrc;
         
-        $input = new Input(array(
-                               "extract" => $extract,
-                               "map" => array(
-                                   "type" => "RDF",
-                                   "mapfile" => $mapfile,
-                                   "datatank_uri" => "http://example.com/",
-                                   "datatank_package"=> "foo", 
-                                   "datatank_resource" => "bar"
-                               ),
-                               "load" => array(
-                                   "type" => "CLI"
-                               )
-                           ));
-        $input->execute();
-
+        $extract["source"] = "file://" . $urlsrc;
+        $config = array(
+            "extract" => $extract,
+            "map" => array(
+                "type" => "RDF",
+                "mapfile" => "file://" . $mapfile,
+                "datatank_uri" => "http://example.com/",
+                "datatank_package"=> "foo", 
+                "datatank_resource" => "bar"
+            ),
+            "load" => array(
+                "type" => "CLI"
+            )
+        );
+        try{
+            $input = new Input($config);
+            $input->execute();
+        }catch(Exception $e){
+            set_error_header(400, "Client error");
+            echo "There is an error in your configuration: " . $e->getMessage();
+        }
+        
         unlink($mapfile);
         unlink($urlsrc);
         
