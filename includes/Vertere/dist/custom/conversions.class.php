@@ -18,7 +18,7 @@ class Conversions {
         $months = array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
         
         $matches = array();
-        preg_match_all("/([0-9]{2})\s*?([a-zA-Z]{3})\s*?([0-9]{4})\s*?[0-9]{2}:[0-9]{2}:[0-9]{2}/", $value, $matches);
+        preg_match_all("/([0-9]{2})\s*?([a-zA-Z]{3})\s*?([0-9]{4})/", $value, $matches);
 
         $day = $matches[1][0];
         $month = str_pad(array_search($matches[2][0],$months) + 1, 2, "0",STR_PAD_LEFT);
@@ -31,7 +31,7 @@ class Conversions {
     
     public static function to_xsd_time($value) {
         $matches = array();
-        preg_match_all("/[0-9]{2}\s*?[a-zA-Z]{3}\s*?[0-9]{4}\s*?([0-9]{2}:[0-9]{2}:[0-9]{2})/", $value, $matches);
+        preg_match_all("/([0-9]{2}:[0-9]{2}:[0-9]{2})/", $value, $matches);
 
         $time = $matches[1][0] . "+02:00";
 

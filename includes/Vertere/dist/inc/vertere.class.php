@@ -157,6 +157,7 @@ class Vertere {
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
             $lookup_value = $this->lookup($lookup, $source_value);
+            
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
                 return;
@@ -168,7 +169,7 @@ class Vertere {
         if (empty($source_value)) {
             return;
         }
-
+        
         $source_value = $this->process($attribute, $source_value);
         $graph->add_literal_triple($subject, $property, $source_value, $language, $datatype);
     }
@@ -205,6 +206,7 @@ class Vertere {
 //            $source_column--;
 //            $source_value = $record[$source_column];
             $source_value = $this->get_record_value($record, $source_column);
+            
             if (empty($source_value)) {
                 return;
             }
@@ -258,6 +260,7 @@ class Vertere {
         $source_resource = $this->spec->get_first_resource($identity, NS_CONV . 'source_resource');
         //Support for URI templates
         $template = $this->spec->get_first_literal($identity, NS_CONV . 'template');
+        
 
         if ($template) {
             //Retrieve all declared variables and expand template
@@ -268,9 +271,8 @@ class Vertere {
             $uris[$resource] = $uri;
             return;
         } else if ($source_column) {
-//            $source_column--;
-//            $source_value = $record[$source_column];
             $source_value = $this->get_record_value($record, $source_column);
+            
         } else if ($source_columns) {
             $source_columns = $this->spec->get_list_values($source_columns);
             $glue = $this->spec->get_first_literal($identity, NS_CONV . 'source_column_glue');
@@ -348,7 +350,7 @@ class Vertere {
             $source_value = null;
 
         $source_value = $this->process($identity, $source_value);
-
+        
         if (!empty($source_value)) {
             $uri = "${base_uri}${container}${source_value}";
             $uris[$resource] = $uri;
@@ -396,6 +398,26 @@ class Vertere {
 
                     case 'title_case':
                         $value = ucwords($value);
+                        break;
+                    
+                    case 'url_encode':
+                        $value = urlencode($value);
+                        $value = str_replace("+","%20",$value);
+                        break;
+
+                    /**
+                      * create_url wil check whether the argument is not a url yet. 
+                      * If it is, it will keep the url as is. 
+                      * If it isn't, it will prepend the begining of the url, and it will url encode the value
+                      */
+                    case 'create_url':
+                        $regex_output = $this->spec->get_first_literal($resource, NS_CONV . 'url');
+                        $regex_pattern = "/^(?!http.+)/";
+                        if(preg_match($regex_pattern, $value)){
+                            $value = urlencode($value);
+                            $value = str_replace("+","%20",$value);
+                            $value = preg_replace("${regex_pattern}", $regex_output, $value);
+                        }
                         break;
 
                     case 'regex':

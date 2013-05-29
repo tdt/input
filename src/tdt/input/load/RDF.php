@@ -12,6 +12,7 @@ class RDF extends \tdt\input\ALoader {
 //helper vars
     private $buffer = array();
     private $old_graphs;
+    private $graph,$graph_name;
     public $log;
 
     /**
@@ -69,18 +70,18 @@ class RDF extends \tdt\input\ALoader {
         }
 
         //Store graph in database
-        $this->graph = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
-
+        $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        
         $date_time = date("c");
         
-        $graph_id = $this->graph . "#" . hash('ripemd160', $date_time);
+        $graph_id = $this->graph_name . "#" . hash('ripemd160', $date_time);
 
         $graph = R::dispense('graph');
-        $graph->graph_name = $this->graph;
+        $graph->graph_name = $this->graph_name;
         $graph->graph_id = $graph_id;
         $graph->version = $date_time;
 
-        $this->old_graphs = \tdt\core\model\DBQueries::getAllGraphs($this->graph);
+        $this->old_graphs = $this->getAllGraphs($this->graph_name);
 
         R::store($graph);
         R::close();
@@ -96,9 +97,8 @@ class RDF extends \tdt\input\ALoader {
         $this->buffer_size = $config["buffer_size"];
     }
 
-    public function __destruct() {
+    public function cleanUp() {
         $this->log[] = "Empty loader buffer";
-
         try {
             while (!empty($this->buffer)) {
                 $count = count($this->buffer) <= $this->buffer_size ? count($this->buffer) : $this->buffer_size;
@@ -174,28 +174,29 @@ class RDF extends \tdt\input\ALoader {
     }
 
     private function clearOldGraphs() {
-        foreach ($this->old_graphs as $graph) {
+       $this->log[] = "deleting: " . print_r($this->old_graphs,true);
+       foreach ($this->old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
             $query = "CLEAR GRAPH <$graph_id>";
 
             $response = json_decode($this->execSPARQL($query), true);
 
             if ($response)
-                $this->log[] = $response['results']['bindings'][0]['callret-0']['value'];
+                $this->log[] = print_r($response['results'],true);
 
-            \tdt\core\model\DBQueries::deleteGraph($graph);
+            $this->deleteGraph($graph_id);
 
             $this->log[] = "Old version of graph $graph is cleared!";
         }
     }
 
     private function addTimestamp($datetime) {
-        $query = "INSERT DATA INTO <$this->graph> {";
-        $query .= "<$this->graph> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
+        $query = "INSERT DATA INTO <" . $this->graph_name . "> {";
+        $query .= "<" . $this->graph_name . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
         $response = json_decode($this->execSPARQL($query), true);
-        $this->log[] = "Graph $this->graph added on $datetime. Metadata added!";
+        $this->log[] = "Graph ". $this->graph_name ." added on $datetime. Metadata added!";
     }
 
     private function addTriples($triples) {
@@ -258,13 +259,27 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Endpoint returned: $response_code";
         if ($response_code >= 400) {
-            $this->log[] = " - query failed: " . $response_code . ": " . $response;
-            throw new \Exception("Query failed: $response");
+            $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
         }
 
         curl_close($ch);
 
         return $response;
+    }
+
+    
+    private function getAllGraphs($graph_name) {
+        return R::getAll(
+                "SELECT x.graph_id
+            FROM graph x WHERE x.graph_name = :graph_name",array(":graph_name" => $graph_name)
+                );
+
+    }
+    
+    private function deleteGraph($graph_id) {
+        return R::exec(
+                "DELETE FROM graph x WHERE graph_id=:graph_id);",array(":graph_id"=> $graph_id));
+
     }
 
 }

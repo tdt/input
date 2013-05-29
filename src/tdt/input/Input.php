@@ -55,24 +55,29 @@ class Input {
         $numberofchunks = 0;
         
         $this->log[] = "Started ETML process";
-
+        $this->errors = array();
+            
         while ($this->e->hasNext()) {
-            //1. EXTRACT
-            $chunk = $this->e->pop();
+                //1. EXTRACT
+                $chunk = $this->e->pop();
 
-            //2. MAP
-            if (!empty($this->m)) {
-                $chunk = $this->m->execute($chunk);
-            }
+                //2. MAP
+                if (!empty($this->m)) {
+                    $chunk = $this->m->execute($chunk);
+                }
 
-            //3. LOAD
-            if (!empty($this->l)) {
-                $this->l->execute($chunk);
-            }
-
+                //3. LOAD
+                if (!empty($this->l)) {
+                    $this->l->execute($chunk);
+                }
+            
             $numberofchunks++;
-        }
+            //debug
+            //if ($numberofchunks > 0)
+            //    break;
 
+        }
+        $this->l->cleanUp();
         $duration = microtime(true) - $start;
         $this->log[] = "Loaded $numberofchunks chunks in the store in " . $duration . "s.";
         return json_encode($this->log);
