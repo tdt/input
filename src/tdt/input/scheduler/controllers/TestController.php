@@ -18,15 +18,15 @@ class TestController extends \tdt\core\controllers\AController {
         $params = json_decode(file_get_contents("php://input"),true);
         //start checking the parameters
         if(!isset($params["chunk"]) || !empty($params["chunk"])){
-            throw new TDTException(452, "The chunk you want to map is empty or not set.");
+            throw new TDTException(452, array("The chunk you want to map is empty or not set."));
         }
 
         if(!isset($params["extract"]) || !empty($params["extract"])){
-            throw new TDTException(452, "The extract configuration is not set or empty.");
+            throw new TDTException(452, array("The extract configuration is not set or empty."));
         }
 
         if(!isset($params["mapping"]) || !empty($params["mapping"])){
-            throw new TDTException(452, "The mapping configuration is not set or empty.");
+            throw new TDTException(452, array("The mapping configuration is not set or empty."));
         }
 
         if($extract["type"] === "JSON"){
