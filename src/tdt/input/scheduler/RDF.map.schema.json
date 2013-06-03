@@ -1,23 +1,29 @@
 {
-    "$schema": "http://json-schema.org/draft-03/schema#",
-    "title": "tdt/input job configuration schema for a RDF mapper",
-    "type": "object",
-    "properties" : {
-        "mapfile" : {
-            "type" : "string",
-            "required" : true
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "title": "tdt/input job configuration schema for a RDF mapper",
+  "type": "object",
+  "properties" : {
+    "mapfile" : {
+      "type" : "string",
+      "required" : true
+    },
+    "uri_parameters": {
+      "type": "object",
+      "required": false,
+      "properties": {
+        "tdt" : {
+          "type" : "string",
+          "required" : false
         },
-        "datatank_uri" : {
-            "type" : "string",
-            "required" : true
+        "package" : {
+          "type" : "string",
+          "required" : false
         },
-        "datatank_package" : {
-            "type" : "string",
-            "required" : false
-        },
-        "datatank_resource" : {
-            "type" : "string",
-            "required" : false
+        "resource" : {
+          "type" : "string",
+          "required" : false
         }
+      }
     }
+  }
 }
