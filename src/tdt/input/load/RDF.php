@@ -278,7 +278,7 @@ class RDF extends \tdt\input\ALoader {
     
     private function deleteGraph($graph_id) {
         return R::exec(
-                "DELETE FROM graph x WHERE graph_id=:graph_id);",array(":graph_id"=> $graph_id));
+                "DELETE FROM graph WHERE graph_id=:graph_id",array(":graph_id"=> $graph_id));
 
     }
 
