@@ -177,9 +177,12 @@ class RDF extends \tdt\input\ALoader {
        $this->log[] = "deleting: " . print_r($this->old_graphs,true);
        foreach ($this->old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
-            $query = "CLEAR GRAPH <$graph_id>";
-
-            $response = json_decode($this->execSPARQL($query), true);
+            $query = "CLEAR GRAPH <$graph_id>;";
+            
+            if (!($result = $this->execSPARQL($query)))
+                throw new \tdt\framework\TDTException("Graph was not cleared!");
+                
+            $response = json_decode($result, true);
 
             if ($response)
                 $this->log[] = print_r($response['results'],true);
@@ -260,6 +263,7 @@ class RDF extends \tdt\input\ALoader {
         $this->log[] = "Endpoint returned: $response_code";
         if ($response_code >= 400) {
             $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
+            return false;
         }
 
         curl_close($ch);
@@ -270,15 +274,15 @@ class RDF extends \tdt\input\ALoader {
     
     private function getAllGraphs($graph_name) {
         return R::getAll(
-                "SELECT x.graph_id
-            FROM graph x WHERE x.graph_name = :graph_name",array(":graph_name" => $graph_name)
+                "SELECT graph_id
+            FROM graph WHERE graph_name = :graph_name",array(":graph_name" => $graph_name)
                 );
 
     }
     
     private function deleteGraph($graph_id) {
         return R::exec(
-                "DELETE FROM graph x WHERE graph_id=:graph_id);",array(":graph_id"=> $graph_id));
+                "DELETE FROM graph WHERE graph_id=:graph_id;",array(":graph_id"=> $graph_id));
 
     }
 
