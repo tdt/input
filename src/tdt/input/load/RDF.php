@@ -180,7 +180,7 @@ class RDF extends \tdt\input\ALoader {
             $query = "CLEAR GRAPH <$graph_id>;";
             
             if (!($result = $this->execSPARQL($query)))
-                throw new \tdt\framework\TDTException("Graph was not cleared!");
+                throw new \tdt\framework\TDTException("Graph $graph_id was not cleared!");
                 
             $response = json_decode($result, true);
 
@@ -198,8 +198,10 @@ class RDF extends \tdt\input\ALoader {
         $query .= "<" . $this->graph_name . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
-        $response = json_decode($this->execSPARQL($query), true);
-        $this->log[] = "Graph ". $this->graph_name ." added on $datetime. Metadata added!";
+        if ($this->execSPARQL($query))
+            $this->log[] = "Graph ". $this->graph_name ." added on $datetime. Metadata added!";
+        else
+            throw new \tdt\framework\TDTException("Triples were not inserted!");
     }
 
     private function addTriples($triples) {
@@ -215,7 +217,10 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Flush buffer... ";
 
-        $response = json_decode($this->execSPARQL($query), true);
+        if ($this->execSPARQL($query))
+            $this->log[] = "Triples inserted in  $this->graph_name !";
+        else
+            throw new \tdt\framework\TDTException("Triples were not inserted!");
     }
 
     /**
