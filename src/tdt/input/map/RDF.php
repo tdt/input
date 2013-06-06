@@ -43,7 +43,7 @@ class RDF extends \tdt\input\AMapper {
         }
 
         curl_close($ch);
-
+        
         if (empty($spec_file)) {
             throw new TDTException(400,array("Mapping file location not correct\n"));
         }
@@ -54,9 +54,9 @@ class RDF extends \tdt\input\AMapper {
         //Find the spec in the graph
         $specs = $spec->get_subjects_of_type(NS_CONV . "Spec");
 
-        if (count($specs) != 1) {
+        if (count($specs) != 1) 
             throw new TDTException(400,array("Map document must contain exactly one conversion spec"));
-        }
+        
         
         //Replace pseudo URIs
         $this->processURIParameters($spec, $config);
@@ -95,13 +95,12 @@ class RDF extends \tdt\input\AMapper {
             //Strip part of URI after first slash 
             $last_part = $parts[count($parts) - 1];
 
-
             //is there someting after tdt:package:resource starting with a slash
             $pos = stripos($last_part, "/");
             
-            if ($pos) {
+            if ($pos !== false) {
                 $parts[count($parts) - 1] = substr($last_part, 0, $pos);
-                $last_part = substr($last_part, $pos +1);
+                $last_part = ltrim(substr($last_part, $pos), "/");
             } else
                 $last_part = "";
 
@@ -115,6 +114,9 @@ class RDF extends \tdt\input\AMapper {
                     $spec_base_uri
                 break;
                 default:*/
+                if (empty($part))
+                    continue;
+                
                 if (!isset($param_map[$part]))
                     throw new TDTException(400,array("URI parameter $part is not valid."));
                 
@@ -123,7 +125,7 @@ class RDF extends \tdt\input\AMapper {
                 
                 $spec_base_uri .= rtrim($config[$param_map[$part]], "/") . "/";
             }
-
+            
             //Re-add modified triple
             $spec->add_literal_triple($s, $p, $spec_base_uri . $last_part);
         }
