@@ -50,7 +50,7 @@ class Conversions {
         
         $time = $matches[4][0];
 
-        $date = "$day-$month-$year" . "T$time+02:00";
+        $date = "$year-$month-$day" . "T$time+02:00";
         echo "$value was turned into $date";
         return $date;
     }

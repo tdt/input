@@ -3,8 +3,8 @@
 namespace tdt\input\map;
 use tdt\exceptions\TDTException;
 
-set_include_path(get_include_path() . PATH_SEPARATOR . "../vendor/tdt/input/");
-define('VERTERE_DIR', 'includes/Vertere/dist/');
+//set_include_path(get_include_path() . PATH_SEPARATOR . "../vendor/tdt/input/");
+define('VERTERE_DIR', __DIR__ . '/../../../../includes/Vertere/dist/');
 define('MORIARTY_DIR', VERTERE_DIR . 'lib/moriarty/');
 define('MORIARTY_ARC_DIR', VERTERE_DIR . 'lib/arc/');
 

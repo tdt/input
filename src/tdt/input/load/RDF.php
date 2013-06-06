@@ -181,7 +181,7 @@ class RDF extends \tdt\input\ALoader {
 
             $result = $this->execSPARQL($query);
 
-            if ($result) {
+            if ($result  !== false) {
                 $response = json_decode($result, true);
 
                 if ($response)
@@ -201,7 +201,7 @@ class RDF extends \tdt\input\ALoader {
         $query .= "<" . $this->graph . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
-        if ($this->execSPARQL($query))
+        if ($this->execSPARQL($query) !== false)
             $this->log[] = "Graph " . $this->graph . " added on $datetime. Metadata added!";
         else
             $this->log["errors"][] = "Graph " . $this->graph . " added on $datetime, but the metadata was not added!";
@@ -221,7 +221,7 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Flush buffer... ";
 
-        if ($this->execSPARQL($query))
+        if ($this->execSPARQL($query) !== false)
             $this->log[] = "Triples inserted in  $this->graph_name !";
         else
             $this->log["errors"][] = "Triples were not inserted!";
@@ -271,12 +271,12 @@ class RDF extends \tdt\input\ALoader {
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->log[] = "Endpoint returned: $response_code";
+        curl_close($ch);
+        
         if ($response_code >= 400) {
             $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
             return false;
         }
-
-        curl_close($ch);
 
         return $response;
     }
