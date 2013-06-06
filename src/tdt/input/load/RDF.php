@@ -3,6 +3,7 @@
 namespace tdt\input\load;
 
 use RedBean_Facade as R;
+use tdt\exceptions\TDTException;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -21,23 +22,23 @@ class RDF extends \tdt\input\ALoader {
     public function __construct($config, &$log) {
         $this->log = &$log;
         if (!isset($config["endpoint"]))
-            throw new \Exception('SPARQL endpoint not set in config');
+            throw new TDTException(400,array('SPARQL endpoint not set in config'));
         $this->endpoint = $config["endpoint"];
         $this->format = "json";
 
 
         if (!isset($config["datatank_uri"]))
-            throw new \Exception('Destination datatank uri not set in config');
+            throw new TDTException(400,array('Destination datatank uri not set in config'));
 
         $this->datatank_uri = $config["datatank_uri"];
 
         if (!isset($config["datatank_package"]))
-            throw new \Exception('Destination datatank package not set in config');
+            throw new TDTException(400,array('Destination datatank package not set in config'));
 
         $this->datatank_package = $config["datatank_package"];
 
         if (!isset($config["datatank_resource"]))
-            throw new \Exception('Destination datatank resource not set in config');
+            throw new TDTException(400,array('Destination datatank resource not set in config'));
 
         $this->datatank_resource = $config["datatank_resource"];
 
@@ -109,7 +110,7 @@ class RDF extends \tdt\input\ALoader {
                 $this->buffer = array_slice($this->buffer, $count);
             }
         } catch (\Exception $e) {
-            throw new \Exception("ETML Failed: " . $e->getMessage());
+            throw new TDTException(500, array("ETML Failed: " . $e->getMessage()));
         }
 
         $this->log[] = "Inserting resource into your datatank";
@@ -184,8 +185,8 @@ class RDF extends \tdt\input\ALoader {
             if ($result  !== false) {
                 $response = json_decode($result, true);
 
-                if ($response)
-                    $this->log[] = print_r($response['results'], true);
+                //if ($response)
+                //    $this->log[] = print_r($response['results'], true);
                 
                 $this->deleteGraph($graph_id);
 

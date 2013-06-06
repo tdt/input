@@ -39,7 +39,7 @@ class RDF extends \tdt\input\AMapper {
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 
         if (!$spec_file = curl_exec($ch)) {
-            throw new TDTException(curl_error($ch));
+            throw new \Exception(curl_error($ch));
         }
 
         curl_close($ch);
