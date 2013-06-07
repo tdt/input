@@ -136,6 +136,11 @@ class RDF extends \tdt\input\AMapper {
         //Apply mapping to chunk
         $graph = $this->vertere->convert_array_to_graph($chunk);
 
+        if(empty($graph->_index)){
+            $chunk_string = implode(",", $chunk);
+            $this->log[] = "The created graph was empty, chunk contained the following information: $chunk_string";
+        }
+        
         $duration = (microtime(true) - $start) * 1000;
         $this->log[] = "Mapping executed in $duration ms";
 

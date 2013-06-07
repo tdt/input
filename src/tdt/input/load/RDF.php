@@ -17,7 +17,7 @@ class RDF extends \tdt\input\ALoader {
     public $log;
 
     /**
-     * validation already done earlier
+     * Validation already done earlier
      */
     public function __construct($config, &$log) {
         $this->log = &$log;
@@ -113,8 +113,8 @@ class RDF extends \tdt\input\ALoader {
             throw new TDTException(500, array("ETML Failed: " . $e->getMessage()));
         }
 
-        $this->log[] = "Inserting resource into your datatank";
-//Add SPARQL resource with describe query to datatank
+        $this->log[] = "Inserting resource into your datatank.";
+        //Add SPARQL resource with describe query to datatank
         $data = array(
             "resource_type" => "generic",
             "generic_type" => "ld",
@@ -128,7 +128,7 @@ class RDF extends \tdt\input\ALoader {
         if (isset($this->endpoint_password))
             $data["endpoint_password"] = $this->endpoint_password;
 
-//Build PUT uri for datatank
+        //Build PUT uri for datatank
         $uri = $this->datatank_uri . "TDTAdmin/Resources/$this->datatank_package/$this->datatank_resource";
 
         $ch = curl_init($uri);
@@ -159,12 +159,10 @@ class RDF extends \tdt\input\ALoader {
         if (!$chunk->is_empty()) {
             preg_match_all("/(<.*\.)/", $chunk->to_ntriples(), $matches);
             if ($matches[0])
-                $this->buffer = array_merge($this->buffer, $matches[0]);
-
+                $this->buffer = array_merge($this->buffer, $matches[0]);   
 
             while (count($this->buffer) >= $this->buffer_size) {
-                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
-
+                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);                
                 $this->addTriples(implode(' ', $triples_to_send));
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
