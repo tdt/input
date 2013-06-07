@@ -302,7 +302,7 @@ class Vertere {
                         //$source_values[] = $record[$source_column];
                         $source_values[] = $this->get_record_value($record, $source_column);
                     } else {
-                        $source_values[] = array();
+                        $source_values = array();
                         break;
                     }
                 }
