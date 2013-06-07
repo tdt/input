@@ -3,6 +3,7 @@
 namespace tdt\input\load;
 
 use RedBean_Facade as R;
+use tdt\exceptions\TDTException;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -12,7 +13,7 @@ class RDF extends \tdt\input\ALoader {
 //helper vars
     private $buffer = array();
     private $old_graphs;
-    private $graph,$graph_name;
+    private $graph, $graph_name;
     public $log;
 
     /**
@@ -21,23 +22,23 @@ class RDF extends \tdt\input\ALoader {
     public function __construct($config, &$log) {
         $this->log = &$log;
         if (!isset($config["endpoint"]))
-            throw new \Exception('SPARQL endpoint not set in config');
+            throw new TDTException(400,array('SPARQL endpoint not set in config'));
         $this->endpoint = $config["endpoint"];
         $this->format = "json";
 
 
         if (!isset($config["datatank_uri"]))
-            throw new \Exception('Destination datatank uri not set in config');
+            throw new TDTException(400,array('Destination datatank uri not set in config'));
 
         $this->datatank_uri = $config["datatank_uri"];
 
         if (!isset($config["datatank_package"]))
-            throw new \Exception('Destination datatank package not set in config');
+            throw new TDTException(400,array('Destination datatank package not set in config'));
 
         $this->datatank_package = $config["datatank_package"];
 
         if (!isset($config["datatank_resource"]))
-            throw new \Exception('Destination datatank resource not set in config');
+            throw new TDTException(400,array('Destination datatank resource not set in config'));
 
         $this->datatank_resource = $config["datatank_resource"];
 
@@ -47,14 +48,14 @@ class RDF extends \tdt\input\ALoader {
         } else {
             $this->datatank_user = $config["datatank_user"];
         }
-        
+
         if (!isset($config["datatank_password"])) {
             //echo 'Password for datatank not set in config\n';
             $this->datatank_password = "";
         } else {
             $this->datatank_password = $config["datatank_password"];
         }
-        
+
         if (!isset($config["endpoint_user"])) {
             //echo "User for endpoint not set in config\n";
             $this->endpoint_user = "";
@@ -62,19 +63,20 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_user = $config["endpoint_user"];
         }
 
-        if (!isset($config["endpoint_password"])){
+        if (!isset($config["endpoint_password"])) {
             //echo "Password for endpoint not set in config\n";
             $this->endpoint_password = "";
-        }else {
+        } else {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
         //Store graph in database
         $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
-        
-        $date_time = date("c");
-        
-        $graph_id = $this->graph_name . "#" . hash('ripemd160', $date_time);
+
+        $time = time();
+        $date_time = date("c", $time);
+
+        $graph_id = $this->graph_name . "#" . $time;
 
         $graph = R::dispense('graph');
         $graph->graph_name = $this->graph_name;
@@ -86,10 +88,10 @@ class RDF extends \tdt\input\ALoader {
         R::store($graph);
         R::close();
 
-        $this->addTimestamp($date_time);
-
         $this->graph = $graph_id;
 
+        $this->addTimestamp($date_time);
+        
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 25;
 
@@ -108,7 +110,7 @@ class RDF extends \tdt\input\ALoader {
                 $this->buffer = array_slice($this->buffer, $count);
             }
         } catch (\Exception $e) {
-            throw new \Exception("ETML Failed: " . $e->getMessage());
+            throw new TDTException(500, array("ETML Failed: " . $e->getMessage()));
         }
 
         $this->log[] = "Inserting resource into your datatank.";
@@ -171,29 +173,38 @@ class RDF extends \tdt\input\ALoader {
     }
 
     private function clearOldGraphs() {
-       $this->log[] = "deleting: " . print_r($this->old_graphs,true);
-       foreach ($this->old_graphs as $graph) {
+        $this->log[] = "deleting: " . print_r($this->old_graphs, true);
+        foreach ($this->old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
             $query = "CLEAR GRAPH <$graph_id>";
 
-            $response = json_decode($this->execSPARQL($query), true);
+            $result = $this->execSPARQL($query);
 
-            if ($response)
-                $this->log[] = print_r($response['results'],true);
+            if ($result  !== false) {
+                $response = json_decode($result, true);
 
-            $this->deleteGraph($graph_id);
+                //if ($response)
+                //    $this->log[] = print_r($response['results'], true);
+                
+                $this->deleteGraph($graph_id);
 
-            $this->log[] = "Old version of graph $graph is cleared!";
+                $this->log[] = "Old version of graph $graph is cleared!";
+            } else {
+                $this->log["errors"][] = "Old version of graph $graph was not cleared!";
+            }
         }
     }
 
     private function addTimestamp($datetime) {
-        $query = "INSERT DATA INTO <" . $this->graph_name . "> {";
-        $query .= "<" . $this->graph_name . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
+        $query = "INSERT DATA INTO <" . $this->graph . "> {";
+        $query .= "<" . $this->graph . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
-        $response = json_decode($this->execSPARQL($query), true);
-        $this->log[] = "Graph ". $this->graph_name ." added on $datetime. Metadata added!";
+        if ($this->execSPARQL($query) !== false)
+            $this->log[] = "Graph " . $this->graph . " added on $datetime. Metadata added!";
+        else
+            $this->log["errors"][] = "Graph " . $this->graph . " added on $datetime, but the metadata was not added!";
+        //throw new \tdt\framework\TDTException(500,array("Triples were not inserted!"));
     }
 
     private function addTriples($triples) {
@@ -209,7 +220,11 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Flush buffer... ";
 
-        $response = json_decode($this->execSPARQL($query), true);
+        if ($this->execSPARQL($query) !== false)
+            $this->log[] = "Triples inserted in  $this->graph_name !";
+        else
+            $this->log["errors"][] = "Triples were not inserted!";
+        //throw new \tdt\framework\TDTException("Triples were not inserted!");
     }
 
     /**
@@ -255,28 +270,26 @@ class RDF extends \tdt\input\ALoader {
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->log[] = "Endpoint returned: $response_code";
+        curl_close($ch);
+        
         if ($response_code >= 400) {
             $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
+            return false;
         }
-
-        curl_close($ch);
 
         return $response;
     }
 
-    
     private function getAllGraphs($graph_name) {
         return R::getAll(
-                "SELECT x.graph_id
-            FROM graph x WHERE x.graph_name = :graph_name",array(":graph_name" => $graph_name)
-                );
-
+                        "SELECT graph_id
+            FROM graph WHERE graph_name = :graph_name", array(":graph_name" => $graph_name)
+        );
     }
-    
+
     private function deleteGraph($graph_id) {
         return R::exec(
-                "DELETE FROM graph WHERE graph_id=:graph_id",array(":graph_id"=> $graph_id));
-
+                        "DELETE FROM graph WHERE graph_id=:graph_id;", array(":graph_id" => $graph_id));
     }
 
 }
