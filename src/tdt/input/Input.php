@@ -61,7 +61,7 @@ class Input {
         $this->log[] = "Started ETML process";
         $this->errors = array();
             
-        while ($this->e->hasNext()) {
+        while ($this->e->hasNext()) {                
                 //1. EXTRACT
                 $chunk = $this->e->pop();
 
@@ -75,7 +75,11 @@ class Input {
                     $this->l->execute($chunk);
                 }
             
-            $numberofchunks++;
+            // Either chunk is null or a SimpleGraph instance
+            if(!empty($chunk) && !empty($chunk->_index)){
+                $numberofchunks++;    
+            }
+            
             //debug
             //if ($numberofchunks > 0)
             //    break;
