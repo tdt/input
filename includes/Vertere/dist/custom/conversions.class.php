@@ -39,11 +39,17 @@ class Conversions {
     }
     
     public static function to_xsd_dateTime($value) {
-        $months = array("Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+        $months = array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
         
         $matches = array();
         preg_match_all("/([0-9]{2})\s*?([a-zA-Z]{3})\s*?([0-9]{4})\s*?([0-9]{2}:[0-9]{2}:[0-9]{2})/", $value, $matches);
 
+        if (empty($matches))
+            return "";
+        
+        if (empty($matches[1]) || empty($matches[2]) || empty($matches[3]) || empty($matches[4]) )
+            return "";
+        
         $day = $matches[1][0];
         $month = str_pad(array_search($matches[2][0],$months) + 1, 2, "0",STR_PAD_LEFT);
         $year = $matches[3][0];
