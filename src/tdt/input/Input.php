@@ -56,11 +56,13 @@ class Input {
         
         $this->log[] = "Started ETML process";
         $this->errors = array();
-            
+        
+		    
         while ($this->e->hasNext()) {                
                 //1. EXTRACT
-                $chunk = $this->e->pop();
-
+                
+		$chunk = $this->e->pop();
+		
                 //2. MAP
                 if (!empty($this->m)) {
                     $chunk = $this->m->execute($chunk);
