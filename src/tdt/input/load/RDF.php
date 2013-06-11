@@ -93,7 +93,7 @@ class RDF extends \tdt\input\ALoader {
         $this->addTimestamp($date_time);
         
         if (!isset($config["buffer_size"]))
-            $config["buffer_size"] = 25;
+            $config["buffer_size"] = 4;
 
         $this->buffer_size = $config["buffer_size"];
     }
