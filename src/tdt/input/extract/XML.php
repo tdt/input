@@ -82,14 +82,28 @@ class XML extends \tdt\input\AExtractor{
         $this->parseAttributes($document, $xmlobject , $prefix . $name);
 
         if(sizeof($xmlobject->childNodes) == 0){
-            // $prefix → Apparently we have to use numbers, added $prefix for clarity
-            $document[ $this->index ] = $xmlobject->nodeValue;
+            //store the value of the element in the document array under its prefix name
             $document[ $prefix ] = $xmlobject->nodeValue;
+            //count the number of keys we have.
             $this->index++;
         }else{
             //then the children
-            foreach($xmlobject->childNodes as $child){   
-                $this->makeFlat($document, $child, $prefix . $name);
+            $key_indices = array(); //an array of how many times a certain key occurred
+            foreach($xmlobject->childNodes as $child){
+                //if the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
+                if(!isset($key_indices[$child->nodeName])){
+                    //add a default key name without "[0]" for the first or only element
+                    $this->makeFlat($document, $child, $prefix . $name);
+                    //and add a [0] to this element as well for consistency
+                    $document[$prefix . $name . "[0]"] = $document[$prefix . $name];
+                    //add a one in the occurence table
+                    $key_indices[$child->nodeName] = 1;
+                }else{
+                    $this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
+                    $key_indices[$child->nodeName]++;
+                }
+                //add an array identifier for when elements would be double
+                $i++;
             }
         }
     }
