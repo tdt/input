@@ -102,8 +102,6 @@ class XML extends \tdt\input\AExtractor{
                     $this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
                     $key_indices[$child->nodeName]++;
                 }
-                //add an array identifier for when elements would be double
-                $i++;
             }
         }
     }
