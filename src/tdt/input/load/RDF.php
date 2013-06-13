@@ -182,9 +182,6 @@ class RDF extends \tdt\input\ALoader {
 
             if ($result  !== false) {
                 $response = json_decode($result, true);
-
-                //if ($response)
-                //    $this->log[] = print_r($response['results'], true);
                 
                 $this->deleteGraph($graph_id);
 
@@ -220,11 +217,13 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Flush buffer... ";
 
-        if ($this->execSPARQL($query) !== false)
+        if ($this->execSPARQL($query) !== false){
             $this->log[] = "Triples inserted in  $this->graph_name !";
-        else
-            $this->log["errors"][] = "Triples were not inserted!";
-        //throw new \tdt\framework\TDTException("Triples were not inserted!");
+            return true;
+        }
+
+         $this->log["errors"][] = "Triples were not inserted!";
+            return false;
     }
 
     /**
