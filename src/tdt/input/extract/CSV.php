@@ -39,7 +39,7 @@ class CSV extends \tdt\input\AExtractor{
      */
     public function pop(){
         $row;
-        if( ($data = fgetcsv($this->handle, 1000, $this->config["delimiter"])) !== FALSE) {
+        if( ($data = fgetcsv($this->handle, 0, $this->config["delimiter"])) !== FALSE) {
             $i=0;
             foreach($data as &$el){
                 if($this->config["has_header_row"]){

@@ -34,7 +34,7 @@ class Schedule{
             //execute job using the configuration in the database
             $input = new Input($job,$this->db);
             try{
-                $input->execute();
+                echo $input->execute();
             }catch(Exception $e){
                 echo $e->getMessage() . "\n<br/>";
             }
