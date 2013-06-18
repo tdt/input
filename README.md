@@ -12,7 +12,7 @@ $ composer install
 
 You can then start using input by including the PSR-0 autoloader
 
-```php 
+```php
 require 'vendor/autoinclude.php';
 ```
 
@@ -104,7 +104,7 @@ composer update
 ```
 
 When you have configured tdt/start according to the documentation (filling out the configuration files), then you can also add the appropriate routes:
-Note: (obviously this is not done in routes.json but:) in app/configuration/cores.json
+Note: (obviously this is not done in routes.json but:) in app/config/cores.json
 
 ```json
 {
@@ -117,6 +117,7 @@ Note: (obviously this is not done in routes.json but:) in app/configuration/core
             "GET | TDTInput/(?P<resource>.*?)(?P<test>/test)? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
             "PUT | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController",
             "POST | TDTInput/? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "POST | TDTInput/test/?" : "scheduler\\controllers\\TestController",
             "DELETE | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController"
 
         }
@@ -145,5 +146,5 @@ Optional:
 © 2013 OKFN Belgium vzw/asbl
 
 AGPLv3
- 
+
 

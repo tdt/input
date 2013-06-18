@@ -19,10 +19,6 @@ class Input {
 
     private $db;
     
-    /**
-     * Reads the input.ini file and initiates all classes according to their configuration
-     * The configuration is not (yet) validated here.
-     */
     public function __construct($config,$db = array()) {
         if(!empty($db)){
             $this->db = $db;
@@ -31,7 +27,7 @@ class Input {
 
         $extractmethod = $config["extract"]["type"];
         $extract = $config["extract"];
-        $load = $config["load"];
+
         $extractorclass = "tdt\\input\\extract\\" . $extractmethod;
         $this->e = new $extractorclass($extract,$this->log);
 
@@ -45,7 +41,7 @@ class Input {
         // loader
         if(!empty($config["load"]) && !empty($config["load"]["type"])){
             $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
-            $this->l = new $loadclass($load, $this->log);
+            $this->l = new $loadclass($config["load"], $this->log);
         }
     }
     
@@ -59,27 +55,38 @@ class Input {
         $numberofchunks = 0;
         
         $this->log[] = "Started ETML process";
+        $this->errors = array();
+        
+		    
+        while ($this->e->hasNext()) {                
+                //1. EXTRACT
+                
+		$chunk = $this->e->pop();
+		
+                //2. MAP
+                if (!empty($this->m)) {
+                    $chunk = $this->m->execute($chunk);
+                }
 
-        while ($this->e->hasNext()) {
-            //1. EXTRACT
-            $chunk = $this->e->pop();
-
-            //2. MAP
-            if (!empty($this->m)) {
-                $chunk = $this->m->execute($chunk);
+                //3. LOAD
+                if (!empty($this->l)) {
+                    $this->l->execute($chunk);
+                }
+            
+            // Either chunk is null or a SimpleGraph instance
+            if(!empty($chunk) && !empty($chunk->_index)){
+                $numberofchunks++;    
             }
+            
+            //debug
+            //if ($numberofchunks > 0)
+            //    break;
 
-            //3. LOAD
-            if (!empty($this->l)) {
-                $this->l->execute($chunk);
-            }
-
-            $numberofchunks++;
         }
-
+        $this->l->cleanUp();
         $duration = microtime(true) - $start;
         $this->log[] = "Loaded $numberofchunks chunks in the store in " . $duration . "s.";
-        echo json_encode($this->log);
+        return json_encode($this->log);
     }
 
 }
