@@ -117,6 +117,7 @@ Note: (obviously this is not done in routes.json but:) in app/config/cores.json
             "GET | TDTInput/(?P<resource>.*?)(?P<test>/test)? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
             "PUT | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController",
             "POST | TDTInput/? | @inputadmin" : "scheduler\\controllers\\InputResourceController",
+            "POST | TDTInput/test/?" : "scheduler\\controllers\\TestController",
             "DELETE | TDTInput/(?P<resource>.*) | @inputadmin" : "scheduler\\controllers\\InputResourceController"
 
         }
