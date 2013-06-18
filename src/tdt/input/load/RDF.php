@@ -71,8 +71,12 @@ class RDF extends \tdt\input\ALoader {
         }
 
         //Store graph in database
-        $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        //$this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        //Switch to adding jobURI
 
+        exit();
+        //$this->graph_name = $_REQUEST[''];
+        
         $time = time();
         $date_time = date("c", $time);
 
