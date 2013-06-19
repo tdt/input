@@ -4,6 +4,7 @@ namespace tdt\input\load;
 
 use RedBean_Facade as R;
 use tdt\exceptions\TDTException;
+use tdt\uri\RequestURI;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -70,8 +71,15 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
-        //Store graph in database
-        $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        //Store graph in database with the name of the job as identifier!
+        // This means that we need to strip the uri until the part right next to tdtinput  
+        // The uri we're getting is in the form of http(s)://.../tdtinput/name/run(test,...)
+        $uri = new RequestURI();
+        $uri = $uri->getURI();
+        $pos = strrpos($uri,"/");
+        $uri = substr($uri, 0, $pos);
+        
+        $this->graph_name = $uri;
 
         $time = time();
         $date_time = date("c", $time);

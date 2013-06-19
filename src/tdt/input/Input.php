@@ -36,13 +36,13 @@ class Input {
             $map = $config["map"];
             $mapmethod = "tdt\\input\\map\\" . $config["map"]["type"];
             $this->m = new $mapmethod($map, $this->log);
-        }
-
+        }        
+        
         // loader
         if(!empty($config["load"]) && !empty($config["load"]["type"])){
-            $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
+            $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];            
             $this->l = new $loadclass($config["load"], $this->log);
-        }
+        }        
     }
     
 
@@ -50,7 +50,7 @@ class Input {
      * Execute our model according to the configuration parsed in the constructor
      */
     public function execute() {
-        
+
         $start = microtime(true);
         $numberofchunks = 0;
         

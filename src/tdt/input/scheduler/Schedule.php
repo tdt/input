@@ -144,8 +144,8 @@ class Schedule{
         return $jobs;
     }
 
-    public function getJob($jobname){
-        $job = R::findOne('job',' name = ? ',array($jobname));
+    public function getJob($jobname){        
+        $job = R::findOne('job',' name = ? ',array($jobname));        
         if(empty($job)){
             return null;
         }
