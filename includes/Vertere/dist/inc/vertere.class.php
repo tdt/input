@@ -118,11 +118,9 @@ class Vertere {
         $property = $this->spec->get_first_resource($attribute, NS_CONV . 'property');
         $language = $this->spec->get_first_literal($attribute, NS_CONV . 'language');
         $datatype = $this->spec->get_first_resource($attribute, NS_CONV . 'datatype');
-
         $value = $this->spec->get_first_literal($attribute, NS_CONV . 'value');
         $source_column = $this->spec->get_first_literal($attribute, NS_CONV . 'source_column');
         $source_columns = $this->spec->get_first_resource($attribute, NS_CONV . 'source_columns');
-
         if ($value) {
             $source_value = $value;
         } else if ($source_column) {
@@ -156,8 +154,8 @@ class Vertere {
 
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
-            $lookup_value = $this->lookup($lookup, $source_value);
-
+            $lookup_value = $this->lookup($record, $lookup, $source_value);
+            
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
                 return;
@@ -214,7 +212,7 @@ class Vertere {
             //Check for lookups
             $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
             if ($lookup != null) {
-                $lookup_value = $this->lookup($lookup, $source_value);
+                $lookup_value = $this->lookup($record, $lookup, $source_value);
                 if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                     $uris[$resource] = $lookup_value['value'];
                     return;
@@ -326,7 +324,7 @@ class Vertere {
         //Check for lookups
         $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
         if ($lookup != null) {
-            $lookup_value = $this->lookup($lookup, $source_value);
+            $lookup_value = $this->lookup($record, $lookup, $source_value);
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $uris[$resource] = $lookup_value['value'];
                 return;
@@ -474,15 +472,15 @@ class Vertere {
         return $value;
     }
 
-    public function lookup($lookup, $key) {
+    public function lookup($record, $lookup, $key) {
         if ($this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_entry')) {
-            return $this->lookup_config_entries($lookup, $key);
+            return $this->lookup_config_entries($record, $lookup, $key);
         } else if ($this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_csv_file')) {
             return $this->lookup_csv_file($lookup, $key);
         }
     }
 
-    function lookup_config_entries($lookup, $key) {
+    public function lookup_config_entries($record, $lookup, $key) {
         if (!isset($this->lookups[$lookup])) {
             $entries = $this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_entry');
             if (empty($entries)) {
@@ -496,11 +494,25 @@ class Vertere {
                     if (isset($this->lookups[$lookup][$lookup_key])) {
                         throw new Exception("Lookup <${lookup}> contained a duplicate key");
                     }
+                    //nata start                
                     $lookup_values = $this->spec->get_subject_property_values($entry['value'], NS_CONV . 'lookup_value');
-                    if (count($lookup_values) != 1) {
+                    $lookup_column_value = $this->spec->get_subject_property_values($entry['value'], NS_CONV . 'lookup_column');
+                    
+                    if (count($lookup_values) > 1 || count($lookup_column_value) > 1) {
                         throw new Exception("Lookup ${lookup} has an entry ${entry['value']} that does not have exactly one lookup value assigned.");
                     }
-                    $this->lookups[$lookup][$lookup_key] = $lookup_values[0];
+                    
+                    if ($lookup_values) {
+                        $this->lookups[$lookup][$lookup_key] = $lookup_values[0];
+                        //return isset($this->lookups[$lookup][$key]) ? $this->lookups[$lookup][$key] : null;
+                    
+                    } else if ($lookup_column_value) {
+                        $column_value = $this->get_record_value($record, $lookup_column_value[0]['value']);
+                        $lookup_column_value[0]['value'] = $column_value;
+                        $this->lookups[$lookup][$lookup_key] = $lookup_column_value[0];
+                        //return isset($this->lookups[$lookup][$key]) ? $this->lookups[$lookup][$key] : null;
+                    }
+                    //nata end
                 }
             }
         }
@@ -529,5 +541,4 @@ class Vertere {
         }
         return false;
     }
-
 }
