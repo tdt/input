@@ -79,7 +79,7 @@ class XML extends \tdt\input\AExtractor{
             $name =  "_" . $xmlobject->nodeName;            
             if(!empty($index)){
                 $index--; // If we pass $index = 0, it will not pass the test as well, so lets take an assumed offset of 1, and then just adjust to a 0-based offset.
-                $name = $name . "[" . $index . "]";
+                $name = $name . "[" . $index . "]";                
             }
         }
         
@@ -108,23 +108,17 @@ class XML extends \tdt\input\AExtractor{
 
             foreach($xmlobject->childNodes as $child){
                 //if the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
-                if(isset($frequency[$child->nodeName])){
-                    //add a default key name without "[0]" for the first or only element
+                if(isset($frequency[$child->nodeName])){ // This shouldn't be checked, just for safety measures.
+                
                     if($frequency[$child->nodeName] > 1){                        
-                        $this->makeFlat($document, $child, $prefix . $name, $current_index[$child->nodeName]);
+                        if($current_index[$child->nodeName] == 1) // Backwards compatibility with previous mapping functionality.
+                            $this->makeFlat($document, $child, $prefix . $name, null);
+                        $this->makeFlat($document, $child, $prefix . $name, $current_index[$child->nodeName]);                    
                         $current_index[$child->nodeName]++;
                     }else{
                         $this->makeFlat($document, $child, $prefix . $name, null);
                     }
-                    //$this->makeFlat($document, $child, $prefix . $name, null);
-                    //and add a [0] to this element as well for consistency
-                    /*if(!empty($document[$prefix . $name])){
-                        $document[$prefix . $name . "[0]"] = $document[$prefix . $name];
-                    } */                   
-                }else{                
-                    //$this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
-                    $this->makeFlat($document,$child,$prefix.$name,$frequency[$child->nodeName]);
-                    $frequency[$child->nodeName]++;
+                          
                 }
             }
         }

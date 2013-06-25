@@ -202,7 +202,7 @@ class RDF extends \tdt\input\ALoader {
         //throw new \tdt\framework\TDTException(500,array("Triples were not inserted!"));
     }
 
-    private function addTriples($triples) {
+    private function addTriples($triples) {        
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
                     $v = strtr($v[0], array('\\u' => ''));
                     return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
