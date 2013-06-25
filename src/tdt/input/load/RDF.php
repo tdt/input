@@ -70,12 +70,6 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
-        //Store graph in database
-        //$this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
-        //Switch to adding jobURI
-
-        exit();
-        //$this->graph_name = $_REQUEST[''];
         
         $time = time();
         $date_time = date("c", $time);

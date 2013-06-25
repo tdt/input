@@ -68,39 +68,63 @@ class XML extends \tdt\input\AExtractor{
         }
     }
 
-    private function makeFlat(&$document, &$xmlobject, $parentname = ""){
+    private function makeFlat(&$document, &$xmlobject, $parentname = "", $index = null){
+
         //prefix for row names
         if($parentname == ""){
             $prefix = "";
             $name = $xmlobject->nodeName;
         }else{
             $prefix = $parentname;
-            $name =  "_" . $xmlobject->nodeName;
+            $name =  "_" . $xmlobject->nodeName;            
+            if(!empty($index)){
+                $index--; // If we pass $index = 0, it will not pass the test as well, so lets take an assumed offset of 1, and then just adjust to a 0-based offset.
+                $name = $name . "[" . $index . "]";
+            }
         }
         
         //first the attributes
-        $this->parseAttributes($document, $xmlobject , $prefix . $name);
+        $this->parseAttributes($document, $xmlobject , $prefix . $name);        
 
         if(sizeof($xmlobject->childNodes) == 0){
             //store the value of the element in the document array under its prefix name
             $document[ $prefix ] = $xmlobject->nodeValue;
+            
             //count the number of keys we have.
             $this->index++;
         }else{
             //then the children
-            $key_indices = array(); //an array of how many times a certain key occurred
+            $frequency = array(); //an array of how many times a certain key occurred            
+            $current_index = array();
+            // You have to fill in the frequency table first, there's no way of knowing otherwise how many elements of the same name
+            // are after it.
+            foreach($xmlobject->childNodes as $child){
+                if(empty($frequency[$child->nodeName])){
+                    $frequency[$child->nodeName] = 0;
+                    $current_index[$child->nodeName] = 1;
+                }
+                $frequency[$child->nodeName]++;
+            }                        
+
             foreach($xmlobject->childNodes as $child){
                 //if the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
-                if(!isset($key_indices[$child->nodeName])){
+                if(isset($frequency[$child->nodeName])){
                     //add a default key name without "[0]" for the first or only element
-                    $this->makeFlat($document, $child, $prefix . $name);
+                    if($frequency[$child->nodeName] > 1){                        
+                        $this->makeFlat($document, $child, $prefix . $name, $current_index[$child->nodeName]);
+                        $current_index[$child->nodeName]++;
+                    }else{
+                        $this->makeFlat($document, $child, $prefix . $name, null);
+                    }
+                    //$this->makeFlat($document, $child, $prefix . $name, null);
                     //and add a [0] to this element as well for consistency
-                    $document[$prefix . $name . "[0]"] = $document[$prefix . $name];
-                    //add a one in the occurence table
-                    $key_indices[$child->nodeName] = 1;
-                }else{
-                    $this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
-                    $key_indices[$child->nodeName]++;
+                    /*if(!empty($document[$prefix . $name])){
+                        $document[$prefix . $name . "[0]"] = $document[$prefix . $name];
+                    } */                   
+                }else{                
+                    //$this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
+                    $this->makeFlat($document,$child,$prefix.$name,$frequency[$child->nodeName]);
+                    $frequency[$child->nodeName]++;
                 }
             }
         }

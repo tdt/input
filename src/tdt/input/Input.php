@@ -60,7 +60,7 @@ class Input {
             //1. EXTRACT
 
             $chunk = $this->e->pop();
-
+           
             //2. MAP
             if (!empty($this->m)) {
                 $chunk = $this->m->execute($chunk);
