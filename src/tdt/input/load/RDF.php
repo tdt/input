@@ -4,7 +4,6 @@ namespace tdt\input\load;
 
 use RedBean_Facade as R;
 use tdt\exceptions\TDTException;
-use tdt\uri\RequestURI;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -71,16 +70,7 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
-        //Store graph in database with the name of the job as identifier!
-        // This means that we need to strip the uri until the part right next to tdtinput  
-        // The uri we're getting is in the form of http(s)://.../tdtinput/name/run(test,...)
-        $uri = new RequestURI();
-        $uri = $uri->getURI();
-        $pos = strrpos($uri,"/");
-        $uri = substr($uri, 0, $pos);
         
-        $this->graph_name = $uri;
-
         $time = time();
         $date_time = date("c", $time);
 
@@ -190,9 +180,6 @@ class RDF extends \tdt\input\ALoader {
 
             if ($result  !== false) {
                 $response = json_decode($result, true);
-
-                //if ($response)
-                //    $this->log[] = print_r($response['results'], true);
                 
                 $this->deleteGraph($graph_id);
 
@@ -215,7 +202,7 @@ class RDF extends \tdt\input\ALoader {
         //throw new \tdt\framework\TDTException(500,array("Triples were not inserted!"));
     }
 
-    private function addTriples($triples) {
+    private function addTriples($triples) {        
         $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
                     $v = strtr($v[0], array('\\u' => ''));
                     return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
@@ -228,11 +215,13 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log[] = "Flush buffer... ";
 
-        if ($this->execSPARQL($query) !== false)
+        if ($this->execSPARQL($query) !== false){
             $this->log[] = "Triples inserted in  $this->graph_name !";
-        else
-            $this->log["errors"][] = "Triples were not inserted!";
-        //throw new \tdt\framework\TDTException("Triples were not inserted!");
+            return true;
+        }
+
+         $this->log["errors"][] = "Triples were not inserted!";
+            return false;
     }
 
     /**
