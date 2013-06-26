@@ -5,7 +5,7 @@ use \XMLReader;
 
 class XML extends \tdt\input\AExtractor{
 
-    private $next, $reader;
+    private $next, $reader, $objectname;
 
     protected function open($url){
         $this->reader = new XMLReader();
@@ -20,6 +20,9 @@ class XML extends \tdt\input\AExtractor{
             $this->reader->read();
         }
         $this->next = $this->reader->expand();
+
+        // If we encounter another node with a name different of this one, then it's a wrong tag.
+        $this->objectname = $this->next->nodeName;
     }
     
     /**
@@ -32,6 +35,8 @@ class XML extends \tdt\input\AExtractor{
         }else{ 
             if($this->reader->next()){
                 $this->next = $this->reader->expand();
+                if($this->next->nodeName != $this->objectname)
+                    return false;
                 return true;
             }else{
                 return false;
