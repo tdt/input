@@ -153,7 +153,6 @@ class Vertere {
 
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
-            //var_dump($source_value);
             $lookup_value = $this->lookup($record, $lookup, $source_value);
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
@@ -210,7 +209,6 @@ class Vertere {
 
             //Check for lookups
             $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
-            //var_dump($lookup);
             if ($lookup != null) {
                 $lookup_value = $this->lookup($record, $lookup, $source_value);
                 if ($lookup_value != null && $lookup_value['type'] == 'uri') {
@@ -324,9 +322,6 @@ class Vertere {
         $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
         if ($lookup != null) {
             $lookup_value = $this->lookup($record, $lookup, $source_value);
-            //var_dump($record['event_languages_language2']);
-            //echo "returned ";
-            //var_dump($lookup_value);
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $uris[$resource] = $lookup_value['value'];
                 return;
@@ -370,10 +365,8 @@ class Vertere {
             $uris[$resource] = $uri;
         } else {
             $identity = $this->spec->get_first_resource($resource, NS_CONV . 'alternative_identity');
-            //var_dump($identity);
             if ($identity) {
                 $this->create_uri($record, $uris, $resource, $identity);
-                //var_dump($identity);
             }
         }
     }
@@ -510,8 +503,6 @@ class Vertere {
                     
                     if ($lookup_column_value) {
                         $column_value = $this->get_record_value($record, $lookup_column_value[0]['value']);
-                        var_dump($column_value);
-                        var_dump($lookup_key);
                         if ($lookup_values) {
                             if ($column_value == $lookup_key)
                                 $this->lookups[$lookup][$key] = $lookup_values[0];
