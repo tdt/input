@@ -184,7 +184,7 @@ class RDF extends \tdt\input\ALoader {
         $this->log[] = "deleting: " . print_r($this->old_graphs, true);
         foreach ($this->old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
-            $query = "CLEAR GRAPH <$graph_id>";
+            $query = "DEFINE sql:log-enable 3 CLEAR GRAPH <$graph_id>";
 
             $result = $this->execSPARQL($query);
 
