@@ -501,11 +501,11 @@ class Vertere {
                     }
                     if ($lookup_column){
                             $this->lookups[$lookup][$lookup_key]['value'] = $lookup_column[0]['value'];
-                            $this->lookups[$lookup][$lookup_key]['type'] = "1";
+                            $this->lookups[$lookup][$lookup_key]['type'] = true;
                     }
                     elseif ($lookup_values[0]){
                         $this->lookups[$lookup][$lookup_key]['value'] = $lookup_values[0];
-                        $this->lookups[$lookup][$lookup_key]['type'] = "0";
+                        $this->lookups[$lookup][$lookup_key]['type'] = false;
                         }
                 } 
             }
