@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<airports>
+  <airport>
+    <id>6523</id>
+    <ident>00A</ident>
+    <type>heliport</type>
+    <name>Total Rf Heliport</name>
+    <latitude_deg>40.07080078125</latitude_deg>
+    <longitude_deg>-74.9336013793945</longitude_deg>
+    <elevation_ft>11</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-PA</iso_region>
+    <municipality>Bensalem</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00A</gps_code>
+    <iata_code />
+    <local_code>00A</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6524</id>
+    <ident>00AK</ident>
+    <type>small_airport</type>
+    <name>Lowell Field</name>
+    <latitude_deg>59.94919968</latitude_deg>
+    <longitude_deg>-151.695999146</longitude_deg>
+    <elevation_ft>450</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-AK</iso_region>
+    <municipality>Anchor Point</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00AK</gps_code>
+    <iata_code />
+    <local_code>00AK</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6525</id>
+    <ident>00AL</ident>
+    <type>small_airport</type>
+    <name>Epps Airpark</name>
+    <latitude_deg>34.8647994995117</latitude_deg>
+    <longitude_deg>-86.7703018188477</longitude_deg>
+    <elevation_ft>820</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-AL</iso_region>
+    <municipality>Harvest</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00AL</gps_code>
+    <iata_code />
+    <local_code>00AL</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6526</id>
+    <ident>00AR</ident>
+    <type>heliport</type>
+    <name>Newport Hospital &amp; Clinic Heliport</name>
+    <latitude_deg>35.608699798584</latitude_deg>
+    <longitude_deg>-91.2548980712891</longitude_deg>
+    <elevation_ft>237</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-AR</iso_region>
+    <municipality>Newport</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00AR</gps_code>
+    <iata_code />
+    <local_code>00AR</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6527</id>
+    <ident>00AZ</ident>
+    <type>small_airport</type>
+    <name>Cordes Airport</name>
+    <latitude_deg>34.3055992126465</latitude_deg>
+    <longitude_deg>-112.165000915527</longitude_deg>
+    <elevation_ft>3810</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-AZ</iso_region>
+    <municipality>Cordes</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00AZ</gps_code>
+    <iata_code />
+    <local_code>00AZ</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6528</id>
+    <ident>00CA</ident>
+    <type>small_airport</type>
+    <name>Goldstone /Gts/ Airport</name>
+    <latitude_deg>35.3504981995</latitude_deg>
+    <longitude_deg>-116.888000488</longitude_deg>
+    <elevation_ft>3038</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-CA</iso_region>
+    <municipality>Barstow</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00CA</gps_code>
+    <iata_code />
+    <local_code>00CA</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6529</id>
+    <ident>00CO</ident>
+    <type>small_airport</type>
+    <name>Cass Field</name>
+    <latitude_deg>40.622200012207</latitude_deg>
+    <longitude_deg>-104.34400177002</longitude_deg>
+    <elevation_ft>4830</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-CO</iso_region>
+    <municipality>Briggsdale</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00CO</gps_code>
+    <iata_code />
+    <local_code>00CO</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6531</id>
+    <ident>00FA</ident>
+    <type>small_airport</type>
+    <name>Grass Patch Airport</name>
+    <latitude_deg>28.6455001831055</latitude_deg>
+    <longitude_deg>-82.2190017700195</longitude_deg>
+    <elevation_ft>53</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-FL</iso_region>
+    <municipality>Bushnell</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00FA</gps_code>
+    <iata_code />
+    <local_code>00FA</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+  <airport>
+    <id>6532</id>
+    <ident>00FD</ident>
+    <type>heliport</type>
+    <name>Ringhaver Heliport</name>
+    <latitude_deg>28.8465995788574</latitude_deg>
+    <longitude_deg>-82.3453979492188</longitude_deg>
+    <elevation_ft>25</elevation_ft>
+    <continent>NA</continent>
+    <iso_country>US</iso_country>
+    <iso_region>US-FL</iso_region>
+    <municipality>Riverview</municipality>
+    <scheduled_service>no</scheduled_service>
+    <gps_code>00FD</gps_code>
+    <iata_code />
+    <local_code>00FD</local_code>
+    <home_link />
+    <wikipedia_link />
+    <keywords />
+  </airport>
+</airports>
