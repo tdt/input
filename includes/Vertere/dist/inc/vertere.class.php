@@ -153,11 +153,9 @@ class Vertere {
         } else {
             return;
         }
-
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
-            $lookup_value = $this->lookup($lookup, $source_value);
-
+            $lookup_value = $this->lookup($record, $lookup, $source_value);
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
                 return;
@@ -214,7 +212,7 @@ class Vertere {
             //Check for lookups
             $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
             if ($lookup != null) {
-                $lookup_value = $this->lookup($lookup, $source_value);
+                $lookup_value = $this->lookup($record, $lookup, $source_value);
                 if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                     $uris[$resource] = $lookup_value['value'];
                     return;
@@ -326,7 +324,7 @@ class Vertere {
         //Check for lookups
         $lookup = $this->spec->get_first_resource($identity, NS_CONV . 'lookup');
         if ($lookup != null) {
-            $lookup_value = $this->lookup($lookup, $source_value);
+            $lookup_value = $this->lookup($record, $lookup, $source_value);
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $uris[$resource] = $lookup_value['value'];
                 return;
@@ -474,15 +472,15 @@ class Vertere {
         return $value;
     }
 
-    public function lookup($lookup, $key) {
+    public function lookup( $record, $lookup, $key) {
         if ($this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_entry')) {
-            return $this->lookup_config_entries($lookup, $key);
+            return $this->lookup_config_entries($record, $lookup, $key);
         } else if ($this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_csv_file')) {
-            return $this->lookup_csv_file($lookup, $key);
-        }
+                return $this->lookup_csv_file($lookup, $key);
+            }
     }
 
-    function lookup_config_entries($lookup, $key) {
+    function lookup_config_entries($record, $lookup, $key) {
         if (!isset($this->lookups[$lookup])) {
             $entries = $this->spec->get_subject_property_values($lookup, NS_CONV . 'lookup_entry');
             if (empty($entries)) {
@@ -491,20 +489,35 @@ class Vertere {
             foreach ($entries as $entry) {
                 //Accept lookups with several keys mapped to a single value
                 $lookup_keys = $this->spec->get_subject_property_values($entry['value'], NS_CONV . 'lookup_key');
+                $lookup_column = $this->spec->get_subject_property_values($entry['value'], NS_CONV . 'lookup_column');
                 foreach ($lookup_keys as $lookup_key_array) {
                     $lookup_key = $lookup_key_array['value'];
                     if (isset($this->lookups[$lookup][$lookup_key])) {
                         throw new Exception("Lookup <${lookup}> contained a duplicate key");
                     }
                     $lookup_values = $this->spec->get_subject_property_values($entry['value'], NS_CONV . 'lookup_value');
-                    if (count($lookup_values) != 1) {
+                    if (count($lookup_values) > 1) {
                         throw new Exception("Lookup ${lookup} has an entry ${entry['value']} that does not have exactly one lookup value assigned.");
                     }
-                    $this->lookups[$lookup][$lookup_key] = $lookup_values[0];
-                }
+                    if ($lookup_column){
+                            $this->lookups[$lookup][$lookup_key]['value'] = $lookup_column[0]['value'];
+                            $this->lookups[$lookup][$lookup_key]['type'] = true;
+                    }
+                    elseif ($lookup_values[0]){
+                        $this->lookups[$lookup][$lookup_key]['value'] = $lookup_values[0];
+                        $this->lookups[$lookup][$lookup_key]['type'] = false;
+                        }
+                } 
             }
         }
-        return isset($this->lookups[$lookup][$key]) ? $this->lookups[$lookup][$key] : null;
+        if ($this->lookups[$lookup][$key]) {
+            if ($this->lookups[$lookup][$key]['type']){
+                $column_value['value'] = $this->get_record_value($record, $this->lookups[$lookup][$key]['value']);
+                return $column_value;
+            }
+            elseif(!$this->lookups[$lookup][$key]['type'])
+                return $this->lookups[$lookup][$key]['value'];
+        }
     }
 
     function lookup_csv_file($lookup, $key) {

@@ -1,0 +1,10 @@
+id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords
+6523,00A,heliport,Total Rf Heliport,40.0708007813,-74.9336013794,11,NA,US,US-PA,Bensalem,no,00A,,00A,,,
+6524,00AK,small_airport,Lowell Field,59.94919968,-151.695999146,450,NA,US,US-AK,Anchor Point,no,00AK,,00AK,,,
+6525,00AL,small_airport,Epps Airpark,34.8647994995,-86.7703018188,820,NA,US,US-AL,Harvest,no,00AL,,00AL,,,
+6526,00AR,heliport,Newport Hospital & Clinic Heliport,35.6086997986,-91.2548980713,237,NA,US,US-AR,Newport,no,00AR,,00AR,,,
+6527,00AZ,small_airport,Cordes Airport,34.3055992126,-112.1650009155,3810,NA,US,US-AZ,Cordes,no,00AZ,,00AZ,,,
+6528,00CA,small_airport,Goldstone /Gts/ Airport,35.3504981995,-116.888000488,3038,NA,US,US-CA,Barstow,no,00CA,,00CA,,,
+6529,00CO,small_airport,Cass Field,40.6222000122,-104.34400177,4830,NA,US,US-CO,Briggsdale,no,00CO,,00CO,,,
+6531,00FA,small_airport,Grass Patch Airport,28.6455001831,-82.21900177,53,NA,US,US-FL,Bushnell,no,00FA,,00FA,,,
+6532,00FD,heliport,Ringhaver Heliport,28.8465995789,-82.3453979492,25,NA,US,US-FL,Riverview,no,00FD,,00FD,,,
