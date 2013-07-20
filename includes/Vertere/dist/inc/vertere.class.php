@@ -520,8 +520,10 @@ class Vertere {
             elseif(!$this->lookups[$lookup][$key]['type'])
                 return $this->lookups[$lookup][$key]['value'];
         }
-        else
-            return $key;
+        else {
+            $return['value'] = $key;
+            return $reurn;
+        }
     }
 
     function lookup_csv_file($lookup, $key) {
