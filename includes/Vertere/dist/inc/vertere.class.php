@@ -522,7 +522,7 @@ class Vertere {
         }
         else {
             $return['value'] = $key;
-            return $reurn;
+            return $return;
         }
     }
 
