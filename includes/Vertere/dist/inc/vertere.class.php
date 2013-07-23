@@ -156,12 +156,7 @@ class Vertere {
         $lookup = $this->spec->get_first_resource($attribute, NS_CONV . 'lookup');
         if ($lookup != null) {
             $lookup_value = $this->lookup($record, $lookup, $source_value);
-            if (!isset($lookup_value['type'])){
-                var_dump($lookup_value);
-                var_dump($lookup);
-                //var_dump($record);
-                var_dump($source_value);
-                exit();}
+
             if ($lookup_value != null && $lookup_value['type'] == 'uri') {
                 $graph->add_resource_triple($subject, $property, $lookup_value['value']);
                 return;
@@ -526,11 +521,6 @@ class Vertere {
             }
             elseif(!$this->lookups[$lookup][$key]['type'])
                 return $this->lookups[$lookup][$key]['value'];
-            /*else {
-                $return['value'] = $key;
-                $return['type'] = false;
-                return $return;
-            }*/
         }
         else {
             $return['value'] = $key;
