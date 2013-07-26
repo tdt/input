@@ -26,8 +26,8 @@ class InputResourceController extends \tdt\core\controllers\AController {
     /**
      * Only works with tdt/start
      */
-    private function getDBConfig(){
-        $db = array();
+    public static function getDBConfig(){
+        $db = array();        
         $db["host"] = Config::get("db", "host");
         $db["name"] = Config::get("db", "name");
         $db["system"] = Config::get("db", "system");
@@ -44,7 +44,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
         if(!empty($matches["format"])){
             $format= ltrim($matches["format"],'.');
         }
-        $s = new Schedule($this->getDBConfig());            
+        $s = new Schedule(InputResourceController::getDBConfig());            
         if(isset($matches["resource"]) && $matches["resource"] != ""){            
             $object->job = $s->getJob($matches["resource"]);   
                 
@@ -73,9 +73,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
                 ignore_user_abort(true);
                 set_time_limit(0);
                 //convert object to array
-                $job = json_decode(json_encode($object->job) ,true);                
-                $input = new Input($job);                
-                echo $input->execute();
+                echo exec('php run_input.php win-regios');
                 exit();
             }
         }else{
