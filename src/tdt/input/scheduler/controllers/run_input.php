@@ -4,19 +4,22 @@
  * This script kickstarts an EML sequence, it expects the jobname to be passed as the first argument.
  */ 
 
-if(empty($argv[1])){
-    // Log this error.
-    throw new Exception("Pass along a job-name with the script.");
-}
+define('VENDORPATH', "C:\\wamp\\www\\start\\vendor\\");
+define('APPPATH', "C:\\wamp\www\\start\\app\\");
 
-// the second variable is optional and asks to pass along the path to the autoloader of tdtinput.
-if(empty($argv[2])){
-    $autoload = __DIR__ . '/../../../../../../../autoload.php';
-}else{
-    $autoload = $argv[2];
-}
-echo $autoload;
-require $autoload;
+
+require_once VENDORPATH . "autoload.php";
+
+// Load the configurator
+require_once APPPATH . "core/configurator.php";
+
+// Load the configuration wrapper
+require_once APPPATH . "core/Config.php";
+
+// Load the start controllers
+require_once APPPATH . "controllers/ErrorController.class.php";
+require_once APPPATH . "controllers/DocumentationController.class.php";
+require_once APPPATH . "controllers/RedirectController.class.php";
 
 use tdt\input\scheduler\Schedule;
 use tdt\input\Input;
@@ -25,12 +28,25 @@ use tdt\core\formatters\FormatterFactory;
 use tdt\exceptions\TDTException;
 use app\core\Config;
 
+if(empty($argv[1])){
+    // Log this error.
+    throw new Exception("Pass along a job-name with the script.");
+}
+
 $resource = $argv[1];
 
-$cont = new InputResourceController();
-$s = new Schedule(InputResourceController::getDBConfig());  
+// Get the configuration of the database.
+$config_files = array(   
+    "db",  
+    "general",  
+);
+
+$config = Configurator::load($config_files);
+
+$s = new Schedule($config['db']);  
+
 $object->job = $s->getJob($resource);   
-                
+
 unset($object->job["id"]);
 if(isset($object->job["map"])){
     unset($object->job["map"]["id"]);
@@ -55,7 +71,8 @@ if(empty($object->job)){
 ignore_user_abort(true);
 set_time_limit(0);
 //convert object to array
-$job = json_decode(json_encode($object->job) ,true);                
+$job = json_decode(json_encode($object->job) ,true);        
+$log_path = $config['general']['logging']['path'];
+$job["log_path"] = $log_path;
 $input = new Input($job);                
-echo $input->execute();
-
+$input->execute();

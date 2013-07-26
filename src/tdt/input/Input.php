@@ -10,18 +10,25 @@ namespace tdt\input;
 
 use JsonSchema\Validator;
 use RedBean_Facade as R;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class Input {
 
     //Extractor, Mapper, Loader
-            private $e, $m, $l;
+    private $e, $m, $l;
     public $log;
     private $db;
 
-    public function __construct($config, $db = array()) {
+    public function __construct($config,$db = array()) {
         if (!empty($db)) {
             $this->db = $db;
             R::setup($this->db["system"] . ":host=" . $this->db["host"] . ";dbname=" . $this->db["name"], $this->db["user"], $this->db["password"]);
+        }
+
+        if(!empty($config['log_path'])){            
+            $this->log = new Logger('Input');
+            $this->log->pushHandler(new StreamHandler($config['log_path'] . "/input_log_" . date('Y-m-d H-i-s') . ".txt", Logger::INFO));            
         }
         
         $extractmethod = $config["extract"]["type"];
@@ -38,7 +45,6 @@ class Input {
         }        
         
         // loader
-
         if(!empty($config["load"]) && !empty($config["load"]["type"])){
             $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];            
 
@@ -54,13 +60,12 @@ class Input {
         $start = microtime(true);
         $numberofchunks = 0;
 
-        $this->log[] = "Started ETML process";
+        $this->log->addInfo("Started ETML process");
         $this->errors = array();
 
 
         while ($this->e->hasNext()) {
             //1. EXTRACT
-
             $chunk = $this->e->pop();
             
             //2. MAP
@@ -84,8 +89,8 @@ class Input {
         }
         $this->l->cleanUp();
         $duration = microtime(true) - $start;
-        $this->log[] = "Loaded $numberofchunks chunks in the store in " . $duration . "s.";
-        return json_encode($this->log);
+        $this->log->addInfo("Loaded $numberofchunks chunks in the store in " . $duration . "s.");
+        //return json_encode($this->log);
     }
 
 }

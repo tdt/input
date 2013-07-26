@@ -73,6 +73,10 @@ class InputResourceController extends \tdt\core\controllers\AController {
                 ignore_user_abort(true);
                 set_time_limit(0);
                 //convert object to array
+                echo APPPATH;
+                echo VENDORPATH;
+                echo DOCROOT;
+                exit();
                 echo exec('php run_input.php win-regios');
                 exit();
             }

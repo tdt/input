@@ -35,9 +35,13 @@
             "type" : "string",
             "required" : false
         },
-        "buffer_size": {
+"buffer_size": {
+           "type" : "string",
+           "required" : false
+        },
+"base_uri": {
             "type" : "string",
-            "required" : false
+            "required" : true
         }
     }
 }
