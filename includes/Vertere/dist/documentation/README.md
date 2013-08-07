@@ -1,4 +1,3 @@
-
 # Vertere Mapping Language
 
 Vertere was a tool for converting data in CSV format into RDF.
@@ -43,7 +42,7 @@ The entry point to the mapping specification is a `:Spec` object
       (here identified as the document itself), which gives basic information about the data source.
       Such an object can be declared by stating that the root URI of the type `:Spec` is.
 
-    <#> a :Spec .</pre>
+    <#> a :Spec .
 
 The spec resource expects the following metadata about the data source:
 
@@ -66,11 +65,11 @@ or it can come of the package and/or resource name provided:
     <#> :base_uri "https://data.example.com/Transport/Routes" ;
 
 Turtle allows a shorter notation when several triples share the same subject. Declaring all above triples can be written like such:   
-<pre> 
-<#> a :Spec;
-:resource <#continent>, <#country>, <#region>, <#ourairports_region_page>, <#wikipedia_page>, <#dbpedia_resource>;
-:base_uri "http://data.example.com/dataset/example/".
-</pre>
+	<pre> 
+	<#> a :Spec;
+	:resource <#continent>, <#country>, <#region>, <#ourairports_region_page>, <#wikipedia_page>, <#dbpedia_resource>;
+	:base_uri "http://data.example.com/dataset/example/".
+	</pre>
 
 # Declaring mappings
 
@@ -221,16 +220,15 @@ Firstly, by adding _links_ to other resources, created from your data set or alr
 *   The `:property` predicate, which refers to the property in the ontology you want to use.
 *   The `:object_from` predicate, which refers to another resource, declared elsewhere in the document.
     
-<pre>
-<#region> :relationship [
-  :property owl:sameAs;
-  :object_from <#dbpedia_resource>
-] .
-</pre>
-
-<pre>
-<http://test.com/REGION11> owl:sameAs <http://dbpedia.org/resource/Aix-en-Provence> .
-</pre>
+	<pre>
+	<#region> :relationship [
+	  :property owl:sameAs;
+	  :object_from <#dbpediaRsource>
+	] .
+	</pre>
+	<pre>
+	<http://test.com/REGION11> owl:sameAs &#60;http://dbpedia.org/resource/Aix-en-Provence> .
+	</pre>
 
 An example with relationships:
 
@@ -455,25 +453,25 @@ The following example maps a CSV file with airports using the TRANSIT, PLACES, G
 6529,"00CO","small_airport","Cass Field",40.622200012207,-104.34400177002,4830,"NA","US","US-CO","Briggsdale","no","00CO",,"00CO",,,
 6531,"00FA","small_airport","Grass Patch Airport",28.6455001831055,-82.2190017700195,53,"NA","US","US-FL","Bushnell","no","00FA",,"00FA",,,
 6532,"00FD","heliport","Ringhaver Heliport",28.8465995788574,-82.3453979492188,25,"NA","US","US-FL","Riverview","no","00FD",,"00FD",,,
-    </pre>
-    <pre>
-@prefix : <http://example.com/schema/data_conversion#> .
-@prefix bibo: <http://purl.org/ontology/bibo/> .
-@prefix fly: <http://vocab.org/fly/schema/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix georss: <http://www.georss.org/georss/> .
-@prefix naptan: <http://transport.data.gov.uk/def/naptan/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix places: <http://purl.org/ontology/places#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix spacerel: <http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
-@prefix transit: <http://vocab.org/transit/terms/> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+</pre>
+<pre>
+@prefix : &lt;http://example.com/schema/data_conversion#> .
+@prefix bibo: &lt;http://purl.org/ontology/bibo/> .
+@prefix fly: &lt;http://vocab.org/fly/schema/> .
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/> .
+@prefix geo: &lt;http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix georss: &lt;http://www.georss.org/georss/> .
+@prefix naptan: &lt;http://transport.data.gov.uk/def/naptan/> .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#> .
+@prefix places: &lt;http://purl.org/ontology/places#> .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#> .
+@prefix spacerel: &lt;http://data.ordnancesurvey.co.uk/ontology/spatialrelations/> .
+@prefix transit: &lt;http://vocab.org/transit/terms/> .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#> .
 
 <#> a :Spec;
-:resource <#airport>, <#country>, <#continent>, <#region>, <#boolean_lookup>, <#municipality>, <#ourairports_page>, <#naptan_resource>, <#airport_type>;
+:resource &lt;#airport>, &lt;#country>, &lt;#continent>, &lt;#region>, &lt;#boolean&#095;lookup>, &lt;#municipality>, &lt;#ourairports&#095;page>, &lt;#naptan&#095;resource>, &lt;#airport&#095;type>;
 :base_uri "http://data.example.com/airports/" .
 
 <#airport> a :Resource
