@@ -7,7 +7,7 @@ class CLI extends \tdt\input\ALoader{
         if(method_exists($chunk, "to_ntriples")){
             echo $chunk->to_ntriples();
         }else{
-            var_dump($chunk);
+            echo $chunk;
         }
         echo "\n";
     }
