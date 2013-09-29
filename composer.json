@@ -1,26 +1,23 @@
 {
     "name": "tdt/input",
-    "description": "A streaming ETL with mapping function included. Depending on your configuration, you can extract files in different formats, transform then into PHP arrays, optionally map them to a vocabulary and load the arrays in a store",
-    "keywords": ["input", "etl", "mapper", "rdf", "ontologies"],
-    "homepage": "http://thedatatank.com",
-    "type": "library",
-    "license": "AGPLv3",
-    "suggest": {
-        "tdt/start": "Maps the functions of this scheduler to a RESTful API. A controller is already included: tdt scheduler ScheduleController"
-    },
-    "require": {
-        "tdt/filehelpers" : "dev-master",
-        "tdt/json" : "dev-master",
-	"tdt/formatters" : "dev-master",
-        "justinrainbow/json-schema" : "1.3.1",
-        "gabordemooij/redbean" : "dev-master",
-        "tdt/uri" : "dev-master"
-    },
-    "minimum-stability" : "dev",
-    "autoload": {
-        "psr-0": {
-            "tdt\\input\\": "src/"
+    "description": "",
+    "authors": [
+        {
+            "name": "",
+            "email": ""
         }
-    }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.0.x"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Tdt\\Input": "src/"
+        }
+    },
+    "minimum-stability": "dev"
 }
-

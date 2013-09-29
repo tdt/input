@@ -1,7 +1,0 @@
-#!/usr/bin/env php
-<?php
-$column = $argv[1];
-while ($line = fgetcsv(STDIN))
-{
-	echo $line[$column]."\n";
-}

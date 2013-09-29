@@ -1,8 +1,4 @@
-vendor
-*.lock
-nbproject/
-examples/custom/input.ini
-examples/custom/db.ini
+/vendor
+composer.phar
+composer.lock
 .DS_Store
-includes/Vertere/dist/lib/moriarty/.svn/text-base/simplegraph.class.php.netbeans-base
-input.ini
