@@ -1,6 +1,6 @@
 <?php
 
-namespace tdt\input;
+namespace tdt\input\controllers;
 
 class HelloController extends \Controller{
 

@@ -6,4 +6,4 @@
 |--------------------------------------------------------------------------
 */
 
-Route::get('/hello', 'tdt\input\HelloController@sayHello');
+Route::get('/hello', 'tdt\input\controllers\HelloController@sayHello');
