@@ -1,4 +1,6 @@
-<?php namespace Tdt\Input;
+<?php
+
+namespace tdt\input;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -19,6 +21,8 @@ class InputServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('tdt/input');
+
+		include __DIR__ . '/../../routes.php';
 	}
 
 	/**

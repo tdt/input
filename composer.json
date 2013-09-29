@@ -1,12 +1,6 @@
 {
     "name": "tdt/input",
     "description": "",
-    "authors": [
-        {
-            "name": "",
-            "email": ""
-        }
-    ],
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "4.0.x"
@@ -16,7 +10,7 @@
             "src/migrations"
         ],
         "psr-0": {
-            "Tdt\\Input": "src/"
+            "tdt\\input": "src/"
         }
     },
     "minimum-stability": "dev"
