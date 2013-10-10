@@ -23,6 +23,7 @@ class RDF extends \tdt\input\ALoader {
      * Validation already done earlier
      */
     public function __construct($config, &$log) {
+
         $this->log = &$log;
         if (!isset($config["endpoint"]))
             throw new TDTException(400,array('SPARQL endpoint not set in config'));
@@ -73,10 +74,10 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
-        //Store graph in database with the name of the job as identifier!
-        // This means that we need to strip the uri until the part right next to tdtinput  
-        // The uri we're getting is in the form of http(s)://.../tdtinput/name/run(test,...)        
-        
+        // Store graph in database with the name of the job as identifier!
+        // This means that we need to strip the uri until the part right next to tdtinput
+        // The uri we're getting is in the form of http(s)://.../tdtinput/name/run(test,...)
+
         $this->graph_name = $config["base_uri"];
 
         $time = time();
@@ -97,7 +98,7 @@ class RDF extends \tdt\input\ALoader {
         $this->graph = $graph_id;
 
         $this->addTimestamp($date_time);
-        
+
         if (!isset($config["buffer_size"]))
             $config["buffer_size"] = 24;
 
@@ -151,7 +152,7 @@ class RDF extends \tdt\input\ALoader {
         curl_close($ch);
 
         if ($response_code >= 400) {
-            $this->log->addInfo("The PUT request to The DataTank instance using the uri $uri failed! The server responded with code $reponse_code.");            
+            $this->log->addInfo("The PUT request to The DataTank instance using the uri $uri failed! The server responded with code $reponse_code.");
         } else {
             $this->log->addInfo("The PUT request to add the resource in The DataTank using the uri $uri succeeded with code " . $response_code);
             $this->log->addInfo("The linked data resource is now available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource");
@@ -165,10 +166,10 @@ class RDF extends \tdt\input\ALoader {
         if (!$chunk->is_empty()) {
             preg_match_all("/(<.*\.)/", $chunk->to_ntriples(), $matches);
             if ($matches[0])
-                $this->buffer = array_merge($this->buffer, $matches[0]);   
+                $this->buffer = array_merge($this->buffer, $matches[0]);
 
             while (count($this->buffer) >= $this->buffer_size) {
-                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);                
+                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
                 $this->addTriples(implode(' ', $triples_to_send));
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
@@ -191,7 +192,7 @@ class RDF extends \tdt\input\ALoader {
 
                 //if ($response)
                 //    $this->log->addInfo("rint_r($response['results'], true));
-                
+
                 $this->deleteGraph($graph_id);
 
                 $this->log->addInfo("Old version of graph $graph is cleared!");
@@ -229,15 +230,15 @@ class RDF extends \tdt\input\ALoader {
         if ($this->execSPARQL($query) !== false)
             $this->log->addInfo("Triples inserted in  $this->graph_name !");
         else
-            $this->log->addInfo("WARNING: Triples were not inserted!");        
+            $this->log->addInfo("WARNING: Triples were not inserted!");
     }
 
     /**
-     * Send a POST requst using cURL 
-     * @param string $url to request 
-     * @param array $post values to send 
-     * @param array $options for cURL 
-     * @return string 
+     * Send a POST requst using cURL
+     * @param string $url to request
+     * @param array $post values to send
+     * @param array $options for cURL
+     * @return string
      */
     private function execSPARQL($query, $method = "POST") {
 // is curl installed?
@@ -276,9 +277,10 @@ class RDF extends \tdt\input\ALoader {
 
         $this->log->addInfo("Endpoint returned: $response_code");
         curl_close($ch);
-        
+
         if ($response_code >= 400) {
             $this->log->addInfo("WARNING: Query failed: " . $response_code . ": " . $response);
+            $this->log->addInfo("WARNING: Failed URI was: " . $query);
             return false;
         }
 

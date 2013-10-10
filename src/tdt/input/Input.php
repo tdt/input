@@ -26,11 +26,11 @@ class Input {
             R::setup($this->db["system"] . ":host=" . $this->db["host"] . ";dbname=" . $this->db["name"], $this->db["user"], $this->db["password"]);
         }
 
-        if(!empty($config['log_path'])){            
+        if(!empty($config['log_path'])){
             $this->log = new Logger('Input');
-            $this->log->pushHandler(new StreamHandler($config['log_path'] . "/input_log_" . date('Y-m-d H-i-s') . ".txt", Logger::INFO));            
+            $this->log->pushHandler(new StreamHandler($config['log_path'] . "/input_log_" . date('Y-m-d H-i-s') . ".txt", Logger::INFO));
         }
-        
+
         $extractmethod = $config["extract"]["type"];
         $extract = $config["extract"];
 
@@ -42,14 +42,14 @@ class Input {
             $map = $config["map"];
             $mapmethod = "tdt\\input\\map\\" . $config["map"]["type"];
             $this->m = new $mapmethod($map, $this->log);
-        }        
-        
+        }
+
         // loader
         if(!empty($config["load"]) && !empty($config["load"]["type"])){
-            $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];            
+            $loadclass = "tdt\\input\\load\\" . $config["load"]["type"];
 
             $this->l = new $loadclass($config["load"], $this->log);
-        }        
+        }
     }
 
     /**
@@ -66,16 +66,21 @@ class Input {
 
         while ($this->e->hasNext()) {
             //1. EXTRACT
+            $this->log->addInfo('Started extraction process');
             $chunk = $this->e->pop();
-            
+            $this->log->addInfo('Finished extraction process');
             //2. MAP
             if (!empty($this->m)) {
+                $this->log->addInfo('Started mapping process');
                 $chunk = $this->m->execute($chunk);
+                $this->log->addInfo('Finished mapping process');
             }
 
             //3. LOAD
             if (!empty($this->l)) {
+                $this->log->addInfo('Started loading process');
                 $this->l->execute($chunk);
+                $this->log->addInfo('Finished loading process');
             }
 
             // Either chunk is null or a SimpleGraph instance
@@ -90,7 +95,6 @@ class Input {
         $this->l->cleanUp();
         $duration = microtime(true) - $start;
         $this->log->addInfo("Loaded $numberofchunks chunks in the store in " . $duration . "s.");
-        //return json_encode($this->log);
     }
 
 }

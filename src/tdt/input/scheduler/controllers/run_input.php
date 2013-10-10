@@ -2,11 +2,10 @@
 
 /**
  * This script kickstarts an EML sequence, it expects the jobname to be passed as the first argument.
- */ 
+ */
 
-define('VENDORPATH', "C:\\wamp\\www\\start\\vendor\\");
-define('APPPATH', "C:\\wamp\www\\start\\app\\");
-
+define('VENDORPATH', __DIR__ . "/../../../../../../../");
+define('APPPATH', __DIR__ . "/../../../../../../../../app/");
 
 require_once VENDORPATH . "autoload.php";
 
@@ -30,28 +29,35 @@ use app\core\Config;
 
 if(empty($argv[1])){
     // Log this error.
-    throw new Exception("Pass along a job-name with the script.");
+    throw new \Exception("Pass along a job-name with the script.");
 }
 
 $resource = $argv[1];
 
 // Get the configuration of the database.
-$config_files = array(   
-    "db",  
-    "general",  
+$config_files = array(
+    "db",
+    "general",
 );
+
+$object = new \stdClass();
 
 $config = Configurator::load($config_files);
 
-$s = new Schedule($config['db']);  
+$s = new Schedule($config['db']);
 
-$object->job = $s->getJob($resource);   
+$object->job = $s->getJob($resource);
 
 unset($object->job["id"]);
 if(isset($object->job["map"])){
     unset($object->job["map"]["id"]);
     unset($object->job["map_id"]);
 }
+
+$base_uri = $object->job['map']['datatank_uri'] . $object->job['name'];
+
+$object->job['load']['base_uri'] = $base_uri;
+
 unset($object->job["load"]["id"]);
 unset($object->job["extract"]["id"]);
 
@@ -71,8 +77,8 @@ if(empty($object->job)){
 ignore_user_abort(true);
 set_time_limit(0);
 //convert object to array
-$job = json_decode(json_encode($object->job) ,true);        
+$job = json_decode(json_encode($object->job) ,true);
 $log_path = $config['general']['logging']['path'];
 $job["log_path"] = $log_path;
-$input = new Input($job);                
+$input = new Input($job);
 $input->execute();
