@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Sparql extends Eloquent{
 
-    protected $table = 'rdfload';
+    protected $table = 'sparqlload';
 
     protected $fillable = array('endpoint', 'user', 'password', 'buffer_size');
 

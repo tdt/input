@@ -14,7 +14,7 @@ class Csv extends Eloquent{
 
     protected $table = 'csvextract';
 
-    protected $fillable = array("uri", "delimiter", "has_header_row");
+    protected $fillable = array('uri', 'delimiter', 'has_header_row');
 
     /**
      * Relationship with Job
