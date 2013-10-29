@@ -7,7 +7,8 @@
     },
     "autoload": {
         "classmap": [
-            "src/migrations"
+            "src/migrations",
+            "src/models"
         ],
         "psr-0": {
             "tdt\\input": "src/"

@@ -45,9 +45,10 @@ class Sparql extends Eloquent{
      * If the parameters doesn't have any rules, it's not mentioned in the array.
      */
     public static function getCreateValidators(){
+
         return array(
             'user' => 'required',
-            'endpoint' => 'uri|required',
+            'endpoint' => 'required',
             'password' => 'required',
             'buffer_size' => 'integer|min:1|max:124',
         );

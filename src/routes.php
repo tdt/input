@@ -6,4 +6,4 @@
 |--------------------------------------------------------------------------
 */
 
-Route::get('/input', 'tdt\input\controllers\InputController@handle');
+Route::any('input/{all?}', 'tdt\input\controllers\InputController@handle')->where('all', '.*');

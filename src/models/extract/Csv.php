@@ -1,6 +1,6 @@
 <?php
 
-namespace Csv;
+namespace extract;
 
 use Eloquent;
 
