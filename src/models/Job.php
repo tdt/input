@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * Job model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
@@ -45,31 +47,39 @@ class Job extends Eloquent{
      */
     public function getAllProperties(){
 
-
+        // Put all of the properties in an array
         $properties = array();
-        $source_definition = $this->source()->first();
 
-        // Add all the properties that are mass assignable
-        foreach($source_definition->getFillable() as $key){
-            $properties[$key] = $source_definition->getAttributeValue($key);
+        // Fill in the relationships in empl order
+        $relations = array('extract' => $this->extractor()->first());
+
+        // Don't fetch null relationships
+        if(!empty($this->mapper_type)){
+            $relations['mapper'] = $this->mapper()->first();
         }
 
-        // If the source type has a relationship with tabular columns, then attach those to the properties
-        if(method_exists(get_class($source_definition), 'tabularColumns')){
+        $relations['loader'] = $this->loader()->first();
 
-            $columns = $source_definition->tabularColumns();
-            $columns = $columns->getResults();
+        // Don't fetch null relationships
+        if(!empty($this->publisher_type)){
+            $relations['publisher'] = $this->publisher()->first();
+        }
 
-            $columns_props = array();
-            foreach($columns as $column){
-                $columns_props[$column->index] = array(
-                    'column_name' => $column->column_name,
-                    'is_pk' => $column->is_pk,
-                    'column_name_alias' => $column->column_name_alias,
-                );
+        // Add all the properties that are mass assignable
+        foreach($relations as $key => $relation){
+
+            // Get the type out of the classname
+            $class_names = explode('\\', get_class($relation));
+            $type = end($class_names);
+
+            $type_properties = array('type' => $type);
+
+            foreach($relation->getFillable() as $prop_key){
+                $type_properties[$prop_key] = $relation->getAttributeValue($prop_key);
             }
 
-            $properties['columns'] = $columns_props;
+            // Add the properties under the correct empl type
+            $properties[$key] = $type_properties;
         }
 
         return $properties;
@@ -80,8 +90,25 @@ class Job extends Eloquent{
      */
     public function delete(){
 
-        $source_type = $this->source()->first();
-        $source_type->delete();
+        // Fill in the relationships in empl order
+        $relations = array('extract' => $this->extractor()->first());
+
+        // Don't fetch null relationships
+        if(!empty($this->mapper_id)){
+            $relations['mapper'] = $this->mapper()->first();
+        }
+
+        $relations['loader'] = $this->loader()->first();
+
+        // Don't fetch null relationships
+        if(!empty($this->publisher_id)){
+            $relations['publisher'] = $this->publisher()->first();
+        }
+
+        // Delete the job's relationships
+        foreach($relations as $key => $relation){
+            $relation->delete();
+        }
 
         parent::delete();
     }

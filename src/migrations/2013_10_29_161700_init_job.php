@@ -22,7 +22,7 @@ class InitJob extends Migration {
 			$table->integer('mapper_id')->nullable();
 			$table->string('mapper_type', 255)->nullable();
 			$table->integer('loader_id');
-			$table->string('loader_type', 255)
+			$table->string('loader_type', 255);
 			$table->integer('publisher_id')->nullable();
 			$table->string('publisher_type', 255)->nullable();
 

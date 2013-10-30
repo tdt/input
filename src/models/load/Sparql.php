@@ -74,6 +74,7 @@ class Sparql extends Eloquent{
                 'buffer_size' => array(
                     'required' => true,
                     'description' => 'The buffer size declares how many triples per insert query will be put.',
+                    'default_value' => 4
                 ),
         );
     }

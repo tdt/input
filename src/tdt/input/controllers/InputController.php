@@ -1,6 +1,7 @@
 <?php
 
 namespace tdt\input\controllers;
+
 use tdt\core\ContentNegotiator;
 
 class InputController extends \Controller{
@@ -18,20 +19,18 @@ class InputController extends \Controller{
                 return self::getJob();
                 break;
             case "PATCH":
-                //return self::patchDefinition($uri);
+                //return self::patchJob();
                 break;
             case "DELETE":
-                //return self::deleteDefinition($uri);
+                return self::deleteJob();
                 break;
             case "HEAD":
-                //return self::headDefinition($uri);
+                //return self::headJob();
                 break;
             default:
                 \App::abort(400, "The method $method is not supported by the jobs.");
                 break;
         }
-
-        exit();
     }
 
      /**
@@ -39,8 +38,7 @@ class InputController extends \Controller{
      */
     private static function createJob(){
 
-        $uri = \Request::path();
-        $uri = str_replace('input/', '', $uri);
+        $uri = self::getUri();
 
         // Check if the uri already exists
         if(self::exists($uri)){
@@ -191,10 +189,9 @@ class InputController extends \Controller{
     /**
      * Delete a job based on the URI given.
      */
-    private static function deleteJob($uri){
+    private static function deleteJob(){
 
-        list($collection_uri, $name) = self::getParts($uri);
-
+        $uri = self::getUri();
         $job = self::get($uri);
 
         if(empty($job)){
@@ -226,8 +223,7 @@ class InputController extends \Controller{
      */
     private static function getJob(){
 
-        $uri = \Request::path();
-        var_dump($uri);
+        $uri = self::getUri();
 
         // TODO give back all the collections
 
@@ -264,7 +260,7 @@ class InputController extends \Controller{
     /**
      * Return the collection uri and resource (if it exists)
      */
-    private static function getParts($uri){
+    public static function getParts($uri){
 
         if(preg_match('/(.*)\/([^\/]*)$/', $uri, $matches)){
             $collection_uri = $matches[1];
@@ -285,7 +281,16 @@ class InputController extends \Controller{
             return null;
         }
 
-        $class = explode('\\', get_class($obj));
-        return ucfirst(mb_strtolower(end($class)));
+        $class_pieces = explode('\\', get_class($obj));
+        $class = ucfirst(mb_strtolower(array_pop($class_pieces)));
+        return implode('\\', $class_pieces) . '\\' . $class;
+    }
+
+    /**
+     * Get the stripped uri, without the prefix slug
+     */
+    private static function getUri(){
+        $uri = str_replace('input/', '', \Request::path());
+        return $uri;
     }
 }
