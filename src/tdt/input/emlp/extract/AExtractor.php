@@ -40,4 +40,14 @@ abstract class AExtractor{
      */
     abstract protected function close();
 
+    /**
+     * Log something to the output
+     */
+    protected function log($message){
+
+        $class = explode('\\', get_called_class());
+        $class = end($class);
+
+        echo "Extractor[" . $class . "]: " . $message . "\n";
+    }
 }

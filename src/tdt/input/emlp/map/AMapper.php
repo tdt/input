@@ -11,4 +11,15 @@ abstract class AMapper{
 	}
 
     abstract public function execute(&$chunk);
+
+    /**
+     * Log something to the output
+     */
+    protected function log($message){
+
+        $class = explode('\\', get_called_class());
+        $class = end($class);
+
+        echo "Mapper[" . $class . "]: " . $message . "\n";
+    }
 }

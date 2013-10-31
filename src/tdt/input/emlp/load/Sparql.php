@@ -15,65 +15,46 @@ class Sparql extends ALoader {
         // Get the job and use the identifier as a graph name
         $job = $model->job;
 
-        /*$this->log = &$log;
-        if (!isset($config["endpoint"]))
-            throw new TDTException(400,array('SPARQL endpoint not set in config'));
-        $this->loader->endpoint = $config["endpoint"];
-        $this->format = "json";*/
-
         //Store graph in database TODO get configurable graph name?
         $this->graph_name = $job->collection_uri . '/' . $job->name;
-
-        //$time = time();
-        //$date_time = date("c", $time);
-
-        // Is this still necessary?
-        //$graph_id = $this->graph_name . "#" . $time;
-        /*
-        $graph = R::dispense('graph');
-        $graph->graph_name = $this->graph_name;
-        $graph->graph_id = $graph_id;
-        $graph->version = $date_time;
-
-        //$this->old_graphs = $this->getAllGraphs($this->graph_name);
-
-        R::store($graph);
-        R::close();
-
-        $this->graph = $graph_id;
-
-        $this->addTimestamp($date_time);
-
-        if (!isset($config["buffer_size"]))
-            $config["buffer_size"] = 4;
-
-        $this->loader->buffer_size = $config["buffer_size"];*/
+        $this->log("Preparing the Sparql loader, the graph that will be used is named $this->graph_name.");
     }
 
-    public function cleanUp() {
+    /**
+     * After the loader has been called upon his last execute() method, triples might still remain in the buffer.
+     * If so, load the remaining of them into the triple store.
+     */
+    public function cleanUp(){
 
-        //$this->log[] = "Empty loader buffer";
+        $this->log("Cleaning up the Sparql loader, checking for remaining triples in the buffer.");
 
         try{
-            while (!empty($this->buffer)) {
+
+            // If the buffer isn't empty, load triples into the triple store
+            while(!empty($this->buffer)){
 
                 $count = count($this->buffer) <= $this->loader->buffer_size ? count($this->buffer) : $this->loader->buffer_size;
+
+                $this->log("Found $count remaining triples in the buffer, preparing them to load into the store.");
 
                 $triples_to_send = array_slice($this->buffer, 0, $count);
                 $this->addTriples(implode(' ', $triples_to_send));
 
                 $this->buffer = array_slice($this->buffer, $count);
+
+                $this->log("After the buffer was sliced, count($this->buffer) triples remained in the buffer.");
             }
         }catch(Exception $e){
-            echo "We failed something in loader.";
+            $this->log("An error occured during the load of the triples. The message was: $e->getMessage().");
         }
 
-        //$this->log[] = "Inserting resource into your datatank.";
+        // TODO just remove the graph with the same id (=graph_name)?
         $this->clearOldGraphs();
     }
 
     public function execute(&$chunk){
 
+        // Log the time it takes to load the triples into the store
         $start = microtime(true);
 
         if (!$chunk->isEmpty()) {
@@ -89,8 +70,8 @@ class Sparql extends ALoader {
             }
         }
 
-        //$duration = (microtime(true) - $start) * 1000;
-        //$this->log[] = "Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer";
+        $duration = (microtime(true) - $start) * 1000;
+        $this->log("The loading process was executed in round($duration,3) ms.");
 
     }
 
@@ -106,14 +87,10 @@ class Sparql extends ALoader {
         $query .= $serialized;
         $query .= ' }';
 
-
-       //$this->log[] = "Flush buffer... ";
-
         if ($this->execSPARQL($query) !== false)
-            echo "triples were inserted";
-
+            $this->log("The triples were succesfully inserted into the store.");
         else
-            echo "failed to insert triples";
+            $this->log("The triples were not successfully inserted into the store.");
     }
 
     /**
@@ -125,9 +102,9 @@ class Sparql extends ALoader {
     */
     private function execSPARQL($query, $method = "POST") {
 
-        // is curl installed?
         if (!function_exists('curl_init')) {
-            throw new \Exception('CURL is not installed!');
+            $this->log("cURL could not be retrieved as a command, make sure the CLI cURL is installed. Aborting the emlp sequence.");
+            exit();
         }
 
         $post = array(
@@ -150,7 +127,7 @@ class Sparql extends ALoader {
             //CURLOPT_PFIELDS => http_build_query($query)
         );
 
-        // get curl handle
+        // Get curl handle and initiate the request
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
         //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/plain"));
@@ -159,17 +136,19 @@ class Sparql extends ALoader {
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        echo "Endpoint returned: $response_code";
+        $this->log("After executing the insertion query the endpoint responded with code: $response_code");
         curl_close($ch);
 
         if ($response_code >= 400) {
-            //$this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
-            return false;
+            $this->log("The query failed with code " . $response_code . " and response: " . $response);
         }
 
         return $response;
     }
 
+    /**
+     * TODO
+     */
     private function clearOldGraphs() {
 
         /*$this->log[] = "deleting: " . print_r($this->old_graphs, true);

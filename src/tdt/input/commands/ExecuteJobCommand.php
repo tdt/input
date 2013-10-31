@@ -16,21 +16,21 @@ use tdt\input\emlp\JobExecuter;
 class ExecuteJobCommand extends Command {
 
     /**
-     * The console command name.
+     * The console command name
      *
      * @var string
      */
     protected $name = 'input:execute';
 
     /**
-     * The console command description.
+     * The console command description
      *
      * @var string
      */
     protected $description = "Execute a defined extract-map-load-publish job.";
 
     /**
-     * Execute the console command.
+     * Execute the console command
      *
      * @return void
      */
@@ -55,7 +55,7 @@ class ExecuteJobCommand extends Command {
     }
 
     /**
-     * Get the console command arguments.
+     * Get the console command arguments
      *
      * @return array
      */
@@ -66,7 +66,7 @@ class ExecuteJobCommand extends Command {
     }
 
     /**
-     * Get the console command options.
+     * Get the console command options
      *
      * @return array
      */

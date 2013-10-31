@@ -12,8 +12,21 @@ abstract class ALoader{
 
     abstract public function execute(&$chunk);
 
-    // When not implemented, do nothing
+    /**
+     * Clean up is called after the loading is executed.
+     */
     public function cleanUp(){
 
+    }
+
+    /**
+     * Log something to the output
+     */
+    protected function log($message){
+
+        $class = explode('\\', get_called_class());
+        $class = end($class);
+
+        echo "Loader[" . $class . "]: " . $message . "\n";
     }
 }

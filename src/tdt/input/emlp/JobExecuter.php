@@ -51,21 +51,22 @@ class JobExecuter{
             $publisher = $this->getExecuter($publisher_model);
         }
 
+        // Register the start of the execution
         $start = microtime(true);
+
+        // Keep track of the number of chunks that were processed
         $numberofchunks = 0;
 
+        // Create the job id
         $id = $this->job->collection_uri . '/' . $this->job->name;
         $timestamp = date('d-m-Y H:i:s');
 
-        // Get the logger class
-        echo "Started job execution sequence at $timestamp, job identified by $id.";
+        // Log the start of the entire emlp execution
+        $this->log("Started executing the job identified by $id at $timestamp.");
 
         // While the extractor reads chunks, keep executing the eml sequence
-        //$i = 0;
-
         while ($extractor->hasNext()) {
 
-            //echo $i++;
             $chunk = $extractor->pop();
 
             // Perform the mapping if present
@@ -76,7 +77,7 @@ class JobExecuter{
             // Perform the loader processing
             $loader->execute($chunk);
 
-            // TODO
+            // TODO when is a chunk empty (can be different types now EasyRDF, ...)
             /*if(!empty($chunk) && !empty($chunk->_index)){
                 $numberofchunks++;
             }*/
@@ -84,10 +85,10 @@ class JobExecuter{
 
         $duration = microtime(true) - $start;
 
-        echo "Loaded $numberofchunks chunks  in " . $duration . "seconds.";
+        $this->log("Loaded $numberofchunks chunks  in " . $duration . "seconds.");
 
         $timestamp = date('d-m-Y H:i:s');
-        echo "Ended job execution at $timestamp.";
+        $this->log("Ended job execution at $timestamp.");
     }
 
     /**
@@ -114,5 +115,16 @@ class JobExecuter{
         $executer = new $executer($model);
 
         return $executer;
+    }
+
+    /**
+     * Log something to the output
+     */
+    protected function log($message){
+
+        $class = explode('\\', get_called_class());
+        $class = end($class);
+
+        echo "JobExecuter: " . $message . "\n";
     }
 }
