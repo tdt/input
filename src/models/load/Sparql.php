@@ -14,7 +14,7 @@ class Sparql extends Eloquent{
 
     protected $table = 'sparqlload';
 
-    protected $fillable = array('endpoint', 'user', 'password', 'buffer_size');
+    protected $fillable = array('endpoint', 'user', 'password', 'buffer_size', 'hostname');
 
     /**
      * Relationship with Job
@@ -51,6 +51,7 @@ class Sparql extends Eloquent{
             'endpoint' => 'required',
             'password' => 'required',
             'buffer_size' => 'integer|min:1|max:124',
+            'hostname' => 'required',
         );
     }
 
@@ -58,6 +59,7 @@ class Sparql extends Eloquent{
      * Return the properties ( = column fields ) for this model.
      */
     public static function getCreateProperties(){
+
         return array(
                 'user' => array(
                     'required' => true,
@@ -72,9 +74,13 @@ class Sparql extends Eloquent{
                     'description' => 'The password of the sparql endpoint, that provides together with the username credentials that have write permissions to the sparql endpoint.',
                 ),
                 'buffer_size' => array(
-                    'required' => true,
+                    'required' => false,
                     'description' => 'The buffer size declares how many triples per insert query will be put.',
                     'default_value' => 4
+                ),
+                'hostname' => array(
+                    'required' => true,
+                    'description' => 'The hostname that will serve as a basis to create the graph name.',
                 ),
         );
     }

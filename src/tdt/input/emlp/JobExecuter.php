@@ -83,6 +83,9 @@ class JobExecuter{
             }*/
         }
 
+        // Clean up after loader execution
+        $loader->cleanUp();
+
         $duration = microtime(true) - $start;
 
         $this->log("Loaded $numberofchunks chunks  in " . $duration . "seconds.");

@@ -6,7 +6,7 @@ class Sparql extends ALoader {
 
 
     private $buffer = array();
-    private $graph_name;
+    private $graph;
 
     public function __construct($model) {
 
@@ -15,9 +15,19 @@ class Sparql extends ALoader {
         // Get the job and use the identifier as a graph name
         $job = $model->job;
 
-        //Store graph in database TODO get configurable graph name?
-        $this->graph_name = $job->collection_uri . '/' . $job->name;
-        $this->log("Preparing the Sparql loader, the graph that will be used is named $this->graph_name.");
+        // Create the graph name
+        $graph_name = $model->hostname . '/' . $job->collection_uri . '/' . $job->name;
+        $this->log("Preparing the Sparql loader, the graph that will be used is named $graph_name.");
+
+        // Store the graph to counter dirty reads
+        $time = time();
+
+        $graph = new \Graph();
+        $graph->graph_name = $graph_name;
+        $graph->graph_id = $graph_name . '#' . $time;
+        $graph->version = date('c', $time);
+
+        $this->graph = $graph;
     }
 
     /**
@@ -42,14 +52,18 @@ class Sparql extends ALoader {
 
                 $this->buffer = array_slice($this->buffer, $count);
 
-                $this->log("After the buffer was sliced, count($this->buffer) triples remained in the buffer.");
+                $count = count($this->buffer);
+                $this->log("After the buffer was sliced, $count triples remained in the buffer.");
             }
         }catch(Exception $e){
             $this->log("An error occured during the load of the triples. The message was: $e->getMessage().");
         }
 
-        // TODO just remove the graph with the same id (=graph_name)?
-        $this->clearOldGraphs();
+        // Delete the older version(s) of this graph
+        $this->deleteOldGraphs();
+
+        // Save our new graph
+        $this->graph->save();
     }
 
     public function execute(&$chunk){
@@ -64,6 +78,7 @@ class Sparql extends ALoader {
                 $this->buffer = array_merge($this->buffer, $matches[0]);
 
             while(count($this->buffer) >= $this->loader->buffer_size) {
+
                 $triples_to_send = array_slice($this->buffer, 0, $this->loader->buffer_size);
                 $this->addTriples(implode(' ', $triples_to_send));
                 $this->buffer = array_slice($this->buffer, $this->loader->buffer_size);
@@ -83,7 +98,8 @@ class Sparql extends ALoader {
                                             },
                                             $triples);
 
-        $query = "INSERT DATA INTO <$this->graph_name> {";
+        $graph_id = $this->graph->graph_id;
+        $query = "INSERT DATA INTO <$graph_id> {";
         $query .= $serialized;
         $query .= ' }';
 
@@ -147,41 +163,50 @@ class Sparql extends ALoader {
     }
 
     /**
-     * TODO
+     * Clear the old associated graphs with the given eml sequence
      */
-    private function clearOldGraphs() {
+    private function deleteOldGraphs() {
 
-        /*$this->log[] = "deleting: " . print_r($this->old_graphs, true);
-        foreach ($this->old_graphs as $graph) {
-            $graph_id = $graph["graph_id"];
-            $query = "CLEAR GRAPH <$graph_id>";
+        $graph_name = $this->graph->graph_name;
+        $this->log("Removing the old graphs identified by the name $graph_name.");
+
+        // Replace all forward slashes in the graph_name with escaped ones
+        $query_graph_name = "'". str_replace('/', '\/', $graph_name) . "'";
+        $graphs = \Graph::whereRaw("graph_name like $query_graph_name")->get();
+
+        foreach ($graphs as $graph) {
+
+            $query = "CLEAR GRAPH <$graph->graph_id>";
 
             $result = $this->execSPARQL($query);
 
-            if ($result  !== false) {
+            // If all went ok, delete the graph entry
+            if($result !== false){
+
                 $response = json_decode($result, true);
-
-                //if ($response)
-                //    $this->log[] = print_r($response['results'], true);
-
-                $this->deleteGraph($graph_id);
-
-                $this->log[] = "Old version of graph $graph is cleared!";
-            } else {
-                $this->log["errors"][] = "Old version of graph $graph was not cleared!";
+                $graph->delete();
+                $this->log("THe old version of the graph with id $graph->graph_id has been deleted.");
+            }else{
+                $this->log("The old version of the graph with id $graph->graph_id was not deleted.");
             }
-        }*/
+        }
     }
-/*
-    private function addTimestamp($datetime) {
-        $query = "INSERT DATA INTO <" . $this->graph . "> {";
-        $query .= "<" . $this->graph . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
+
+    /**
+     * Add a timestamp to the graph name so we can keep track of versions.
+     * The graph is not removed untill the new graph is completely built up again.
+     */
+    private function addTimestamp($datetime){
+
+        $graph_id = $this->graph->graph_id;
+
+        $query = "INSERT DATA INTO <" . $graph_id . "> {";
+        $query .= "<" . $graph_id . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
         if ($this->execSPARQL($query) !== false)
-            $this->log[] = "Graph " . $this->graph . " added on $datetime. Metadata added!";
+            $this->log("Added the datetime ($datetime) meta-data to graph identified by " . $graph_id);
         else
-            $this->log["errors"][] = "Graph " . $this->graph . " added on $datetime, but the metadata was not added!";
-        //throw new \tdt\framework\TDTException(500,array("Triples were not inserted!"));
-    }*/
+            $this->log("Failed adding the datetime ($datetime) meta-data to graph identified by " . $graph_id);
+    }
 }

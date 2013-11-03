@@ -5,14 +5,14 @@ namespace extract;
 use Eloquent;
 
 /**
- * Json model
+ * Ical model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Json extends Eloquent{
+class Ical extends Eloquent{
 
-    protected $table = 'jsonextract';
+    protected $table = 'icalextract';
 
     protected $fillable = array('uri');
 
@@ -28,12 +28,12 @@ class Json extends Eloquent{
      */
     public static function validate($params){
 
-        $json_params = array_only($params, array_keys(self::getCreateProperties()));
-        return parent::validate($json_params);
+        $ical_params = array_only($params, array_keys(self::getCreateProperties()));
+        return parent::validate($ical_params);
     }
 
     /**
-     * Retrieve the set of create parameters that make up a JSON definition.
+     * Retrieve the set of create parameters that make up a ICAL definition.
      * Include the parameters that make up relationships with this model.
      */
     public static function getAllProperties(){
@@ -57,7 +57,7 @@ class Json extends Eloquent{
         return array(
                 'uri' => array(
                     'required' => true,
-                    'description' => 'The location of the JSON file, either a URL or a local file location.',
+                    'description' => 'The location of the ICAL file, either a URL or a local file location.',
                 ),
         );
     }
