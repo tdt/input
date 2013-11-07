@@ -21,8 +21,8 @@ class DiscoveryController extends \Controller{
 
         // Attach the methods to the up the methods object
         $methods->put = self::createPutDocumentation();
-        /*$methods->delete = self::createDeleteDocumentation();
-        $methods->patch = self::createPatchDocumentation();*/
+        $methods->delete = self::createDeleteDocumentation();
+        //$methods->patch = self::createPatchDocumentation();
 
         // Attach the methods to the input discovery object
         $discovery_document->methods = $methods;
@@ -156,8 +156,8 @@ class DiscoveryController extends \Controller{
         $delete = new \stdClass();
 
         $delete->httpMethod = "DELETE";
-        $delete->path = "/definitions/{identifier}";
-        $delete->description = "Delete a resource definition identified by the {identifier} value.";
+        $delete->path = "/input/{identifier}";
+        $delete->description = "Delete a job identified by the {identifier} value.";
 
         return $delete;
     }
