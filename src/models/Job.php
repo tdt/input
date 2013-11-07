@@ -43,12 +43,42 @@ class Job extends Eloquent{
     }
 
     /**
+     * Return the properties ( = column fields ) for this model.
+     */
+    public static function getCreateProperties(){
+
+        return array(
+                'name' => array(
+                    'required' => true,
+                    'description' => 'The name of the job, used to identify the job when executed in the console.',
+                ),
+        );
+    }
+
+     /**
+     * Retrieve the set of validation rules for every create parameter.
+     * If the parameters doesn't have any rules, it's not mentioned in the array.
+     */
+    public static function getCreateValidators(){
+        return array(
+            'name' => 'unique:job|required',
+        );
+    }
+
+    /**
      * Return all properties from a definition, including the properties of his relational objects
      */
     public function getAllProperties(){
 
         // Put all of the properties in an array
         $properties = array();
+
+        // Get all of the properties of the job model
+        foreach(self::getCreateProperties as $property => $info){
+            if(!empty($this->$property)){
+                $properties[$property] = $this->$property;
+            }
+        }
 
         // Fill in the relationships in empl order
         $relations = array('extract' => $this->extractor()->first());

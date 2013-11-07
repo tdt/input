@@ -51,7 +51,6 @@ class ExecuteJobCommand extends Command {
 
         $job_exec = new JobExecuter($job);
         $job_exec->execute();
-
     }
 
     /**

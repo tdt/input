@@ -47,9 +47,6 @@ class InputController extends \Controller{
 
         list($collection_uri, $name) = self::getParts($uri);
 
-        // Retrieve the collection uri and resource name
-        $matches = array();
-
         // Retrieve the parameters of the PUT requests (either a JSON document or a key=value string)
         $params = \Request::getContent();
 
@@ -62,6 +59,12 @@ class InputController extends \Controller{
         if(empty($params)){
             \App::abort(452, "The parameters could not be parsed from the body or request URI, make sure parameters are provided and if they are correct (e.g. correct JSON).");
         }
+
+        // Validate the job properties
+        $job_params = self::validateParameters('Job', 'job', $params);
+
+        // Retrieve the collection uri and resource name
+        $matches = array();
 
         // Check which parts are set for validation purposes
         $extract = @$params['extract'];
@@ -90,7 +93,12 @@ class InputController extends \Controller{
         // Create the job associated with emlp relations
         $job = new \Job();
         $job->collection_uri = $collection_uri;
-        $job->name = $name;
+
+        // Add the validated job params
+        foreach($job_params as $key => $value){
+            $job->$key = $value;
+        }
+
         $job->extractor_id = $extractor->id;
         $job->extractor_type = self::getClass($extractor);
         $job->mapper_id = @$mapper->id;
@@ -133,7 +141,7 @@ class InputController extends \Controller{
         $class = new $class_name();
 
         // Validate the properties of the given type
-        $validated_params = self::validateParameters($class, $params);
+        $validated_params = self::validateParameters($class, $type, $params);
 
         foreach($validated_params as $key => $value){
             $class->$key = $value;
@@ -146,7 +154,7 @@ class InputController extends \Controller{
      * Validate the create parameters based on the rules of a certain job.
      * If something goes wrong, abort the application and return a corresponding error message.
      */
-    private static function validateParameters($type, $params){
+    private static function validateParameters($type, $short_name, $params){
 
         $validated_params = array();
 
@@ -158,9 +166,12 @@ class InputController extends \Controller{
             if(!array_key_exists($key, $params)){
 
                 if(!empty($info['required']) && $info['required']){
-                    $type = explode('\\', $type);
-                    $type = array_shift($type);
-                    \App::abort(452, "The parameter $key is required in order to create a the $type part of the job but was not provided.");
+
+                    if(strtolower($type) != 'job'){
+                        \App::abort(452, "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
+                    }else{
+                        \App::abort(452, "The parameter '$key' is required to create a job but was not passed.");
+                    }
                 }
 
                 $validated_params[$key] = @$info['default_value'];
