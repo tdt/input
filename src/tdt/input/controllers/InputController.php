@@ -236,7 +236,10 @@ class InputController extends \Controller{
 
         $uri = self::getUri();
 
-        // TODO give back all the collections
+        // If the uri is nothing, return a list of all the jobs
+        if($uri == '/'){
+            $jobs = \Job::all();
+        }
 
         if(!self::exists($uri)){
             \App::abort(452, "No job has been found with the uri $uri");
@@ -301,6 +304,10 @@ class InputController extends \Controller{
      * Get the stripped uri, without the prefix slug
      */
     private static function getUri(){
+        if($uri == 'input'){
+            return '/';
+        }
+
         $uri = str_replace('input/', '', \Request::path());
         return $uri;
     }

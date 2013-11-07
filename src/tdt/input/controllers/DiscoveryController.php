@@ -20,6 +20,7 @@ class DiscoveryController extends \Controller{
         $methods = new \stdClass();
 
         // Attach the methods to the up the methods object
+        $methods->get = self::createGetDocumentation();
         $methods->put = self::createPutDocumentation();
         $methods->delete = self::createDeleteDocumentation();
         //$methods->patch = self::createPatchDocumentation();
@@ -28,6 +29,20 @@ class DiscoveryController extends \Controller{
         $discovery_document->methods = $methods;
 
         return $discovery_document;
+    }
+
+    /**
+     * Create the get discovery documentation.
+     */
+    private static function createGetDocumentation(){
+
+        $get = new \stdClass();
+
+        $get->httpMethod = "GET";
+        $get->path = "/input/{identifier}";
+        $get->description = "Get a job identified by the {identifier} value.";
+
+        return $get;
     }
 
     /**
