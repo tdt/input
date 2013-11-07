@@ -18,14 +18,8 @@ class InputController extends \Controller{
             case "GET":
                 return self::getJob();
                 break;
-            case "PATCH":
-                //return self::patchJob();
-                break;
             case "DELETE":
                 return self::deleteJob();
-                break;
-            case "HEAD":
-                //return self::headJob();
                 break;
             default:
                 \App::abort(400, "The method $method is not supported by the jobs.");
@@ -238,7 +232,8 @@ class InputController extends \Controller{
 
         // If the uri is nothing, return a list of all the jobs
         if($uri == '/'){
-            $jobs = \Job::all();
+            return \Job::all()->toJson();
+
         }
 
         if(!self::exists($uri)){
@@ -247,13 +242,7 @@ class InputController extends \Controller{
 
         // Get Definition object based on the given uri
         $job = self::get($uri);
-
-        $job_properties = $job->getAllProperties();
-
-        // Return properties document in JSON
-        // TODO return this in more formats?
-        return str_replace("\/", "/", json_encode($job_properties));
-
+        return $job->toJson();
     }
 
     /**
@@ -304,6 +293,9 @@ class InputController extends \Controller{
      * Get the stripped uri, without the prefix slug
      */
     private static function getUri(){
+
+        $uri = str_replace('input/', '', \Request::path());
+
         if($uri == 'input'){
             return '/';
         }
