@@ -59,7 +59,7 @@ class Tdt extends Eloquent{
         return array(
                 'uri' => array(
                     'required' => true,
-                    'description' => 'The datatank uri to which the data will be published, consists of the collection uri and resource name.',
+                    'description' => 'The datatank uri to which the data will be published, consists of the datatank root uri, collection and resource name. (e.g. http://foo/definitions/trees/tree_resource)',
                 ),
                 'user' => array(
                     'required' => true,

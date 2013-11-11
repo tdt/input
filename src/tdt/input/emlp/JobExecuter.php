@@ -90,6 +90,11 @@ class JobExecuter{
 
         $this->log("Loaded $numberofchunks chunks  in " . $duration . "seconds.");
 
+        // Execute the publisher if present ( optional )
+        if(!empty($publisher)){
+            $publisher->execute();
+        }
+
         $timestamp = date('d-m-Y H:i:s');
         $this->log("Ended job execution at $timestamp.");
     }

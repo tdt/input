@@ -4,11 +4,11 @@ namespace tdt\input\emlp\map;
 
 abstract class AMapper{
 
-	protected $mapper;
+    protected $mapper;
 
-	public function __construct($mapper){
-		$this->mapper = $mapper;
-	}
+    public function __construct($mapper){
+        $this->mapper = $mapper;
+    }
 
     abstract public function execute(&$chunk);
 
