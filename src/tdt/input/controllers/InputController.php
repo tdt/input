@@ -87,6 +87,7 @@ class InputController extends \Controller{
         // Create the job associated with emlp relations
         $job = new \Job();
         $job->collection_uri = $collection_uri;
+        $job->name = $name;
 
         // Add the validated job params
         foreach($job_params as $key => $value){

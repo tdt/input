@@ -82,5 +82,4 @@ class ExtractorsAll extends Migration {
         });
 
     }
-
 }

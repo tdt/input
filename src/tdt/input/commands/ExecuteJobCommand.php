@@ -41,10 +41,13 @@ class ExecuteJobCommand extends Command {
         list($collection_uri, $name) = InputController::getParts($job_name);
 
         // Check if the job exists
-        $job = \Job::whereRaw("? like CONCAT(collection_uri, '/', name , '/', '%')", array($job_name . '/'))->first();
+        $job = \Job::where('name', '=', $name)
+                   ->where('collection_uri', '=', $collection_uri)
+                   ->first();
 
         if(empty($job)){
             $this->error("The job with identified by: $job_name could not be found.\n");
+            exit();
         }
 
         $this->line('The job has been found.');

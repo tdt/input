@@ -12,7 +12,8 @@ class Job extends Eloquent{
 
     protected $table = 'job';
 
-    protected $fillable = array("name");
+    // These properties will be derived from the uri
+    protected $fillable = array('name', 'collection_uri');
 
     /**
      * Relationship with an extractor
@@ -48,10 +49,7 @@ class Job extends Eloquent{
     public static function getCreateProperties(){
 
         return array(
-                'name' => array(
-                    'required' => true,
-                    'description' => 'The name of the job, used to identify the job when executed in the console.',
-                ),
+
         );
     }
 

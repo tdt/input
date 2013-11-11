@@ -47,8 +47,8 @@ class Tdt extends Eloquent{
     public static function getCreateValidators(){
         return array(
             'uri' => 'required',
-            'user' => 'required',
-            'password' => 'required',
+            //'user' => 'required',
+            //'password' => 'required',
         );
     }
 
@@ -56,17 +56,18 @@ class Tdt extends Eloquent{
      * Return the properties ( = column fields ) for this model.
      */
     public static function getCreateProperties(){
+
         return array(
                 'uri' => array(
                     'required' => true,
                     'description' => 'The datatank uri to which the data will be published, consists of the datatank root uri, collection and resource name. (e.g. http://foo/definitions/trees/tree_resource)',
                 ),
                 'user' => array(
-                    'required' => true,
+                    'required' => false,
                     'description' => 'The datatank user that has permission to add a datatank definition.',
                 ),
                 'password' => array(
-                    'required' => true,
+                    'required' => false,
                     'description' => 'The datatank password of the user that has permission to add a datatank definition.',
                 ),
         );
