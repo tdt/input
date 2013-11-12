@@ -14,7 +14,7 @@ class Sparql extends Eloquent{
 
     protected $table = 'sparqlload';
 
-    protected $fillable = array('endpoint', 'user', 'password', 'buffer_size', 'hostname');
+    protected $fillable = array('endpoint', 'user', 'password', 'buffer_size', 'graph_name');
 
     /**
      * Relationship with Job
@@ -51,7 +51,7 @@ class Sparql extends Eloquent{
             'endpoint' => 'required',
             'password' => 'required',
             'buffer_size' => 'integer|min:1|max:124',
-            'hostname' => 'required',
+            'graph_name' => 'required',
         );
     }
 
@@ -78,9 +78,9 @@ class Sparql extends Eloquent{
                     'description' => 'The buffer size declares how many triples per insert query will be put.',
                     'default_value' => 4
                 ),
-                'hostname' => array(
+                'graph_name' => array(
                     'required' => true,
-                    'description' => 'The hostname that will serve as a basis to create the graph name.',
+                    'description' => 'The graph name that will serve as a basis to create the graph name to which triples will be inserted.',
                 ),
         );
     }

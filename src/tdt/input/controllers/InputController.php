@@ -233,8 +233,15 @@ class InputController extends \Controller{
 
         // If the uri is nothing, return a list of all the jobs
         if($uri == '/'){
-            return \Job::all()->toJson();
+            $jobs = \Job::all();
 
+            $input_document = array();
+
+            foreach($jobs as $job){
+                $input_document[$job->collection_uri . '/' . $job->name] = $job->getAllProperties();
+            }
+
+            return self::makeResponse(str_replace('\/', '/', json_encode($input_document)), 200);
         }
 
         if(!self::exists($uri)){
@@ -243,7 +250,9 @@ class InputController extends \Controller{
 
         // Get Definition object based on the given uri
         $job = self::get($uri);
-        return $job->toJson();
+        $job = $job->getAllProperties();
+
+        return self::makeResponse(str_replace('\/', '/', json_encode($job)), 200);
     }
 
     /**
@@ -287,6 +296,7 @@ class InputController extends \Controller{
 
         $class_pieces = explode('\\', get_class($obj));
         $class = ucfirst(mb_strtolower(array_pop($class_pieces)));
+
         return implode('\\', $class_pieces) . '\\' . $class;
     }
 
@@ -303,5 +313,20 @@ class InputController extends \Controller{
 
         $uri = str_replace('input/', '', \Request::path());
         return $uri;
+    }
+
+    /**
+     * Return the response with the given data ( formatted in json )
+     */
+    private static function makeResponse($data){
+
+         // Create response
+        $response = \Response::make($data, 200);
+
+        // Set headers
+        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Content-Type', 'application/json;charset=UTF-8');
+
+        return $response;
     }
 }

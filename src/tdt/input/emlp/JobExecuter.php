@@ -65,6 +65,7 @@ class JobExecuter{
         $this->log("Started executing the job identified by $id at $timestamp.");
 
         // While the extractor reads chunks, keep executing the eml sequence
+        $count_triples = 0;
         while ($extractor->hasNext()) {
 
             $chunk = $extractor->pop();
@@ -77,18 +78,18 @@ class JobExecuter{
             // Perform the loader processing
             $loader->execute($chunk);
 
-            // TODO when is a chunk empty (can be different types now EasyRDF, ...)
-            /*if(!empty($chunk) && !empty($chunk->_index)){
-                $numberofchunks++;
-            }*/
+            // Cumulate the amount of triples
+            if(!empty($chunk)){
+                $count_triples += $chunk->countTriples();
+            }
         }
 
         // Clean up after loader execution
         $loader->cleanUp();
 
-        $duration = microtime(true) - $start;
+        $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Loaded $numberofchunks chunks  in " . $duration . "seconds.");
+        $this->log("Loaded a total of $count_triples triples  in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if(!empty($publisher)){

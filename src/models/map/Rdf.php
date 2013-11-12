@@ -14,7 +14,7 @@ class Rdf extends Eloquent{
 
     protected $table = 'rdfmap';
 
-    protected $fillable = array('mapfile');
+    protected $fillable = array('mapfile', 'base_uri');
 
     /**
      * Relationship with Job
@@ -47,6 +47,7 @@ class Rdf extends Eloquent{
     public static function getCreateValidators(){
         return array(
             'mapfile' => 'file|required',
+            'base_uri' => 'required',
         );
     }
 

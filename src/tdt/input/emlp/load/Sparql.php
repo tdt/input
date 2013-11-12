@@ -16,7 +16,7 @@ class Sparql extends ALoader {
         $job = $model->job;
 
         // Create the graph name
-        $graph_name = $model->hostname . '/' . $job->collection_uri . '/' . $job->name;
+        $graph_name = $model->graph_name;
         $this->log("Preparing the Sparql loader, the graph that will be used is named $graph_name.");
 
         // Store the graph to counter dirty reads
@@ -85,8 +85,8 @@ class Sparql extends ALoader {
             }
         }
 
-        $duration = (microtime(true) - $start) * 1000;
-        $this->log("The loading process was executed in round($duration,3) ms.");
+        $duration = round((microtime(true) - $start) * 1000, 3);
+        $this->log("The loading process was executed in $duration ms.");
 
     }
 
@@ -185,7 +185,7 @@ class Sparql extends ALoader {
 
                 $response = json_decode($result, true);
                 $graph->delete();
-                $this->log("THe old version of the graph with id $graph->graph_id has been deleted.");
+                $this->log("The old version of the graph with id $graph->graph_id has been deleted.");
             }else{
                 $this->log("The old version of the graph with id $graph->graph_id was not deleted.");
             }

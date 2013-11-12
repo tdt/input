@@ -72,7 +72,7 @@ class Job extends Eloquent{
         $properties = array();
 
         // Get all of the properties of the job model
-        foreach(self::getCreateProperties as $property => $info){
+        foreach(self::getCreateProperties() as $property => $info){
             if(!empty($this->$property)){
                 $properties[$property] = $this->$property;
             }
@@ -83,14 +83,14 @@ class Job extends Eloquent{
 
         // Don't fetch null relationships
         if(!empty($this->mapper_type)){
-            $relations['mapper'] = $this->mapper()->first();
+            $relations['map'] = $this->mapper()->first();
         }
 
-        $relations['loader'] = $this->loader()->first();
+        $relations['load'] = $this->loader()->first();
 
         // Don't fetch null relationships
         if(!empty($this->publisher_type)){
-            $relations['publisher'] = $this->publisher()->first();
+            $relations['publish'] = $this->publisher()->first();
         }
 
         // Add all the properties that are mass assignable
