@@ -19,8 +19,14 @@ class Rdf extends AMapper {
 
         $mapfile = $this->mapper->mapfile;
 
+        // Retrieve the base uri that will serve as a base for the subjects of the triples
+        $base_uri = $this->mapper->base_uri;
+
         $this->log("Retrieving the mapping on location $mapfile.");
         $mapping_file = file_get_contents($mapfile);
+
+        // Provide backwards compatibility with previous datatank mapping files
+        $mapping_file = str_replace('tdt:package:resource', $base_uri, $mapping_file);
 
         // TODO make the type a variable in the model
         $mapping_type = "Vertere";
@@ -30,6 +36,7 @@ class Rdf extends AMapper {
         }
 
         $this->mapping_processor = new StreamingRDFMapper($mapping_file, $mapping_type);
+        $this->mapping_processor->setBaseUri($base_uri);
     }
 
 

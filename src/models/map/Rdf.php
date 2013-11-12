@@ -59,6 +59,10 @@ class Rdf extends Eloquent{
                     'required' => true,
                     'description' => 'The location of the CSV file, either a URL or a local file location.',
                 ),
+                'base_uri' => array(
+                    'required' => true,
+                    'description' => 'The base uri that will be used as a base for the subject of the triples.'
+                ),
         );
     }
 }

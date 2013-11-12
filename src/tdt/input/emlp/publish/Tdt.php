@@ -25,6 +25,32 @@ class Tdt{
 
         if(stripos($loader_type, 'sparql')){
 
+            // Delete the resource first before putting it (POST not yet supported by core)
+            $ch = curl_init();
+
+             // Create the general configurations for the curl request
+            $options = array(
+                CURLOPT_CUSTOMREQUEST => "DELETE",
+                CURLOPT_URL => $uri,
+                CURLOPT_HTTPAUTH => CURLAUTH_ANY,
+                CURLOPT_USERPWD => $user . ":" . $pw,
+                CURLOPT_FRESH_CONNECT => 1,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_FORBID_REUSE => 1,
+                CURLOPT_TIMEOUT => 4,
+            );
+
+            // Set the configuration of the curl request
+            curl_setopt_array($ch, $options);
+
+            $this->log("Performing a DELETE request to the datatank with uri: $uri.");
+            $response = curl_exec($ch);
+
+            $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $this->log("Response code gotten from the DELETE request: $response_code");
+            curl_close($ch);
+
+
             // Initiate the curl request
             $ch = curl_init();
 
@@ -56,13 +82,13 @@ class Tdt{
             // Set the configuration of the curl request
             curl_setopt_array($ch, $options);
 
-            $this->log("Performing request to the datatank uri: $uri.");
+            $this->log("Performing a PUT request to the datatank with uri: $uri.");
             $response = curl_exec($ch);
 
             $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            $this->log("Response code gotten from the request: $response_code");
+            $this->log("Response code gotten from the PUT request: $response_code");
 
             if ($response_code >= 400) {
                 $this->log("A non 200 response code was given (" . $response_code . ") the response message was: " . $response);
