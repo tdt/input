@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * Job model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl

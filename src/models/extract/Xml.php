@@ -14,7 +14,7 @@ class Xml extends Eloquent{
 
     protected $table = 'xmlextract';
 
-    protected $fillable = array('uri');
+    protected $fillable = array('uri', 'arraylevel');
 
     /**
      * Relationship with Job
@@ -47,6 +47,7 @@ class Xml extends Eloquent{
     public static function getCreateValidators(){
         return array(
             'uri' => 'file|required',
+            'arraylevel' => 'required',
         );
     }
 
@@ -59,6 +60,10 @@ class Xml extends Eloquent{
                     'required' => true,
                     'description' => 'The location of the XML file, either a URL or a local file location.',
                 ),
+                'arraylevel' => array(
+                    'required' => true,
+                    'description' => 'The level on which the objects that need to be mapped start. Example: <root><meta>...</meta><records><record>...</record></records>..., record starts at arraylevel 6 because textnodes also count as a level to be skipped.'
+                )
         );
     }
 }

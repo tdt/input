@@ -38,6 +38,7 @@ class JobExecuter{
 
         $mapper_model = null;
         if(!empty($this->job->mapper_type)){
+
             $mapper_model = $this->job->mapper()->first();
             $mapper = $this->getExecuter($mapper_model);
         }
@@ -47,6 +48,7 @@ class JobExecuter{
 
         $publisher_model = null;
         if(!empty($this->job->publisher_type)){
+
             $publisher_model = $this->job->publisher()->first();
             $publisher = $this->getExecuter($publisher_model);
         }
@@ -66,21 +68,31 @@ class JobExecuter{
 
         // While the extractor reads chunks, keep executing the eml sequence
         $count_triples = 0;
+        $count_chunks = 0;
+
         while ($extractor->hasNext()) {
 
             $chunk = $extractor->pop();
-
-            // Perform the mapping if present
-            if(!empty($mapper)) {
-                $chunk = $mapper->execute($chunk);
-            }
-
-            // Perform the loader processing
-            $loader->execute($chunk);
-
-            // Cumulate the amount of triples
             if(!empty($chunk)){
-                $count_triples += $chunk->countTriples();
+
+                $count_chunks++;
+
+                // Perform the mapping if present
+                if(!empty($mapper)) {
+
+                    $chunk = $mapper->execute($chunk);
+                }
+
+                // Perform the loader processing
+                $loader->execute($chunk);
+
+                // Cumulate the amount of triples
+                if(!empty($chunk)){
+                    $count_triples += $chunk->countTriples();
+                }
+            }else{
+                $this->log("Empty chunk retrieved from the extractor, previous chunk count was $count_chunks.");
+
             }
         }
 
@@ -89,7 +101,7 @@ class JobExecuter{
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Loaded a total of $count_triples triples  in " . $duration . " seconds.");
+        $this->log("Extracted a total of $count_chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if(!empty($publisher)){
