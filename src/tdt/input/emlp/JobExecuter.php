@@ -73,7 +73,7 @@ class JobExecuter{
         while ($extractor->hasNext()) {
 
             $chunk = $extractor->pop();
-            var_dump($chunk);
+
             if(!empty($chunk)){
 
                 $count_chunks++;
@@ -102,7 +102,7 @@ class JobExecuter{
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Extracted a total of $count_chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
+        $this->log("Extracted a total of $count_chunks chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if(!empty($publisher)){

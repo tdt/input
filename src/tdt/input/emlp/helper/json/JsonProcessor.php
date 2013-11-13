@@ -2,9 +2,14 @@
 
 namespace tdt\input\emlp\helper\json;
 
+/**
+ * This class catches events from the JSON Parser class.
+ * This processor only returns chunks when an array is found in the document.
+ * Every array entry will be returned using the pop() function.
+ */
+
 class JsonProcessor implements Listener{
 
-    // We only read data from the first array occurence
     private $array_start;
     private $key;
     private $chunk;
@@ -15,6 +20,7 @@ class JsonProcessor implements Listener{
     private $depth;
 
     public function __construct(){
+
         $this->array_start = false;
         $this->depth = 0;
         $this->new_chunk = false;
@@ -22,14 +28,15 @@ class JsonProcessor implements Listener{
     }
 
     public function start_document(){
-
+        // Do nothing
     }
 
     public function end_document(){
-
+        // Do nothing
     }
 
     public function start_object(){
+
         if($this->array_start){
             $this->new_chunk = false;
             $this->depth++;
@@ -37,6 +44,7 @@ class JsonProcessor implements Listener{
     }
 
     public function end_object(){
+
         if($this->array_start){
             $this->depth--;
             if($this->depth == 0){
@@ -45,34 +53,54 @@ class JsonProcessor implements Listener{
         }
     }
 
+    /**
+     * Treat an array the same way as an object
+     */
     public function start_array(){
 
         if(!$this->array_start){
             $this->array_start = true;
         }
-        // Do this for hierchical chunks
+
+        // TODO this for hierchical chunks
         //$this->start_object();
     }
 
+
+    /**
+     * Treat an array the same was an object
+     */
     public function end_array(){
         $this->end_object();
     }
 
-    // Key will always be a string
+    /**
+     * The key is a JSON key, will always be a string
+     */
     public function key($key){
         $this->key = $key;
     }
 
-    // Note that value may be a string, integer, boolean, array, etc.
+    /**
+     * JSON value, may be a string, integer, boolean, array, etc.
+     * TODO flatten hierarchical values
+     */
     public function value($value){
         $key = $this->key;
         $this->chunk[$key] = $value;
     }
 
+    /**
+     * If a new entry was fully created (streamingly) from the array
+     * return true, if not false.
+     */
     public function hasNew(){
         return $this->new_chunk;
     }
 
+    /**
+     * Return the streamingly created array chunk and return it
+     */
     public function pop(){
 
         $chunk = $this->chunk;
