@@ -23,6 +23,7 @@ class JSONInputProcessor implements \tdt\json\JSONChunkProcessor{
 
         foreach($ar as $k => $v) {
             if(is_array($v)){
+
                 $prefix = $k;
                 $flat = $this->flatten($v);
                 foreach($flat as $fkey => $fval){

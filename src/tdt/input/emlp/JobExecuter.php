@@ -73,6 +73,7 @@ class JobExecuter{
         while ($extractor->hasNext()) {
 
             $chunk = $extractor->pop();
+            var_dump($chunk);
             if(!empty($chunk)){
 
                 $count_chunks++;
