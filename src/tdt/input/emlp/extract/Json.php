@@ -30,7 +30,7 @@ class Json extends AExtractor{
 
     /**
      * Gives us the next chunk to process through our ETML
-     * @return a chunk in a php array
+     * @return a chunk from the json document or NULL
      */
     public function pop(){
 

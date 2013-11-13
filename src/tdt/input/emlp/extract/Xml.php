@@ -69,11 +69,8 @@ class XML extends AExtractor{
     }
 
     private function parseAttributes(&$document, &$xmlobject,$name){
-
         if(!empty($xmlobject->attributes)){
-
             foreach($xmlobject->attributes as $key => $value){
-
                 $document[ $this->index ] = $value->value;
                 $document[$name . "_attr_" . $key] = $value->value;
                 $this->index++;
@@ -81,53 +78,57 @@ class XML extends AExtractor{
         }
     }
 
-    private function makeFlat(&$document, &$xmlobject, $parentname = ""){
+    private function makeFlat(&$document, &$xmlobject, $parentname = "", $index = null){
 
-        // Prefix for row names
+        //prefix for row names
         if($parentname == ""){
-
             $prefix = "";
             $name = $xmlobject->nodeName;
         }else{
-
             $prefix = $parentname;
             $name =  "_" . $xmlobject->nodeName;
+            if(!empty($index)){
+                $index--; // If we pass $index = 0, it will not pass the test as well, so lets take an assumed offset of 1, and then just adjust to a 0-based offset.
+                $name = $name . "[" . $index . "]";
+            }
         }
 
-        // First the attributes
+        //first the attributes
         $this->parseAttributes($document, $xmlobject , $prefix . $name);
 
         if(sizeof($xmlobject->childNodes) == 0){
-
-            // Store the value of the element in the document array under its prefix name
+            //store the value of the element in the document array under its prefix name
             $document[ $prefix ] = $xmlobject->nodeValue;
 
-            // Count the number of keys we have.
+            //count the number of keys we have.
             $this->index++;
         }else{
-
-            // Then the children
-            $key_indices = array(); //an array of how many times a certain key occurred
+            //then the children
+            $frequency = array(); //an array of how many times a certain key occurred
+            $current_index = array();
+            // You have to fill in the frequency table first, there's no way of knowing otherwise how many elements of the same name
+            // are after it.
             foreach($xmlobject->childNodes as $child){
+                if(empty($frequency[$child->nodeName])){
+                    $frequency[$child->nodeName] = 0;
+                    $current_index[$child->nodeName] = 1;
+                }
+                $frequency[$child->nodeName]++;
+            }
 
-                // If the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
-                if(!isset($key_indices[$child->nodeName])){
+            foreach($xmlobject->childNodes as $child){
+                //if the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
+                if(isset($frequency[$child->nodeName])){ // This shouldn't be checked, just for safety measures.
 
-                    // Add a default key name without "[0]" for the first or only element
-                    $this->makeFlat($document, $child, $prefix . $name);
+                    if($frequency[$child->nodeName] > 1){
+                        if($current_index[$child->nodeName] == 1) // Backwards compatibility with previous mapping functionality.
+                            $this->makeFlat($document, $child, $prefix . $name, null);
+                        $this->makeFlat($document, $child, $prefix . $name, $current_index[$child->nodeName]);
+                        $current_index[$child->nodeName]++;
+                    }else{
+                        $this->makeFlat($document, $child, $prefix . $name, null);
+                    }
 
-                    // Add a [0] to this element as well for consistency
-                    var_dump($document);
-
-                    $document[$prefix . $name . "[0]"] = $document[$prefix . $name];
-
-                    // Add a one in the occurence table
-                    $key_indices[$child->nodeName] = 1;
-
-                }else{
-
-                    $this->makeFlat($document, $child, $prefix . $name . "[". $key_indices[$child->nodeName] ."]");
-                    $key_indices[$child->nodeName]++;
                 }
             }
         }

@@ -6,6 +6,10 @@
         "illuminate/support": "4.0.x",
         "tdt/streamingrdfmapper": "dev-master"
     },
+    "require-dev": {
+        "orchestra/testbench": "2.0.*",
+        "mockery/mockery" : "dev-master"
+    },
     "autoload": {
         "classmap": [
             "src/migrations",
