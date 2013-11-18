@@ -58,7 +58,7 @@ class Rdf extends Eloquent{
         return array(
                 'mapfile' => array(
                     'required' => true,
-                    'description' => 'The location of the CSV file, either a URL or a local file location.',
+                    'description' => 'The location of the mapping file, either a URL or a local file location.',
                 ),
                 'base_uri' => array(
                     'required' => true,
