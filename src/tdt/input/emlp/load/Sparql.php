@@ -140,7 +140,7 @@ class Sparql extends ALoader {
             CURLOPT_FORBID_REUSE => 1,
             CURLOPT_TIMEOUT => 4,
             CURLOPT_POSTFIELDS => http_build_query($post)
-            //CURLOPT_PFIELDS => http_build_query($query)
+
         );
 
         // Get curl handle and initiate the request
@@ -157,6 +157,7 @@ class Sparql extends ALoader {
 
         if ($response_code >= 400) {
             $this->log("The query failed with code " . $response_code . " and response: " . $response);
+            return false;
         }
 
         return $response;

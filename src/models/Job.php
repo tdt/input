@@ -8,7 +8,7 @@
  */
 class Job extends Eloquent{
 
-    protected $table = 'job';
+    protected $table = 'input_job';
 
     // These properties will be derived from the uri
     protected $fillable = array('name', 'collection_uri');

@@ -9,7 +9,7 @@
  */
 class Graph extends Eloquent{
 
-    protected $table = 'graphs';
+    protected $table = 'input_graph';
 
     protected $fillable = array('graph_id', 'graph_name');
 

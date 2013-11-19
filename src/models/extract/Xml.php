@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Xml extends Eloquent{
 
-    protected $table = 'xmlextract';
+    protected $table = 'input_xmlextract';
 
     protected $fillable = array('uri', 'arraylevel');
 

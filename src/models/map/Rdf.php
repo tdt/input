@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Rdf extends Eloquent{
 
-    protected $table = 'rdfmap';
+    protected $table = 'input_rdfmap';
 
     protected $fillable = array('mapfile', 'base_uri');
 

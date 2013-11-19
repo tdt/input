@@ -41,7 +41,6 @@ class JsonExtract extends \Orchestra\Testbench\TestCase{
                 if(!empty($obj)){
                     $obj_count++;
                 }
-
             }
 
             $this->assertEquals($config['count'], $obj_count);

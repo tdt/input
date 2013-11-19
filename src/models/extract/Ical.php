@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Ical extends Eloquent{
 
-    protected $table = 'icalextract';
+    protected $table = 'input_icalextract';
 
     protected $fillable = array('uri');
 

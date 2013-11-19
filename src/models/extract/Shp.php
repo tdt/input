@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Shp extends Eloquent{
 
-    protected $table = 'shpextract';
+    protected $table = 'input_shpextract';
 
     protected $fillable = array('uri');
 

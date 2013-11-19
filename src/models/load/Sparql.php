@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Sparql extends Eloquent{
 
-    protected $table = 'sparqlload';
+    protected $table = 'input_sparqlload';
 
     protected $fillable = array('endpoint', 'user', 'password', 'buffer_size', 'graph_name');
 

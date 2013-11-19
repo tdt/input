@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Json extends Eloquent{
 
-    protected $table = 'jsonextract';
+    protected $table = 'input_jsonextract';
 
     protected $fillable = array('uri');
 

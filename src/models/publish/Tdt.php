@@ -12,7 +12,7 @@ use Eloquent;
  */
 class Tdt extends Eloquent{
 
-    protected $table = 'tdtpublisher';
+    protected $table = 'input_tdtpublish';
 
     protected $fillable = array('uri', 'user', 'password');
 
