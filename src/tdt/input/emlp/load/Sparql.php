@@ -68,26 +68,29 @@ class Sparql extends ALoader {
 
     public function execute(&$chunk){
 
-        // Log the time it takes to load the triples into the store
-        $start = microtime(true);
-
         if (!$chunk->isEmpty()) {
             preg_match_all("/(<.*\.)/", $chunk->serialise('ntriples'), $matches);
 
             if($matches[0])
                 $this->buffer = array_merge($this->buffer, $matches[0]);
 
+            $triple_count = count($matches[0]);
+            $this->log("Added $triple_count triples to the load buffer.");
+
             while(count($this->buffer) >= $this->loader->buffer_size) {
 
-                $triples_to_send = array_slice($this->buffer, 0, $this->loader->buffer_size);
+                // Log the time it takes to load the triples into the store
+                $start = microtime(true);
+                $buffer_size = $this->loader->buffer_size;
+
+                $triples_to_send = array_slice($this->buffer, 0, $buffer_size);
                 $this->addTriples(implode(' ', $triples_to_send));
-                $this->buffer = array_slice($this->buffer, $this->loader->buffer_size);
+                $this->buffer = array_slice($this->buffer, $buffer_size);
+
+                $duration = round((microtime(true) - $start) * 1000, 2);
+                $this->log("Took $buffer_size triples from the load buffer, loading them took $duration ms.");
             }
         }
-
-        $duration = round((microtime(true) - $start) * 1000, 3);
-        $this->log("The loading process was executed in $duration ms.");
-
     }
 
     private function addTriples($triples) {
@@ -157,7 +160,8 @@ class Sparql extends ALoader {
 
         if ($response_code >= 400) {
             $this->log("The query failed with code " . $response_code . " and response: " . $response);
-            return false;
+            $this->log("The executed query that failed was the following: " . $query);
+            exit();
         }
 
         return $response;

@@ -51,7 +51,8 @@ class Rdf extends AMapper {
         $rdf_graph = $this->mapping_processor->map($chunk, true);
         $this->map_count++;
 
-        //TODO how to know if the mapping was succesfull?
+        // TODO how to know if the mapping was succesful?
+        // Throws exception when mapping
         return $rdf_graph;
     }
 }
