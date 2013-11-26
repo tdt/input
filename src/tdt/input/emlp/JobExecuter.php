@@ -131,7 +131,9 @@ class JobExecuter{
         if(!class_exists($executer)){
 
             $model_class = get_class($model);
-            \App::abort(452, "The executer ($executer) was not found for the corresponding model $model_class).");
+            // This error shouldn't occur when validation has returned true
+            // If this fails, it means we did something wrong
+            \App::abort(500, "The executer ($executer) was not found for the corresponding model $model_class).");
         }
 
         $executer = new $executer($model);

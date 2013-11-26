@@ -36,7 +36,7 @@ class InputController extends \Controller{
 
         // Check if the uri already exists
         if(self::exists($uri)){
-            \App::abort(452, "This uri already exists, use POST if you wanted to update the job.");
+            \App::abort(400, "This uri already exists, use POST if you wanted to update the job on uri $uri.");
         }
 
         list($collection_uri, $name) = self::getParts($uri);
@@ -51,7 +51,7 @@ class InputController extends \Controller{
 
         // If we get empty params, then something went wrong
         if(empty($params)){
-            \App::abort(452, "The parameters could not be parsed from the body or request URI, make sure parameters are provided and if they are correct (e.g. correct JSON).");
+            \App::abort(400, "The parameters could not be parsed from the body or request URI, make sure parameters are provided and if they are correct (e.g. correct JSON).");
         }
 
         // Validate the job properties
@@ -121,7 +121,7 @@ class InputController extends \Controller{
         // Map and publish are not obligatory
         if(empty($type)){
             if($ns != 'map' && $ns != 'publish'){
-                \App::abort(452, "No type of $ns was given, please provide a type of $ns.");
+                \App::abort(400, "No type of $ns was given, please provide a type of $ns which are listed in the discovery document.");
             }else{
                 return;
             }
@@ -130,7 +130,7 @@ class InputController extends \Controller{
         $class_name = $ns . "\\" . $type;
 
         if(!class_exists($class_name)){
-            \App::abort(452, "The given type ($type) is not a $ns type.");
+            \App::abort(400, "The given type ($type) is not a $ns type.");
         }
 
         $class = new $class_name();
@@ -163,9 +163,9 @@ class InputController extends \Controller{
                 if(!empty($info['required']) && $info['required']){
 
                     if(strtolower($type) != 'job'){
-                        \App::abort(452, "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
+                        \App::abort(400, "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
                     }else{
-                        \App::abort(452, "The parameter '$key' is required to create a job but was not passed.");
+                        \App::abort(400, "The parameter '$key' is required to create a job but was not passed.");
                     }
                 }
 
@@ -181,7 +181,7 @@ class InputController extends \Controller{
                     );
 
                     if($validator->fails()){
-                        \App::abort(452, "The validation failed for parameter $key, make sure the value is valid.");
+                        \App::abort(400, "The validation failed for parameter $key, make sure the value is valid.");
                     }
                 }
 
@@ -201,7 +201,7 @@ class InputController extends \Controller{
         $job = self::get($uri);
 
         if(empty($job)){
-            \App::abort(452, "The given uri, $uri, could not be resolved as a resource that can be deleted.");
+            \App::abort(400, "The given uri, $uri, could not be resolved as a resource that can be deleted.");
         }
 
         $job->delete();
@@ -214,14 +214,14 @@ class InputController extends \Controller{
      * PATCH a job based on the PATCH parameters and URI.
      */
     private static function patchJob($uri){
-
+        \App::abort(500, "Method currently not implemented.");
     }
 
     /**
      * Return the headers of a call made to the uri given.
      */
     private static function headJob($uri){
-
+        \App::abort(500, "Method currently not implemented");
     }
     /*
      * GET a job based on the uri provided
@@ -245,7 +245,7 @@ class InputController extends \Controller{
         }
 
         if(!self::exists($uri)){
-            \App::abort(452, "No job has been found with the uri $uri");
+            \App::abort(404, "No job has been found with the uri $uri");
         }
 
         // Get Definition object based on the given uri
@@ -279,7 +279,7 @@ class InputController extends \Controller{
             $collection_uri = $matches[1];
             $name = @$matches[2];
         }else{
-            \App::abort(452, "The uri should at least have a collection uri and a resource name.");
+            \App::abort(400, "The uri should at least have a collection uri and a resource name.");
         }
 
         return array($collection_uri, $name);
