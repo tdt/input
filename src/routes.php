@@ -6,4 +6,4 @@
 |--------------------------------------------------------------------------
 */
 
-Route::get('/hello', 'tdt\input\controllers\HelloController@sayHello');
+Route::any('input/{all?}', 'tdt\input\controllers\InputController@handle')->where('all', '.*');
