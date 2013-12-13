@@ -161,7 +161,6 @@ class Sparql extends ALoader {
         if ($response_code >= 400) {
             $this->log("The query failed with code " . $response_code . " and response: " . $response);
             $this->log("The executed query that failed was the following: " . $query);
-            exit();
         }
 
         return $response;
