@@ -305,13 +305,14 @@ class InputController extends \Controller{
      */
     private static function getUri(){
 
-        $uri = str_replace('input/', '', \Request::path());
+        $uri = \Request::path();
 
-        if($uri == 'input'){
+        if($uri == 'api/input'){
             return '/';
         }
 
-        $uri = str_replace('input/', '', \Request::path());
+        $uri = str_replace('api/input/', '', \Request::path());
+        
         return $uri;
     }
 
