@@ -15,7 +15,7 @@ class Tdt{
 
         $uri = $this->publisher->uri;
         $user = $this->publisher->user;
-        $pw = $this->publisher->pw;
+        $pw = $this->publisher->password;
 
         // Get the type of loader to figure which PUT parameters we have to pass with the request
         $job = $this->publisher->job()->first();
@@ -38,6 +38,8 @@ class Tdt{
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_FORBID_REUSE => 1,
                 CURLOPT_TIMEOUT => 4,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
             );
 
             // Set the configuration of the curl request
@@ -77,6 +79,8 @@ class Tdt{
                 CURLOPT_TIMEOUT => 4,
                 CURLOPT_POSTFIELDS => json_encode($put),
                 CURLOPT_HTTPHEADER => array("Content-Type: application/tdt.ld"),
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
             );
 
             // Set the configuration of the curl request
