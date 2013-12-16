@@ -28,6 +28,11 @@ class Rdf extends AMapper {
         // Provide backwards compatibility with previous datatank mapping files
         $mapping_file = str_replace('tdt:package:resource', $base_uri, $mapping_file);
 
+        // Replace the tdt:package
+        $pos = strrpos($base_uri, '/');
+        $rest_uri = substr($base_uri, 0, $pos);
+        $mapping_file = str_replace('tdt:package', $rest_uri, $mapping_file);
+
         // TODO make the type a variable in the model
         $mapping_type = "Vertere";
 
@@ -50,6 +55,8 @@ class Rdf extends AMapper {
         // Retrieve an instance of an EasyRDFGraph
         $rdf_graph = $this->mapping_processor->map($chunk, true);
         $this->map_count++;
+        var_dump($rdf_graph);
+
 
         // TODO how to know if the mapping was succesful?
         // Throws exception when mapping
