@@ -55,9 +55,7 @@ class Rdf extends AMapper {
         // Retrieve an instance of an EasyRDFGraph
         $rdf_graph = $this->mapping_processor->map($chunk, true);
         $this->map_count++;
-        var_dump($rdf_graph);
-
-
+        
         // TODO how to know if the mapping was succesful?
         // Throws exception when mapping
         return $rdf_graph;
