@@ -55,9 +55,15 @@ class Rdf extends AMapper {
         // Retrieve an instance of an EasyRDFGraph
         $rdf_graph = $this->mapping_processor->map($chunk, true);
         $this->map_count++;
-        
-        // TODO how to know if the mapping was succesful?
-        // Throws exception when mapping
+
+        // Log the state of the graph (it's amount of triples)
+        if($rdf_graph->isEmpty()){
+            $this->log("The graph created from mapping the data chunk was empty!");
+        }else{
+            $count = $rdf_graph->countTriples();
+            $this->log("The graph created from mapping the data chunk contains $count triples.");
+        }
+
         return $rdf_graph;
     }
 }
