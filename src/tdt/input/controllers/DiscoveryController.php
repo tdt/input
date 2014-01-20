@@ -158,7 +158,7 @@ class DiscoveryController extends \Controller{
         // Add the publishing options
         // TODO
 
-        $put->parameters = $parameters;
+        $put->body = $parameters;
 
         return $put;
     }
