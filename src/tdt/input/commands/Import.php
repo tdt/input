@@ -46,6 +46,8 @@ class Import extends Command {
             $file = Export::getExportFile();
         }
 
+        $safe = $this->option('safe');
+
         // Get the contents from the file if it exists
         if(File::exists($file)){
 
@@ -56,9 +58,15 @@ class Import extends Command {
 
                 foreach($content as $identifier => $job_definition){
 
-                    $headers = array('Authorization' => $auth_header);
+                    // If the safe option is passed, prompt the user with the identifier and body
+                    if($safe){
+                        if(!$this->confirm("A job with identifier $identifier is about to be added, are you sure about this? [y|n]")){
+                            $this->info("The job with identifier $identifier was prevented of being added.");
+                            break;
+                        }
+                    }
 
-                    $this->updateRequest('PUT', $headers, $job_definition);
+                    $this->updateRequest('PUT', array(), $job_definition);
 
                     $response = InputController::createJob($identifier);
 
@@ -102,7 +110,7 @@ class Import extends Command {
     protected function getOptions()
     {
         return array(
-
+            array('safe', 's', InputOption::VALUE_NONE, "Safe mode will prompt the user for every job it will add, and ask if it's ok to perform the addition.", null),
         );
     }
 
