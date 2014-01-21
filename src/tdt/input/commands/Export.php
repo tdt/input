@@ -110,7 +110,7 @@ class Export extends Command {
     protected function getArguments()
     {
         return array(
-            array('file', InputArgument::OPTIONAL, 'The file to write the JSON export to. Defaults to the app/commands folder', null),
+            array('file', InputArgument::OPTIONAL, 'The file to write the JSON export to. Defaults to the file ' . self::getExportFile() . '.', null),
             array('jobid', InputArgument::OPTIONAL, 'The identifier of the job to export, if empty all of the jobs will be exported.', null),
         );
     }
