@@ -26,7 +26,17 @@ class InputServiceProvider extends ServiceProvider {
             return new \ExecuteJobCommand();
         });
 
+        $this->app['input.export'] = $this->app->share(function($app){
+            return new \Export();
+        });
+
+        $this->app['input.import'] = $this->app->share(function($app){
+            return new \Import();
+        });
+
+        $this->commands('input.export');
         $this->commands('input.execute');
+        $this->commands('input.import');
 
         include __DIR__ . '/../../routes.php';
     }

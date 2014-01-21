@@ -13,12 +13,17 @@ class InputController extends \Controller{
 
         switch($method){
             case "PUT":
-                return self::createJob();
+
+                $uri = self::getUri();
+
+                return self::createJob($uri);
                 break;
             case "GET":
+
                 return self::getJob();
                 break;
             case "DELETE":
+
                 return self::deleteJob();
                 break;
             default:
@@ -30,14 +35,7 @@ class InputController extends \Controller{
      /**
      * Create a new job based on the PUT parameters given and content-type.
      */
-    private static function createJob(){
-
-        $uri = self::getUri();
-
-        // Check if the uri already exists
-        if(self::exists($uri)){
-            \App::abort(400, "This uri already exists, use POST if you wanted to update the job on uri $uri.");
-        }
+    public static function createJob($uri){
 
         list($collection_uri, $name) = self::getParts($uri);
 
@@ -47,6 +45,8 @@ class InputController extends \Controller{
         // Is the body passed as JSON, if not try getting the request parameters from the uri
         if(!empty($params)){
             $params = json_decode($params, true);
+        }else{
+            $params = \Input::all();
         }
 
         // If we get empty params, then something went wrong
@@ -181,7 +181,7 @@ class InputController extends \Controller{
                     );
 
                     if($validator->fails()){
-                        \App::abort(400, "The validation failed for parameter $key, make sure the value is valid.");
+                        \App::abort(400, "The validation failed for parameter $key with value '$params[$key]', make sure the value is valid.");
                     }
                 }
 
@@ -233,6 +233,7 @@ class InputController extends \Controller{
 
         // If the uri is nothing, return a list of all the jobs
         if($uri == '/'){
+
             $jobs = \Job::all();
 
             $input_document = array();
@@ -312,7 +313,7 @@ class InputController extends \Controller{
         }
 
         $uri = str_replace('api/input/', '', \Request::path());
-        
+
         return $uri;
     }
 
