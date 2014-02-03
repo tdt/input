@@ -37,7 +37,7 @@ class Export extends Command {
      *
      * @var string
      */
-    protected $description = 'Export job definitions to a json file. Can be used to import job definitions using input:import.';
+    protected $description = 'Export job definitions to a JSON file.';
 
     /**
      * Create a new command instance.
@@ -58,7 +58,7 @@ class Export extends Command {
     public function fire()
     {
         // Get the file option from the command line
-        $file = $this->argument('file');
+        $filename = $this->option('file');
 
         if(empty($file)){
             $file = self::getExportFile();
@@ -93,15 +93,20 @@ class Export extends Command {
             $content = json_encode($content);
         }
 
-        // Try to write the contens to the specified file
-        try{
-            file_put_contents($file, $content);
-        }catch(Exception $e){
-            $this->error("The contents could not be written to the file ($file).");
-            die;
+        // Output
+        if(empty($filename)){
+            // Print to console
+            echo $content;
+        }else{
+            try{
+                // Write to file
+                file_put_contents($filename, $content);
+                $this->info("The export has been written to the file '$filename'.");
+            }catch(Exception $e){
+                $this->error("The contents could not be written to the file '$filename'.");
+                die();
+            }
         }
-
-        $this->info("The export has been written to $file.");
     }
 
     /**
@@ -112,7 +117,6 @@ class Export extends Command {
     protected function getArguments()
     {
         return array(
-            array('file', InputArgument::OPTIONAL, 'The file to write the JSON export to. Defaults to the file ' . self::getExportFile() . '.', null),
             array('jobid', InputArgument::OPTIONAL, 'The identifier of the job to export, if empty all of the jobs will be exported.', null),
         );
     }
@@ -125,7 +129,7 @@ class Export extends Command {
     protected function getOptions()
     {
         return array(
-
+            array('file', 'f', InputOption::VALUE_OPTIONAL, 'The file to write the JSON export to.', null),
         );
     }
 
