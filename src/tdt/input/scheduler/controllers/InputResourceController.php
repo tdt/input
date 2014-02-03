@@ -26,8 +26,8 @@ class InputResourceController extends \tdt\core\controllers\AController {
     /**
      * Only works with tdt/start
      */
-    private function getDBConfig(){
-        $db = array();
+    public static function getDBConfig(){
+        $db = array();        
         $db["host"] = Config::get("db", "host");
         $db["name"] = Config::get("db", "name");
         $db["system"] = Config::get("db", "system");
@@ -37,15 +37,17 @@ class InputResourceController extends \tdt\core\controllers\AController {
     }
 
     public function GET($matches){
+
         \tdt\core\utility\Config::setConfig(Config::getConfigArray());
         $format="";
         $object = new \stdClass();
         if(!empty($matches["format"])){
             $format= ltrim($matches["format"],'.');
         }
-        $s = new Schedule($this->getDBConfig());
-        if(isset($matches["resource"]) && $matches["resource"] != ""){
-            $object->job = $s->getJob($matches["resource"]);
+        $s = new Schedule(InputResourceController::getDBConfig());            
+        if(isset($matches["resource"]) && $matches["resource"] != ""){            
+            $object->job = $s->getJob($matches["resource"]);   
+                
             unset($object->job["id"]);
             if(isset($object->job["map"])){
                 unset($object->job["map"]["id"]);
@@ -56,6 +58,7 @@ class InputResourceController extends \tdt\core\controllers\AController {
 
             unset($object->job["load_id"]);
             unset($object->job["extract_id"]);
+
             $object->job = array_filter($object->job);
 
             $object->job["extract"] = array_filter($object->job["extract"]);
@@ -65,13 +68,16 @@ class InputResourceController extends \tdt\core\controllers\AController {
             if(empty($object->job)){
                 throw new TDTException("404",array($matches["resource"]));
             }
+
             if(isset($matches["test"])){
                 ignore_user_abort(true);
                 set_time_limit(0);
                 //convert object to array
-                $job = json_decode(json_encode($object->job) ,true);
-                $input = new Input($job);
-                echo $input->execute();
+                echo APPPATH;
+                echo VENDORPATH;
+                echo DOCROOT;
+                exit();
+                echo exec('php run_input.php win-regios');
                 exit();
             }
         }else{

@@ -1,0 +1,11 @@
+body {
+	margin: 20px;
+}
+
+pre {
+	background-color: #DDDDDD; 
+	padding: 10px;
+}
+code {
+	font-weight: bold;
+}

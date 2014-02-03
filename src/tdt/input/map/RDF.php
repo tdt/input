@@ -2,6 +2,8 @@
 
 namespace tdt\input\map;
 use tdt\exceptions\TDTException;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 //set_include_path(get_include_path() . PATH_SEPARATOR . "../vendor/tdt/input/");
 define('VERTERE_DIR', __DIR__ . '/../../../../includes/Vertere/dist/');
@@ -17,6 +19,8 @@ include_once MORIARTY_DIR . 'simplegraph.class.php';
 include_once VERTERE_DIR . 'inc/sequencegraph.class.php';
 include_once VERTERE_DIR . 'inc/vertere.class.php';
 include_once VERTERE_DIR . 'inc/diagnostics.php';
+
+
 
 class RDF extends \tdt\input\AMapper {
 
@@ -135,14 +139,14 @@ class RDF extends \tdt\input\AMapper {
         $start = microtime(true);
         //Apply mapping to chunk
         $graph = $this->vertere->convert_array_to_graph($chunk);
-
+                
         if(empty($graph->_index)){
             $chunk_string = implode(",", $chunk);
-            $this->log[] = "The created graph was empty, chunk contained the following information: $chunk_string";
+            $this->log->addInfo("The created graph was empty, chunk contained the following information: $chunk_string");
         }
         
         $duration = (microtime(true) - $start) * 1000;
-        $this->log[] = "Mapping executed in $duration ms";
+        $this->log->addInfo("Mapping executed in $duration ms");
 
         return $graph;
     }

@@ -4,6 +4,9 @@ namespace tdt\input\load;
 
 use RedBean_Facade as R;
 use tdt\exceptions\TDTException;
+use tdt\uri\RequestURI;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 class RDF extends \tdt\input\ALoader {
 
@@ -20,6 +23,7 @@ class RDF extends \tdt\input\ALoader {
      * Validation already done earlier
      */
     public function __construct($config, &$log) {
+
         $this->log = &$log;
         if (!isset($config["endpoint"]))
             throw new TDTException(400,array('SPARQL endpoint not set in config'));
@@ -70,8 +74,11 @@ class RDF extends \tdt\input\ALoader {
             $this->endpoint_password = $config["endpoint_password"];
         }
 
-        //Store graph in database
-        $this->graph_name = $this->datatank_uri . $this->datatank_package . "/" . $this->datatank_resource;
+        // Store graph in database with the name of the job as identifier!
+        // This means that we need to strip the uri until the part right next to tdtinput
+        // The uri we're getting is in the form of http(s)://.../tdtinput/name/run(test,...)
+
+        $this->graph_name = $config["base_uri"];
 
         $time = time();
         $date_time = date("c", $time);
@@ -91,15 +98,16 @@ class RDF extends \tdt\input\ALoader {
         $this->graph = $graph_id;
 
         $this->addTimestamp($date_time);
-        
+
         if (!isset($config["buffer_size"]))
-            $config["buffer_size"] = 4;
+            $config["buffer_size"] = 24;
 
         $this->buffer_size = $config["buffer_size"];
     }
 
     public function cleanUp() {
-        $this->log[] = "Empty loader buffer";
+        $triples_left = count($this->buffer);
+        $this->log->addInfo("All done, emptying load buffer to add the last triples. ($triples_left left in buffer)");
         try {
             while (!empty($this->buffer)) {
                 $count = count($this->buffer) <= $this->buffer_size ? count($this->buffer) : $this->buffer_size;
@@ -113,7 +121,7 @@ class RDF extends \tdt\input\ALoader {
             throw new TDTException(500, array("ETML Failed: " . $e->getMessage()));
         }
 
-        $this->log[] = "Inserting resource into your datatank.";
+        $this->log->addInfo("Inserting resource into your datatank.");
         //Add SPARQL resource with describe query to datatank
         $data = array(
             "resource_type" => "generic",
@@ -144,11 +152,10 @@ class RDF extends \tdt\input\ALoader {
         curl_close($ch);
 
         if ($response_code >= 400) {
-            $this->log[] = "PUT request to The DataTank instance for package: $this->datatank_package and resource: $this->datatank_resource failed!";
-            $this->log[] = "Response code given was: " . $response_code;
+            $this->log->addInfo("The PUT request to The DataTank instance using the uri $uri failed! The server responded with code $reponse_code.");
         } else {
-            $this->log[] = "Request to add resource in The DataTank succeeded with code " . $response_code;
-            $this->log[] = "Resources available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource";
+            $this->log->addInfo("The PUT request to add the resource in The DataTank using the uri $uri succeeded with code " . $response_code);
+            $this->log->addInfo("The linked data resource is now available under " . $this->datatank_uri . "$this->datatank_package/$this->datatank_resource");
         }
         $this->clearOldGraphs();
     }
@@ -159,24 +166,24 @@ class RDF extends \tdt\input\ALoader {
         if (!$chunk->is_empty()) {
             preg_match_all("/(<.*\.)/", $chunk->to_ntriples(), $matches);
             if ($matches[0])
-                $this->buffer = array_merge($this->buffer, $matches[0]);   
+                $this->buffer = array_merge($this->buffer, $matches[0]);
 
             while (count($this->buffer) >= $this->buffer_size) {
-                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);                
+                $triples_to_send = array_slice($this->buffer, 0, $this->buffer_size);
                 $this->addTriples(implode(' ', $triples_to_send));
                 $this->buffer = array_slice($this->buffer, $this->buffer_size);
             }
         }
 
         $duration = (microtime(true) - $start) * 1000;
-        $this->log[] = "Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer";
+        $this->log->addInfo("Loading executed in $duration ms - " . count($this->buffer) . " triples left in buffer");
     }
 
     private function clearOldGraphs() {
-        $this->log[] = "deleting: " . print_r($this->old_graphs, true);
+        $this->log->addInfo("deleting: " . print_r($this->old_graphs, true));
         foreach ($this->old_graphs as $graph) {
             $graph_id = $graph["graph_id"];
-            $query = "CLEAR GRAPH <$graph_id>";
+            $query = "DEFINE sql:log-enable 3 CLEAR GRAPH <$graph_id>";
 
             $result = $this->execSPARQL($query);
 
@@ -184,13 +191,13 @@ class RDF extends \tdt\input\ALoader {
                 $response = json_decode($result, true);
 
                 //if ($response)
-                //    $this->log[] = print_r($response['results'], true);
-                
+                //    $this->log->addInfo("rint_r($response['results'], true));
+
                 $this->deleteGraph($graph_id);
 
-                $this->log[] = "Old version of graph $graph is cleared!";
+                $this->log->addInfo("Old version of graph $graph is cleared!");
             } else {
-                $this->log["errors"][] = "Old version of graph $graph was not cleared!";
+                $this->log->addInfo("WARNING: Old version of graph $graph was not cleared!");
             }
         }
     }
@@ -201,9 +208,9 @@ class RDF extends \tdt\input\ALoader {
         $query .= ' }';
 
         if ($this->execSPARQL($query) !== false)
-            $this->log[] = "Graph " . $this->graph . " added on $datetime. Metadata added!";
+            $this->log->addInfo("Graph " . $this->graph . " added on $datetime. Metadata added!");
         else
-            $this->log["errors"][] = "Graph " . $this->graph . " added on $datetime, but the metadata was not added!";
+            $this->log->addInfo("WARNING: Graph " . $this->graph . " added on $datetime, but the metadata was not added!");
         //throw new \tdt\framework\TDTException(500,array("Triples were not inserted!"));
     }
 
@@ -218,21 +225,20 @@ class RDF extends \tdt\input\ALoader {
         $query .= ' }';
 
 
-        $this->log[] = "Flush buffer... ";
+        $this->log->addInfo("Flushing buffer of triples ($this->buffer_size triples in total), adding them to the graph ");
 
         if ($this->execSPARQL($query) !== false)
-            $this->log[] = "Triples inserted in  $this->graph_name !";
+            $this->log->addInfo("Triples inserted in  $this->graph_name !");
         else
-            $this->log["errors"][] = "Triples were not inserted!";
-        //throw new \tdt\framework\TDTException("Triples were not inserted!");
+            $this->log->addInfo("WARNING: Triples were not inserted!");
     }
 
     /**
-     * Send a POST requst using cURL 
-     * @param string $url to request 
-     * @param array $post values to send 
-     * @param array $options for cURL 
-     * @return string 
+     * Send a POST requst using cURL
+     * @param string $url to request
+     * @param array $post values to send
+     * @param array $options for cURL
+     * @return string
      */
     private function execSPARQL($query, $method = "POST") {
 // is curl installed?
@@ -269,11 +275,12 @@ class RDF extends \tdt\input\ALoader {
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        $this->log[] = "Endpoint returned: $response_code";
+        $this->log->addInfo("Endpoint returned: $response_code");
         curl_close($ch);
-        
+
         if ($response_code >= 400) {
-            $this->log["errors"][] = "Query failed: " . $response_code . ": " . $response;
+            $this->log->addInfo("WARNING: Query failed: " . $response_code . ": " . $response);
+            $this->log->addInfo("WARNING: Failed URI was: " . $query);
             return false;
         }
 
@@ -293,4 +300,3 @@ class RDF extends \tdt\input\ALoader {
     }
 
 }
-

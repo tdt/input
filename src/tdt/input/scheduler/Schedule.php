@@ -6,6 +6,7 @@ use RedBean_Facade as R;
 use tdt\input\Input;
 use JsonSchema\Validator;
 use tdt\exceptions\TDTException;
+use tdt\uri\RequestURI;
 
 /**
  * Schedule is a class which can be executed.
@@ -122,6 +123,12 @@ class Schedule{
             foreach(get_object_vars($jobtoadd->load) as $k=>$v){
                 $load->$k = $v;
             }
+
+            $uri = new RequestURI();
+            $uri = $uri->getURI();
+
+            $load->base_uri = $uri;                              
+
             $job->load = $load;
 
             $id = R::store($job);
@@ -145,7 +152,8 @@ class Schedule{
     }
 
     public function getJob($jobname){
-        $job = R::findOne('job',' name = ? ',array($jobname));
+
+        $job = R::findOne('job',' name = ? ',array($jobname));        
         if(empty($job)){
             return null;
         }
@@ -160,7 +168,6 @@ class Schedule{
         return $all;
     }
     
-
     public function delete($jobname){
         $job = R::findOne('job',' name = ?',array($jobname));
         if(!empty($job)){
