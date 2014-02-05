@@ -3,6 +3,7 @@
 namespace tdt\input\controllers;
 
 use tdt\core\ContentNegotiator;
+use tdt\core\auth\Auth;
 
 class InputController extends \Controller{
 
@@ -14,16 +15,20 @@ class InputController extends \Controller{
         switch($method){
             case "PUT":
 
-                $uri = self::getUri();
+                Auth::requirePermissions('tdt.input.create');
 
+                $uri = self::getUri();
                 return self::createJob($uri);
                 break;
             case "GET":
+
+                Auth::requirePermissions('tdt.input.view');
 
                 return self::getJob();
                 break;
             case "DELETE":
 
+                Auth::requirePermissions('tdt.input.delete');
                 return self::deleteJob();
                 break;
             default:
