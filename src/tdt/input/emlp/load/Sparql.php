@@ -11,17 +11,20 @@ class Sparql extends ALoader {
     private $buffer = array();
     private $graph;
 
-    public function __construct($model) {
+    public function __construct($model, $command) {
 
-        parent::__construct($model);
+        parent::__construct($model, $command);
+    }
+
+    public function init(){
 
         // Get the job and use the identifier as a graph name
-        $job = $model->job;
+        $job = $this->loader->job;
 
         // Create the graph name
-        $graph_name = $model->graph_name;
+        $graph_name = $this->loader->graph_name;
 
-        $this->log("Preparing the Sparql loader, the graph that will be used is named $graph_name.");
+        $this->log("Initializing the Sparql loader, the graph that will be used is named $graph_name.");
 
         // Store the graph to counter dirty reads
         $time = time();
@@ -121,6 +124,8 @@ class Sparql extends ALoader {
         // If the insert fails, insert every triple one by one
         if(!$this->performInsertQuery($query)){
 
+            $this->log("-------------------------------------- BAD TRIPLE DETECTED --------------------------------------");
+
             $this->log("Inserting triple by triple to avoid good triples not getting inserted because of the presence of a bad triple.");
 
             $totalTriples = count($triples);
@@ -133,11 +138,13 @@ class Sparql extends ALoader {
                 $query = $this->createInsertQuery($serialized);
 
                 if(!$this->performInsertQuery($query)){
-                    $this->log("ERROR: failed to insert the following triple: " . $triple);
+                    $this->log("Failed to insert the following triple: " . $triple, "error");
                 }else{
                     $this->log("Succesfully inserted a triple to the triplestore.");
                 }
             }
+
+            $this->log("-------------------------------------------------------------------------------------------------");
         }
     }
 

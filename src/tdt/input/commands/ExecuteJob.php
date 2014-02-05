@@ -54,7 +54,7 @@ class ExecuteJob extends Command {
 
         $this->line('The job has been found.');
 
-        $job_exec = new JobExecuter($job);
+        $job_exec = new JobExecuter($job, $this);
         $job_exec->execute();
     }
 
