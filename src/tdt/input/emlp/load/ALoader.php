@@ -13,7 +13,7 @@ abstract class ALoader{
     abstract public function execute(&$chunk);
 
     /**
-     * Clean up is called after the loading is executed.
+     * Clean up is called after the execute() function is performed.
      */
     public function cleanUp(){
 
