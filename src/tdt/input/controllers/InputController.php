@@ -230,8 +230,7 @@ class InputController extends \Controller{
     private static function getJob(){
 
         $uri = self::getUri();
-        echo "hi";
-        die;
+
         // If the uri is nothing, return a list of all the jobs
         if($uri == '/'){
             $jobs = \Job::all();
