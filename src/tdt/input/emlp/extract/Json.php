@@ -16,6 +16,7 @@ class Json extends AExtractor{
         $uri = $this->extractor->uri;
         $this->listener = new JsonProcessor();
         $this->parser = new Parser($this->listener);
+        $this->parser = new \tdt\json\JSONCharInputReader($this->listener);
 
         $this->handle = fopen($uri, 'r');
     }
@@ -34,19 +35,15 @@ class Json extends AExtractor{
      */
     public function pop(){
 
-        while (!$this->listener->hasNew() && !feof($this->handle)) {
-
-            $line = stream_get_line($this->handle, 1);
-            $byteLen = strlen($line);
-            for ($i = 0; $i < $byteLen; $i++) {
-                $this->parser->_consume_char($line[$i]);
+         while(!$this->listener->hasNew() && !feof($this->handle)){
+            $char = fread($this->handle, 1);
+            if($char !== "" && $char != "\n"){
+                $this->parser->readChar($char);
             }
         }
-
         if($this->listener->hasNew()){
             return $this->listener->pop();
         }
-
     }
 
     /**
@@ -55,5 +52,4 @@ class Json extends AExtractor{
     protected function close(){
         fclose($this->handle);
     }
-
 }
