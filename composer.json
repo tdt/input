@@ -17,7 +17,7 @@
             "src/tdt/input/commands"
         ],
         "psr-0": {
-            "westtoer\\tdt-input": "src/"
+            "tdt\\input": "src/"
         }
     },
     "minimum-stability": "dev"
