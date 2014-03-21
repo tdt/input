@@ -1,5 +1,7 @@
 <?php
 
+namespace tdt\input\commands;
+
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,7 +15,7 @@ use tdt\input\emlp\JobExecuter;
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class ExecuteJobCommand extends Command {
+class ExecuteJob extends Command {
 
     /**
      * The console command name
@@ -52,7 +54,7 @@ class ExecuteJobCommand extends Command {
 
         $this->line('The job has been found.');
 
-        $job_exec = new JobExecuter($job);
+        $job_exec = new JobExecuter($job, $this);
         $job_exec->execute();
     }
 

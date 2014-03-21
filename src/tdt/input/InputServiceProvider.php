@@ -3,6 +3,9 @@
 namespace tdt\input;
 
 use Illuminate\Support\ServiceProvider;
+use tdt\input\commands\Import;
+use tdt\input\commands\Export;
+use tdt\input\commands\ExecuteJob;
 
 class InputServiceProvider extends ServiceProvider {
 
@@ -23,10 +26,20 @@ class InputServiceProvider extends ServiceProvider {
         $this->package('tdt/input');
 
         $this->app['input.execute'] = $this->app->share(function($app){
-            return new \ExecuteJobCommand();
+            return new ExecuteJob();
         });
 
+        $this->app['input.export'] = $this->app->share(function($app){
+            return new Export();
+        });
+
+        $this->app['input.import'] = $this->app->share(function($app){
+            return new Import();
+        });
+
+        $this->commands('input.export');
         $this->commands('input.execute');
+        $this->commands('input.import');
 
         include __DIR__ . '/../../routes.php';
     }

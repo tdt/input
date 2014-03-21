@@ -1,55 +1,48 @@
 <?php
 
-namespace tdt\input\emlp\extract;
+namespace tdt\input\emlp\helper\json;
 
-use tdt\input\emlp\helper\json\JsonProcessor;
-use tdt\input\emlp\helper\json\Parser;
+class JsonProcessor implements \tdt\json\JSONChunkProcessor{
 
-class Json extends AExtractor{
+    private $obj;
+    private $new = false;
 
-    private $handle;
+    public function process($chunk){
 
-    private $parser, $listener;
-
-    protected function open(){
-
-        $uri = $this->extractor->uri;
-        $this->listener = new JsonProcessor();
-        $this->parser = new Parser($this->listener);
-        $this->parser = new \tdt\json\JSONCharInputReader($this->listener);
-
-        $this->handle = fopen($uri, 'r');
+        //set the flag: a new object is loaded
+        $this->new = true;
+        $this->obj = $this->flatten(json_decode($chunk, true));
     }
 
-    /**
-     * Tells us if there are more chunks to retrieve
-     * @return a boolean whether the end of the file has been reached or not
-     */
-    public function hasNext(){
-        return !feof($this->handle);
-    }
-
-    /**
-     * Gives us the next chunk to process through our ETML
-     * @return a chunk from the json document or NULL
-     */
-    public function pop(){
-
-         while(!$this->listener->hasNew() && !feof($this->handle)){
-            $char = fread($this->handle, 1);
-            if($char !== "" && $char != "\n"){
-                $this->parser->readChar($char);
+    private function flatten($ar){
+        $new = array();
+        if(!empty($ar)){
+            foreach($ar as $k => $v) {
+                if(is_array($v)){
+                    $prefix = $k;
+                    $flat = $this->flatten($v);
+                    foreach($flat as $fkey => $fval){
+                        $new[$prefix . "_" . $fkey] = $fval;
+                    }
+                }else{
+                    $new[$k] = $v;
+                }
             }
+            return $new;
         }
-        if($this->listener->hasNew()){
-            return $this->listener->pop();
-        }
+        return $ar;
     }
 
-    /**
-     * Finalization, closing a handle can be done here. This function is called from the destructor of this class
-     */
-    protected function close(){
-        fclose($this->handle);
+    public function hasNew(){
+        return $this->new;
+    }
+
+    public function pop(){
+        if($this->new){
+            $this->new = false;
+            return $this->obj;
+        }else{
+            return null;
+        }
     }
 }

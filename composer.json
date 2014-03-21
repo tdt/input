@@ -4,7 +4,8 @@
     "require": {
         "php": ">=5.3.0",
         "illuminate/support": "4.0.x",
-        "tdt/streamingrdfmapper": "dev-development"
+        "tdt/streamingrdfmapper": "dev-development",
+        "tdt/json" : "dev-master"
     },
     "require-dev": {
         "orchestra/testbench": "2.0.*",
@@ -13,8 +14,7 @@
     "autoload": {
         "classmap": [
             "src/migrations",
-            "src/models",
-            "src/tdt/input/commands"
+            "src/models"
         ],
         "psr-0": {
             "tdt\\input": "src/"

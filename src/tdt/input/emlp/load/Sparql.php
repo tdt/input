@@ -2,22 +2,29 @@
 
 namespace tdt\input\emlp\load;
 
+/**
+ * The Sparql class loads triples into a triplestore.
+ */
 class Sparql extends ALoader {
 
 
     private $buffer = array();
     private $graph;
 
-    public function __construct($model) {
+    public function __construct($model, $command) {
 
-        parent::__construct($model);
+        parent::__construct($model, $command);
+    }
+
+    public function init(){
 
         // Get the job and use the identifier as a graph name
-        $job = $model->job;
+        $job = $this->loader->job;
 
         // Create the graph name
-        $graph_name = $model->graph_name;
-        $this->log("Preparing the Sparql loader, the graph that will be used is named $graph_name.");
+        $graph_name = $this->loader->graph_name;
+
+        $this->log("Initializing the Sparql loader, the graph that will be used is named $graph_name.");
 
         // Store the graph to counter dirty reads
         $time = time();
@@ -48,7 +55,7 @@ class Sparql extends ALoader {
                 $this->log("Found $count remaining triples in the buffer, preparing them to load into the store.");
 
                 $triples_to_send = array_slice($this->buffer, 0, $count);
-                $this->addTriples(implode(' ', $triples_to_send));
+                $this->addTriples($triples_to_send);
 
                 $this->buffer = array_slice($this->buffer, $count);
 
@@ -66,9 +73,16 @@ class Sparql extends ALoader {
         $this->graph->save();
     }
 
+    /**
+     * Perform the load.
+     *
+     * @param EasyRDF_Graph $chunk
+     * @return void
+     */
     public function execute(&$chunk){
 
-        if (!$chunk->isEmpty()) {
+        if(!$chunk->isEmpty()){
+
             preg_match_all("/(<.*\.)/", $chunk->serialise('ntriples'), $matches);
 
             if($matches[0])
@@ -84,7 +98,7 @@ class Sparql extends ALoader {
                 $buffer_size = $this->loader->buffer_size;
 
                 $triples_to_send = array_slice($this->buffer, 0, $buffer_size);
-                $this->addTriples(implode(' ', $triples_to_send));
+                $this->addTriples($triples_to_send);
                 $this->buffer = array_slice($this->buffer, $buffer_size);
 
                 $duration = round((microtime(true) - $start) * 1000, 2);
@@ -93,36 +107,92 @@ class Sparql extends ALoader {
         }
     }
 
+    /**
+     * Insert triples into the triple store
+     * @param array $triples
+     *
+     * @return void
+     */
     private function addTriples($triples) {
 
-        $serialized = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
+        $triples_string = implode(' ', $triples);
+
+        $serialized = $this->serialize($triples_string);
+
+        $query = $this->createInsertQuery($serialized);
+
+        // If the insert fails, insert every triple one by one
+        if(!$this->performInsertQuery($query)){
+
+            $this->log("-------------------------------------- BAD TRIPLE DETECTED --------------------------------------");
+
+            $this->log("Inserting triple by triple to avoid good triples not getting inserted because of the presence of a bad triple.");
+
+            $totalTriples = count($triples);
+            $this->log("Total triples to be inserted one by one is $totalTriples.");
+
+            // Insert every triple one by one
+            foreach($triples as $triple){
+
+                $serialized = $this->serialize($triple);
+                $query = $this->createInsertQuery($serialized);
+
+                if(!$this->performInsertQuery($query)){
+                    $this->log("Failed to insert the following triple: " . $triple, "error");
+                }else{
+                    $this->log("Succesfully inserted a triple to the triplestore.");
+                }
+            }
+
+            $this->log("-------------------------------------------------------------------------------------------------");
+        }
+    }
+
+    /**
+     * Create an insert SPARQL query based on the graph id
+     * @param string $triples (need to be serialized == properly encoded)
+     *
+     * @return string Insert query
+     */
+    private function createInsertQuery($triples){
+
+        $graph_id = $this->graph->graph_id;
+
+        $query = "INSERT DATA INTO <$graph_id> {";
+        $query .= $triples;
+        $query .= ' }';
+
+        return $query;
+    }
+
+    /**
+     * Serialize triples to a format acceptable for a triplestore endpoint
+     * @param string $triples
+     *
+     * @return string
+     */
+    private function serialize($triples){
+
+        $serialized_triples = preg_replace_callback('/(?:\\\\u[0-9a-fA-Z]{4})+/', function ($v) {
                                                 $v = strtr($v[0], array('\\u' => ''));
                                                 return mb_convert_encoding(pack('H*', $v), 'UTF-8', 'UTF-16BE');
                                             },
                                             $triples);
 
-        $graph_id = $this->graph->graph_id;
-        $query = "INSERT DATA INTO <$graph_id> {";
-        $query .= $serialized;
-        $query .= ' }';
-
-        if ($this->execSPARQL($query) !== false)
-            $this->log("The triples were succesfully inserted into the store.");
-        else
-            $this->log("The triples were not successfully inserted into the store.");
+        return $serialized_triples;
     }
 
     /**
-     * Send a POST requst using cURL
+     * Send a POST request to the triplestore endpoint using cURL
      * @param string $url to request
      * @param array $post values to send
      * @param array $options for cURL
-     * @return string
+     * @return boolean
     */
-    private function execSPARQL($query, $method = "POST") {
+    private function performInsertQuery($query, $method = "POST") {
 
         if (!function_exists('curl_init')) {
-            $this->log("cURL could not be retrieved as a command, make sure the CLI cURL is installed. Aborting the emlp sequence.");
+            $this->log("cURL could not be retrieved as a command, make sure the CLI cURL is installed because it is necessary to perform the load. Aborting EML sequence.");
             exit();
         }
 
@@ -133,6 +203,7 @@ class Sparql extends ALoader {
         $url = $this->loader->endpoint . "?query=" . urlencode($query);
 
         $defaults = array(
+
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HEADER => 0,
             CURLOPT_URL => $url,
@@ -143,13 +214,11 @@ class Sparql extends ALoader {
             CURLOPT_FORBID_REUSE => 1,
             CURLOPT_TIMEOUT => 4,
             CURLOPT_POSTFIELDS => http_build_query($post)
-
         );
 
         // Get curl handle and initiate the request
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
-        //curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/plain"));
 
         $response = curl_exec($ch);
 
@@ -159,16 +228,18 @@ class Sparql extends ALoader {
         curl_close($ch);
 
         if ($response_code >= 400) {
-            $this->log("The query failed with code " . $response_code . " and response: " . $response);
-            $this->log("The executed query that failed was the following: " . $query);
-            exit();
-        }
 
-        return $response;
+            $this->log("The query failed with code " . $response_code);
+            return false;
+        }else{
+
+            $this->log("The triples were succesfully inserted into the store.");
+            return true;
+        }
     }
 
     /**
-     * Clear the old associated graphs with the given eml sequence
+     * Clear the old associated graphs with the given EML sequence based on the graph name.
      */
     private function deleteOldGraphs() {
 
@@ -183,7 +254,7 @@ class Sparql extends ALoader {
 
             $query = "CLEAR GRAPH <$graph->graph_id>";
 
-            $result = $this->execSPARQL($query);
+            $result = $this->performInsertQuery($query);
 
             // If all went ok, delete the graph entry
             if($result !== false){
@@ -209,7 +280,7 @@ class Sparql extends ALoader {
         $query .= "<" . $graph_id . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
-        if ($this->execSPARQL($query) !== false)
+        if ($this->performInsertQuery($query) !== false)
             $this->log("Added the datetime ($datetime) meta-data to graph identified by " . $graph_id);
         else
             $this->log("Failed adding the datetime ($datetime) meta-data to graph identified by " . $graph_id);

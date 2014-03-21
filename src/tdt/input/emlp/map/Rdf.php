@@ -10,9 +10,12 @@ class Rdf extends AMapper {
     private $mapping_processor;
     private $map_count;
 
-    function __construct($model){
+    function __construct($model, $command){
 
-        parent::__construct($model);
+        parent::__construct($model, $command);
+    }
+
+    public function init(){
 
         // Keep track of the number of chunks mapped
         $this->map_count = 1;
@@ -28,6 +31,11 @@ class Rdf extends AMapper {
         // Provide backwards compatibility with previous datatank mapping files
         $mapping_file = str_replace('tdt:package:resource', $base_uri, $mapping_file);
 
+        // Replace the tdt:package
+        $pos = strrpos($base_uri, '/');
+        $rest_uri = substr($base_uri, 0, $pos);
+        $mapping_file = str_replace('tdt:package', $rest_uri, $mapping_file);
+
         // TODO make the type a variable in the model
         $mapping_type = "Vertere";
 
@@ -38,7 +46,6 @@ class Rdf extends AMapper {
         $this->mapping_processor = new StreamingRDFMapper($mapping_file, $mapping_type);
         $this->mapping_processor->setBaseUri($base_uri);
     }
-
 
     /**
      * Execute the mapping of a chunk of data
@@ -51,8 +58,14 @@ class Rdf extends AMapper {
         $rdf_graph = $this->mapping_processor->map($chunk, true);
         $this->map_count++;
 
-        // TODO how to know if the mapping was succesful?
-        // Throws exception when mapping
+        // Log the state of the graph (it's amount of triples)
+        if($rdf_graph->isEmpty()){
+            $this->log("The graph created from mapping the data chunk was empty!");
+        }else{
+            $count = $rdf_graph->countTriples();
+            $this->log("The graph created from mapping the data chunk contains $count triples.");
+        }
+
         return $rdf_graph;
     }
 }

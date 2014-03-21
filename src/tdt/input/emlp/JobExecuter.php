@@ -18,12 +18,15 @@ use Monolog\Logger;
 class JobExecuter{
 
     private $job;
+    private $command;
 
     /**
      * Create a new job with emlp relations
      */
-    public function __construct($job){
+    public function __construct($job, $command){
+
         $this->job = $job;
+        $this->command = $command;
     }
 
     /**
@@ -131,12 +134,14 @@ class JobExecuter{
         if(!class_exists($executer)){
 
             $model_class = get_class($model);
+
             // This error shouldn't occur when validation has returned true
             // If this fails, it means we did something wrong
             \App::abort(500, "The executer ($executer) was not found for the corresponding model $model_class).");
         }
 
-        $executer = new $executer($model);
+        $executer = new $executer($model, $this->command);
+        $executer->init();
 
         return $executer;
     }
@@ -149,6 +154,6 @@ class JobExecuter{
         $class = explode('\\', get_called_class());
         $class = end($class);
 
-        echo "JobExecuter: " . $message . "\n";
+        $this->command->info("JobExecuter: " . $message);
     }
 }

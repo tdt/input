@@ -4,6 +4,10 @@ namespace tdt\input\emlp\publish;
 
 class Tdt{
 
+    public function init(){
+
+    }
+
     public function __construct($publisher){
         $this->publisher = $publisher;
     }

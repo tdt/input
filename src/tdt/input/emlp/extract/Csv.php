@@ -50,7 +50,7 @@ class Csv extends AExtractor{
      */
     public function pop(){
 
-        $row;
+        $row = array();
 
         if(($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== FALSE){
 
