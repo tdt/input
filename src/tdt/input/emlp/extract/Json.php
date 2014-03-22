@@ -1,48 +1,55 @@
 <?php
 
-namespace tdt\input\emlp\helper\json;
+namespace tdt\input\emlp\extract;
 
-class JsonProcessor implements \tdt\json\JSONChunkProcessor{
+use tdt\input\emlp\helper\json\JsonProcessor;
+use tdt\input\emlp\helper\json\Parser;
 
-    private $obj;
-    private $new = false;
+class Json extends AExtractor{
 
-    public function process($chunk){
+    private $handle;
 
-        //set the flag: a new object is loaded
-        $this->new = true;
-        $this->obj = $this->flatten(json_decode($chunk, true));
+    private $parser, $listener;
+
+    protected function open(){
+
+        $uri = $this->extractor->uri;
+        $this->listener = new JsonProcessor();
+        $this->parser = new Parser($this->listener);
+        $this->parser = new \tdt\json\JSONCharInputReader($this->listener);
+
+        $this->handle = fopen($uri, 'r');
     }
 
-    private function flatten($ar){
-        $new = array();
-        if(!empty($ar)){
-            foreach($ar as $k => $v) {
-                if(is_array($v)){
-                    $prefix = $k;
-                    $flat = $this->flatten($v);
-                    foreach($flat as $fkey => $fval){
-                        $new[$prefix . "_" . $fkey] = $fval;
-                    }
-                }else{
-                    $new[$k] = $v;
-                }
-            }
-            return $new;
-        }
-        return $ar;
+    /**
+     * Tells us if there are more chunks to retrieve
+     * @return a boolean whether the end of the file has been reached or not
+     */
+    public function hasNext(){
+        return !feof($this->handle);
     }
 
-    public function hasNew(){
-        return $this->new;
-    }
-
+    /**
+     * Gives us the next chunk to process through our ETML
+     * @return a chunk from the json document or NULL
+     */
     public function pop(){
-        if($this->new){
-            $this->new = false;
-            return $this->obj;
-        }else{
-            return null;
+
+         while(!$this->listener->hasNew() && !feof($this->handle)){
+            $char = fread($this->handle, 1);
+            if($char !== "" && $char != "\n"){
+                $this->parser->readChar($char);
+            }
         }
+        if($this->listener->hasNew()){
+            return $this->listener->pop();
+        }
+    }
+
+    /**
+     * Finalization, closing a handle can be done here. This function is called from the destructor of this class
+     */
+    protected function close(){
+        fclose($this->handle);
     }
 }
