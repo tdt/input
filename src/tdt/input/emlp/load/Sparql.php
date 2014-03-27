@@ -76,14 +76,28 @@ class Sparql extends ALoader {
     /**
      * Perform the load.
      *
-     * @param EasyRDF_Graph $chunk
+     * @param EasyRdf_Graph $chunk
      * @return void
      */
     public function execute(&$chunk){
 
         if(!$chunk->isEmpty()){
 
-            preg_match_all("/(<.*\.)/", $chunk->serialise('ntriples'), $matches);
+            // Don't use EasyRdf's ntriple serializer, as something might be wrong with its unicode byte characters
+            // After serializing with semsol/arc and easyrdf, the output looks the same (with unicode characters), but after a
+            // binary utf-8 conversion (see $this->serialize()) the outcome is very different, leaving easyrdf's encoding completely different
+            // from the original utf-8 characters, and the semsol/arc encoding correct as the original.
+            $ttl = $chunk->serialise('turtle');
+
+            $arc_parser = \ARC2::getTurtleParser();
+
+            $ser = \ARC2::getNTriplesSerializer();
+
+            $arc_parser->parse('', $ttl);
+
+            $triples = $ser->getSerializedTriples($arc_parser->getTriples());
+
+            preg_match_all("/(<.*\.)/", $triples, $matches);
 
             if($matches[0])
                 $this->buffer = array_merge($this->buffer, $matches[0]);
@@ -98,6 +112,7 @@ class Sparql extends ALoader {
                 $buffer_size = $this->loader->buffer_size;
 
                 $triples_to_send = array_slice($this->buffer, 0, $buffer_size);
+
                 $this->addTriples($triples_to_send);
                 $this->buffer = array_slice($this->buffer, $buffer_size);
 
@@ -109,6 +124,7 @@ class Sparql extends ALoader {
 
     /**
      * Insert triples into the triple store
+     *
      * @param array $triples
      *
      * @return void
@@ -122,7 +138,7 @@ class Sparql extends ALoader {
         $query = $this->createInsertQuery($serialized);
 
         // If the insert fails, insert every triple one by one
-        if(!$this->performInsertQuery($query)){
+        if(!$this->performQuery($query)){
 
             $this->log("-------------------------------------- BAD TRIPLE DETECTED --------------------------------------");
 
@@ -137,7 +153,7 @@ class Sparql extends ALoader {
                 $serialized = $this->serialize($triple);
                 $query = $this->createInsertQuery($serialized);
 
-                if(!$this->performInsertQuery($query)){
+                if(!$this->performQuery($query)){
                     $this->log("Failed to insert the following triple: " . $triple, "error");
                 }else{
                     $this->log("Succesfully inserted a triple to the triplestore.");
@@ -189,7 +205,7 @@ class Sparql extends ALoader {
      * @param array $options for cURL
      * @return boolean
     */
-    private function performInsertQuery($query, $method = "POST") {
+    private function performQuery($query, $method = "GET") {
 
         if (!function_exists('curl_init')) {
             $this->log("cURL could not be retrieved as a command, make sure the CLI cURL is installed because it is necessary to perform the load. Aborting EML sequence.");
@@ -199,6 +215,7 @@ class Sparql extends ALoader {
         $post = array(
             "update" => $query
         );
+
 
         $url = $this->loader->endpoint . "?query=" . urlencode($query);
 
@@ -213,7 +230,6 @@ class Sparql extends ALoader {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FORBID_REUSE => 1,
             CURLOPT_TIMEOUT => 4,
-            CURLOPT_POSTFIELDS => http_build_query($post)
         );
 
         // Get curl handle and initiate the request
@@ -239,33 +255,110 @@ class Sparql extends ALoader {
     }
 
     /**
+     * Fetch the graph matching a graph_name as their identifier
+     *
+     * @return array List of graph names
+     */
+    private function fetchGraphs($graph_name)
+    {
+        $current_graph = $this->graph->graph_id;
+
+        $query = "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o. filter regex(?g, \"$graph_name\", \"i\"). filter (?g != \"$current_graph\") } }";
+
+        $this->log("Fetching all the graphs starting with the name: " . $this->graph->graph_name);
+
+        $url = $this->loader->endpoint . "?query=" . urlencode($query) . "&format=json";
+
+        $defaults = array(
+
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HEADER => 0,
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPAUTH => CURLAUTH_ANY,
+            CURLOPT_USERPWD => $this->loader->user . ":" . $this->loader->password,
+            CURLOPT_FRESH_CONNECT => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FORBID_REUSE => 1,
+            CURLOPT_TIMEOUT => 4,
+        );
+
+        $ch = curl_init();
+        curl_setopt_array($ch, $defaults);
+
+        $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        $response = curl_exec($ch);
+
+        curl_close($ch);
+
+        if($response_code <= 300 && !is_null($response)) {
+
+            $graphs = json_decode($response, true);
+            $graphs = $graphs['results']['bindings'];
+
+            $graph_names = array();
+
+            foreach($graphs as $graph_entry) {
+                array_push($graph_names, $graph_entry['g']['value']);
+            }
+
+            return $graph_names;
+        } else {
+            $this->log("Something went wrong after querying the sparql-endpoint for all the graphs, the message we got is: " . $response, "error");
+            return false;
+        }
+    }
+
+    /**
      * Clear the old associated graphs with the given EML sequence based on the graph name.
      */
     private function deleteOldGraphs() {
 
         $graph_name = $this->graph->graph_name;
-        $this->log("Removing the old graphs identified by the name $graph_name.");
 
-        // Replace all forward slashes in the graph_name with escaped ones
-        $query_graph_name = "'". str_replace('/', '\/', $graph_name) . "'";
+        $this->log("Before attaching the new graph, detaching and removing the old one, and possible zombie graphs");
+
+        // List of graph names we have to delete in the triple store
+        $graphs = $this->fetchGraphs($graph_name);
+
+        if($graphs) {
+
+            foreach ($graphs as $graph_name) {
+
+                if ($graph_name != $this->graph->graph_id) {
+
+                    $query = "CLEAR GRAPH <$graph_name>";
+
+                    $result = $this->performQuery($query);
+
+                    // If all went ok, delete the graph entry
+                    if ($result !== false) {
+
+                        $this->log("The old version of the graph with id $graph_name has been deleted in the triple store.");
+                    } else {
+                        $this->log("The old version of the graph with id $graph_name was not deleted in the triple store.", "error");
+                    }
+                }
+            }
+        }
+
+        // Delete the graph objects in our back-end
+        $query_graph_name = "'". str_replace('/', '\/', $this->graph->graph_name) . "'";
+
         $graphs = \Graph::whereRaw("graph_name like $query_graph_name")->get();
 
         foreach ($graphs as $graph) {
 
-            $query = "CLEAR GRAPH <$graph->graph_id>";
+            if ($graph->graph_id != $this->graph->graph_id) {
 
-            $result = $this->performInsertQuery($query);
-
-            // If all went ok, delete the graph entry
-            if($result !== false){
-
-                $response = json_decode($result, true);
                 $graph->delete();
-                $this->log("The old version of the graph with id $graph->graph_id has been deleted.");
-            }else{
-                $this->log("The old version of the graph with id $graph->graph_id was not deleted.");
+
+                $this->log("The old version of the graph with id $graph->graph_id has been deleted in the back-end.");
             }
         }
+
+        $this->log("--------------------------------------------------------------------------------------------------");
+        $this->log("The new graph is identified by " . $this->graph->graph_id);
     }
 
     /**
@@ -280,7 +373,7 @@ class Sparql extends ALoader {
         $query .= "<" . $graph_id . "> <http://purl.org/dc/terms/created> \"$datetime\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .";
         $query .= ' }';
 
-        if ($this->performInsertQuery($query) !== false)
+        if ($this->performQuery($query) !== false)
             $this->log("Added the datetime ($datetime) meta-data to graph identified by " . $graph_id);
         else
             $this->log("Failed adding the datetime ($datetime) meta-data to graph identified by " . $graph_id);

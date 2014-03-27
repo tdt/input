@@ -11,7 +11,8 @@ class JsonProcessor implements \tdt\json\JSONChunkProcessor{
 
         //set the flag: a new object is loaded
         $this->new = true;
-        $this->obj = $this->flatten(json_decode($chunk, true));
+        $chunk = json_decode($chunk, true);
+        $this->obj = $this->flatten($chunk);
     }
 
     private function flatten($ar){
