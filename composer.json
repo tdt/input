@@ -6,7 +6,7 @@
         "illuminate/support": "4.0.x",
         "tdt/streamingrdfmapper": "dev-master",
         "tdt/json" : "dev-master",
-        "semsol/arc" : "dev-master#5e0701da09d74ef3813e15bc67e4e27b212e816c"
+        "semsol/arc2" : "dev-master#5e0701da09d74ef3813e15bc67e4e27b212e816c"
     },
     "require-dev": {
         "orchestra/testbench": "2.0.*",
