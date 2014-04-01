@@ -267,10 +267,9 @@ class Sparql extends ALoader {
 
         $this->log("Fetching all the graphs starting with the name: " . $this->graph->graph_name);
 
-        $url = $this->loader->endpoint . "?query=" . urlencode($query) . "&format=json";
-
+        $url = $this->loader->endpoint . "?query=" . urlencode($query) . "&format=" . urlencode('application/sparql-results+json');
+        
         $defaults = array(
-
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HEADER => 0,
             CURLOPT_URL => $url,
@@ -279,25 +278,25 @@ class Sparql extends ALoader {
             CURLOPT_FRESH_CONNECT => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FORBID_REUSE => 1,
-            CURLOPT_TIMEOUT => 4,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 0,
         );
-
+        
         $ch = curl_init();
         curl_setopt_array($ch, $defaults);
 
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $response = curl_exec($ch);
-
         curl_close($ch);
-
-        if($response_code <= 300 && !is_null($response)) {
+        
+        if($response_code <= 300 && $response) {
 
             $graphs = json_decode($response, true);
             $graphs = $graphs['results']['bindings'];
-
+            
             $graph_names = array();
-
             foreach($graphs as $graph_entry) {
                 array_push($graph_names, $graph_entry['g']['value']);
             }
@@ -322,7 +321,7 @@ class Sparql extends ALoader {
         $graphs = $this->fetchGraphs($graph_name);
 
         if($graphs) {
-
+        
             foreach ($graphs as $graph_name) {
 
                 if ($graph_name != $this->graph->graph_id) {
