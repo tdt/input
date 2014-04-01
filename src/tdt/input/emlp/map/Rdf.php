@@ -10,9 +10,12 @@ class Rdf extends AMapper {
     private $mapping_processor;
     private $map_count;
 
-    function __construct($model){
+    function __construct($model, $command){
 
-        parent::__construct($model);
+        parent::__construct($model, $command);
+    }
+
+    public function init(){
 
         // Keep track of the number of chunks mapped
         $this->map_count = 1;
@@ -43,7 +46,6 @@ class Rdf extends AMapper {
         $this->mapping_processor = new StreamingRDFMapper($mapping_file, $mapping_type);
         $this->mapping_processor->setBaseUri($base_uri);
     }
-
 
     /**
      * Execute the mapping of a chunk of data
