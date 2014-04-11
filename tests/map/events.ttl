@@ -1,0 +1,294 @@
+@prefix : <http://vocab.mmlab.be/vertere/terms#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix wt: <http://westtoer.be/voc/> .
+@prefix time: <http://http://www.w3.org/TR/owl-time/> .
+@prefix gnd: <http://d-nb.info/standards/elementset/gnd#>.
+
+<#> a :Spec
+; :base_uri "tdt:package:resource/"
+; :resource <#Event>, <#Event_Address>, <#Organization>, <#boolean_lookup>, <#Image_hi_res>, <#Image_b>, <#Image_c>, <#Image_d>
+.
+
+<#Event> a :Resource
+; :type schema:TouristAttraction
+; :identity [
+    :source_column "beziensw_id";
+    ]
+; :relationship
+    [ :property schema:location; :object_from <#Event_Address> ],
+    [ :property gnd:organizerOrHost; :object_from <#Organization> ],
+
+    [ :property schema:image; :object_from <#Image_hi_res> ],
+    [ :property schema:image; :object_from <#Image_b> ],
+    [ :property schema:image; :object_from <#Image_c> ],
+    [ :property schema:image; :object_from <#Image_d> ],
+
+
+
+    [ :property wt:region;  :identity [
+        :source_column "beziensw_ID11_regio";
+        :lookup <#region_lookup>;
+        :base_uri "tdt:package/Regions/"
+        ]
+    ]
+; :attribute
+    [ :property schema:url;
+        :source_column "beziensw_ID25_website" ;
+        :process ( :regex );
+        :regex_match "^(www.)";
+        :regex_output "http://${1}";
+        :base_uri ""
+
+    ],
+    [ :property dc:identifier;           :source_column "beziensw_id" ],
+    [ :property schema:name;             :source_column "beziensw_ID1_titel" ;           :language "nl" ],
+    [ :property schema:name;             :source_column "beziensw_ID1_titel_fr";         :language "fr" ],
+    [ :property schema:name;             :source_column "beziensw_ID1_titel_en" ;        :language "en" ],
+    [ :property schema:name;             :source_column "beziensw_ID1_titel_du" ;        :language "de" ],
+    [ :property schema:description;      :source_column "beziensw_ID2_beschrijving" ;    :language "nl" ],
+    [ :property schema:description;      :source_column "beziensw_ID2_beschrijving_fr" ; :language "fr" ],
+    [ :property schema:description;      :source_column "beziensw_ID2_beschrijving_en" ; :language "en" ],
+    [ :property schema:description;      :source_column "beziensw_ID2_beschrijving_du" ; :language "de" ],
+    [ :property schema:startDate;        :source_column "beziensw_ID5_open_vanaf_datum"; :datatype xsd:date ],
+    [ :property schema:endDate;          :source_column "beziensw_ID6_open_tot_datum"; :datatype xsd:date ],
+    [ :property time:startTime;          :source_column "beziensw_ID5_open_vanaf_tijd"; :datatype xsd:time ],
+    [ :property time:endTime;            :source_column "beziensw_ID6_open_tot_tijd"; :datatype xsd:time ],
+    [ :property dc:created;              :source_column "beziensw_created"; :datatype xsd:dateTime ],
+    [ :property dc:modified;             :source_column "beziensw_modified"; :datatype xsd:dateTime ],
+    [ :property schema:lowPrice;         :source_column "beziensw_ID7_min_prijs" ],
+    [ :property schema:highPrice;        :source_column "beziensw_ID8_max_prijs" ],
+    [ :property wt:extra_info;         :source_column "beziensw_ID10_extra_info" ],
+
+    [ :property wt:free;               :source_column "beziensw_ID4_gratis";                         :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:nis_gemeentecode;   :source_column "beziensw_ID23_nis_gemeentecode"],
+    [ :property wt:crabcode;   :source_column "beziensw_ID24_crabcode"],
+    [ :property wt:q_label;             :source_column "beziensw_ID29_q_label";                         :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:closing_days;        :source_column "beziensw_ID9_sluitingsdag" ],
+
+    [ :property wt:top_beziensw_westtoer; :source_column "beziensw_ID27_topbeziensw_westtoer";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:icalurl;            :source_column "beziensw_icalurl" ],
+    [ :property wt:topper;          :source_column "beziensw_ID26_topper";  :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:wifi;          :source_column "beziensw_ID70_wifi";  :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:open_monday;          :source_column "beziensw_ID28_open_maandag";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_tuesday;          :source_column "beziensw_ID28_open_dinsdag";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_wednesday;          :source_column "beziensw_ID28_open_woensdag";   :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_thursday;          :source_column "beziensw_ID28_open_donderdag";   :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_friday;          :source_column "beziensw_ID28_open_vrijdag";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_saturday;          :source_column "beziensw_ID28_open_zaterdag";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:open_sunday;          :source_column "beziensw_ID28_open_zondag";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:culture;            :source_column "beziensw_thema_rubriek_ID100_cultuur";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:gastronomy;         :source_column "beziensw_thema_rubriek_ID101_gastronomie";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:nature;             :source_column "beziensw_thema_rubriek_ID102_natuur";         :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:world_wars;         :source_column "beziensw_thema_rubriek_ID103_wereldoorlogen"; :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:heritage;           :source_column "beziensw_thema_rubriek_ID104_erfgoed";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:youth;              :source_column "beziensw_thema_rubriek_ID105_jeugd";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:sport;              :source_column "beziensw_thema_rubriek_ID106_sport";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:folklore;           :source_column "beziensw_thema_rubriek_ID107_folklore";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:beach;               :source_column "beziensw_thema_rubriek_ID109_strand";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:water_recreation;    :source_column "beziensw_thema_rubriek_ID110_waterrecreatie";:lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:casino;              :source_column "beziensw_thema_rubriek_ID111_casino";           :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:indoor;             :source_column "beziensw_thema_rubriek_ID112_indoor";            :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:manege_ruiter;       :source_column "beziensw_thema_rubriek_ID113_manege_ruiter";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:mill;               :source_column "beziensw_thema_rubriek_ID114_molen";         :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:outdoor;               :source_column "beziensw_thema_rubriek_ID115_outdoor";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:beachbar;               :source_column "beziensw_thema_rubriek_ID116_strandclub";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:wellness;               :source_column "beziensw_thema_rubriek_ID117_wellness";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:amusement_park;       :source_column "beziensw_thema_rubriek_ID119_attractie_pretpark_speeltuin";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:begijnhof;            :source_column "beziensw_thema_rubriek_ID121_begijnhof";               :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:belfry;               :source_column "beziensw_thema_rubriek_ID122_belfort";                 :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:castle;               :source_column "beziensw_thema_rubriek_ID124_kasteel";                :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:church_cathedral;     :source_column "beziensw_thema_rubriek_ID125_kerk_kathedraal";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:petting;              :source_column "beziensw_thema_rubriek_ID126_kinderboerderij";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:museum;               :source_column "beziensw_thema_rubriek_ID127_museum";              :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:parc_forest_garden_naturpreserve;    :source_column "beziensw_thema_rubriek_ID128_park_bos_tuin_natuurdomein";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:sport_academy;        :source_column "beziensw_thema_rubriek_ID129_sportaccomodatie_in_out"; :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:swimming_area;         :source_column "beziensw_thema_rubriek_ID130_zwemgelegenheid";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:audio_guide;           :source_column "beziensw_thema_rubriek_ID131_audiogids";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:drinking_occassion;     :source_column "beziensw_thema_rubriek_ID132_drinkgelegenheid";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:educational_programs;   :source_column "beziensw_thema_rubriek_ID133_educatieve_programmas";   :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:individual_tours;     :source_column "beziensw_thema_rubriek_ID134_individuele_rondleidingen"; :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:group_tours;          :source_column "beziensw_thema_rubriek_ID135_groepsrondleidingen";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:child_friendly;       :source_column "beziensw_thema_rubriek_ID136_kindvriendelijk";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:parking;              :source_column "beziensw_thema_rubriek_ID137_parking";               :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:resto_cafetaria;      :source_column "beziensw_thema_rubriek_ID138_resto_cafetaria";           :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop;           :source_column "beziensw_thema_rubriek_ID139_shop_winkel";                 :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:disabled_accessible;   :source_column "beziensw_thema_rubriek_ID140_toegankelijke_mindervaliden";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:cloakroom;             :source_column "beziensw_thema_rubriek_ID141_vestiaire";             :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:jouth_12_16;          :source_column "beziensw_thema_rubriek_ID153_jongeren_12_16";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:do_not_publish;       :source_column "beziensw_thema_rubriek_ID155__mag_niet_gepubliceerd_worden";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:visitor_centre;       :source_column "beziensw_thema_rubriek_ID160_bezoekerscentrum";            :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:battlefield_tours;    :source_column "beziensw_thema_rubriek_ID161_battlefield_tours";           :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:monument;             :source_column "beziensw_thema_rubriek_ID162_monument";                :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:landscape_warsite;     :source_column "beziensw_thema_rubriek_ID163_landschappelijke_oorlogssite";   :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:cemetary;               :source_column "beziensw_thema_rubriek_ID164_begraafplaats";             :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:to_be_published;        :source_column "beziensw_thema_rubriek_ID165_moet_op_woi_site_gepubliceerd_worden";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:qualification_mob_apps; :source_column "beziensw_thema_rubriek_ID166_kwalificatie_mob_apps";         :datatype xsd:integer ],
+    [ :property wt:beachclub;               :source_column "beziensw_thema_rubriek_ID167_beachclub";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:shop;               :source_column "beziensw_thema_rubriek_ID168_shop";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_clothing;      :source_column "beziensw_thema_rubriek_ID168_shop_kleding";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_shoes;         :source_column "beziensw_thema_rubriek_ID168_shop_schoenen";     :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_toys;          :source_column "beziensw_thema_rubriek_ID168_shop_speelgoed";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_nutrition;     :source_column "beziensw_thema_rubriek_ID168_shop_voeding";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_beauty;          :source_column "beziensw_thema_rubriek_ID168_shop_schoonheid"; :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_electronics;   :source_column "beziensw_thema_rubriek_ID168_shop_elektro";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_jewelery;      :source_column "beziensw_thema_rubriek_ID168_shop_juwelen";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_interior;      :source_column "beziensw_thema_rubriek_ID168_shop_interieur";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_leather;       :source_column "beziensw_thema_rubriek_ID168_lederwaren";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_flower;        :source_column "beziensw_thema_rubriek_ID168_shop_bloemen";      :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_photographer;  :source_column "beziensw_thema_rubriek_ID168_shop_fotograaf";    :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_other;          :source_column "beziensw_thema_rubriek_ID168_shop_overige";     :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_female;         :source_column "beziensw_thema_rubriek_ID168_shop_dames";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_male;           :source_column "beziensw_thema_rubriek_ID168_shop_heren";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_children;      :source_column "beziensw_thema_rubriek_ID168_shop_kinderen";     :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:shop_everyone;      :source_column "beziensw_thema_rubriek_ID168_iedereen";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+
+    [ :property wt:restaurant;         :source_column "beziensw_thema_rubriek_ID169_restaurant";        :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:brasserie;          :source_column "beziensw_thema_rubriek_ID169_brasserie";         :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:cafe;               :source_column "beziensw_thema_rubriek_ID169_cafe";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:michelin;           :source_column "beziensw_thema_rubriek_ID169_michelin";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:gaultmillau;        :source_column "beziensw_thema_rubriek_ID169_gaultmillau";       :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:gourmand;           :source_column "beziensw_thema_rubriek_ID169_gourmand";          :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:bicycle_friendly;   :source_column "beziensw_thema_rubriek_ID169_fietsvriendelijk";  :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:group;              :source_column "beziensw_thema_rubriek_ID169_groepen";           :lookup <#boolean_lookup>; :datatype xsd:boolean ],
+    [ :property wt:max_pers;   :source_column "beziensw_thema_rubriek_ID169_max_pers";              :lookup <#boolean_lookup>; :datatype xsd:boolean ]
+.
+
+
+<#Event_Address> a :Resource
+; :type schema:PostalAddress
+; :identity [
+    :source_columns ( "beziensw_x_coord" "beziensw_y_coord") ;
+    :source_column_glue "," ;
+    :base_uri "tdt:package:resource/location/"
+    ]
+
+; :attribute
+    [ :property schema:streetAddress; :source_columns ( "beziensw_ID13_straat" "beziensw_ID14_nummer" ) ; :source_column_glue " " ],
+    [ :property schema:postOfficeBoxNumber; :source_column "beziensw_ID15_busnr" ],
+    [ :property schema:postalCode; :source_column "beziensw_ID16_postcode" ],
+    [ :property schema:addressLocality;
+    :source_columns ( "beziensw_ID17_gemeente" "beziensw_ID18_deelgemeente" ) ;
+    :source_column_glue " - "
+    ],
+    [ :property wgs84_pos:lat; :source_column "beziensw_x_coord"; :datatype xsd:float ],
+    [ :property wgs84_pos:lon; :source_column "beziensw_y_coord"; :datatype xsd:float ]
+.
+
+<#Organization> a :Resource
+; :type schema:Organization
+; :identity [
+    :source_column "beziensw_id" ;
+    :base_uri "tdt:package/Organization/"
+    ]
+
+; :attribute
+    [ :property schema:name; :source_column "beziensw_ID12_naam" ],
+    [ :property schema:email; :source_column "beziensw_ID22_email" ],
+    [ :property schema:url; :identity [
+    :source_column "beziensw_ID25_website" ;
+    :process ( :regex );
+    :regex_match "^(www.)";
+    :regex_output "http://${1}";
+    :base_uri ""
+    ]
+    ],
+    [ :property schema:telephone; :source_column "beziensw_ID19_telefoon" ],
+    [ :property schema:telephone; :source_column "beziensw_ID21_gsm" ],
+    [ :property schema:faxNumber; :source_column "beziensw_ID20_fax" ]
+.
+
+<#boolean_lookup> a :Lookup;
+  :lookup_entry [
+    :lookup_key "True";
+    :lookup_value "true"
+  ] ;
+  :lookup_entry [
+    :lookup_key "False";
+    :lookup_value "false"
+  ] .
+
+ <#Image_hi_res> a :Resource
+; :type schema:ImageObject
+; :type wt:HighResolutionImage
+; :identity [
+    :source_column "beziensw_ID3a_productbeeld_hi_res";
+    :process ( :regex );
+    :regex_match "^(www.)";
+    :regex_output "http://${1}";
+    :base_uri ""
+    ]
+.
+
+<#Image_b> a :Resource
+; :type schema:ImageObject
+; :identity [
+    :source_column "beziensw_ID3b_productbeeld" ;
+    :process ( :regex  );
+    :regex_match "^(www.)";
+    :regex_output "http://${1}";
+    :base_uri ""
+    ]
+.
+
+<#Image_c> a :Resource
+; :type schema:ImageObject
+; :identity [
+    :source_column "beziensw_ID3c_productbeeld" ;
+    :process ( :regex  );
+    :regex_match "^(www.)";
+    :regex_output "http://${1}";
+    :base_uri ""
+    ]
+.
+
+<#Image_d> a :Resource
+; :type schema:ImageObject
+; :identity [
+    :source_column "beziensw_ID3d_productbeeld" ;
+    :process ( :regex  );
+    :regex_match "^(www.)";
+    :regex_output "http://${1}";
+    :base_uri ""
+    ]
+.
+
+<#region_lookup> a :Lookup;
+  :lookup_entry [
+    :lookup_key "6";
+    :lookup_value "brugge"
+  ] ;
+  :lookup_entry [
+    :lookup_key "19";
+    :lookup_value "kust"
+  ] ;
+  :lookup_entry [
+    :lookup_key "11";
+    :lookup_value "bol"
+  ] ;
+  :lookup_entry [
+    :lookup_key "8";
+    :lookup_value "leiestreek"
+  ] ;
+  :lookup_entry [
+    :lookup_key "2";
+    :lookup_value "westhoek"
+  ] .

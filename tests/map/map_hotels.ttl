@@ -1,0 +1,86 @@
+@prefix : <http://vocab.mmlab.be/vertere/terms#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix transit: <http://vocab.org/transit/terms/> .
+@prefix wt: <http://westtoer.be/voc/> .
+@prefix virtrdf: <http://www.openlinksw.com/schemas/virtrdf#> .
+@prefix acco: <http://purl.org/acco/ns#> .
+<#> a :Spec
+; :base_uri "tdt:package:resource/"
+; :resource <#Lodge>, <#Lodge_Address>, <#Vacation_Residence>, <#boolean_lookup>.
+<#Lodge> a :Resource
+; :type acco:Accommodation
+; :identity [
+    :source_column "id"
+  ]
+  ; :relationship
+  [ :property schema:location; :object_from <#Lodge_Address> ],
+  [ :property acco:feature; :object_from <#Vacation_Residence> ]
+  ; :attribute
+  [ :property dc:identifier;       :source_column "id" ],
+  [ :property wt:type;             :value "hotel" ],
+  [ :property schema:name;  :source_column "names_nl" ; :language "nl"],
+  [ :property schema:name;  :source_column "names_fr" ; :language "fr"],
+  [ :property schema:name;  :source_column "names_en" ; :language "en"],
+  [ :property wt:npdc_publishable; :source_column "publishable"; :lookup <#boolean_lookup>; :datatype xsd:boolean  ],
+  [ :property schema:url;
+      :source_column "site";
+      :process ( :regex );
+      :regex_match "^\s*(www.*)";
+      :regex_output "http://${1}";
+      :base_uri ""
+  ],
+  [ :property schema:email;   :source_column "mailAddresses_1" ],
+  [ :property schema:email;   :source_column "mailAddresses_2" ],
+  [ :property schema:email;   :source_column "mailAddresses_3" ],
+  [ :property schema:telephone; :source_column "phoneNumbers_1" ],
+  [ :property schema:telephone; :source_column "phoneNumbers_2" ],
+  [ :property schema:telephone; :source_column "phoneNumners_3" ]
+  .
+<#Lodge_Address> a :Resource
+; :type schema:PostalAddress
+; :identity [
+    :source_columns ( "latitude" "longitude") ;
+    :source_column_glue "," ;
+    :base_uri "tdt:package:resource/location/"
+    ]
+    ; :attribute
+    [ :property schema:streetAddress;     :source_columns ( "address1" "address2" "address3" ) ; :source_column_glue " " ],
+    [ :property schema:postalCode;    :source_column "postalCode" ],
+    [ :property schema:addressLocality;   :source_column "city" ],
+    [ :property wgs84_pos:lat;      :source_column "latitude";  :datatype xsd:float ],
+    [ :property wgs84_pos:lon;      :source_column "longitude";   :datatype xsd:float ]
+    .
+<#Vacation_Residence> a :Resource
+; :type acco:AccommodationFeature
+; :identity [
+    :source_column "id";
+    :base_uri "tdt:package:resource/VacationResidence/"
+  ]
+  ;  :attribute
+  [ :property schema:image;     :source_column "pictures_1_url" ],
+  [ :property schema:image;     :source_column "pictures_2_url" ],
+  [ :property schema:image;     :source_column "pictures_3_url" ],
+  [ :property schema:image;     :source_column "pictures_4_url" ],
+  [ :property schema:image;     :source_column "pictures_3_url" ],
+  [ :property schema:image;     :source_column "pictures_4_url" ],
+  [ :property schema:image;     :source_column "pictures_5_url" ],
+  [ :property wt:description;   :source_column "descriptions_nl"; :language "nl"  ],
+  [ :property wt:description;   :source_column "descriptions_fr"; :language "fr"  ],
+  [ :property wt:description;   :source_column "descriptions_en"; :language "en"  ]
+  .
+<#boolean_lookup> a :Lookup;
+  :lookup_entry [
+    :lookup_key "True", "1";
+    :lookup_value "true"
+  ] ;
+  :lookup_entry [
+    :lookup_key "False", "0";
+    :lookup_value "false"
+  ] .

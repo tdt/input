@@ -7,25 +7,38 @@ class JsonProcessor implements \tdt\json\JSONChunkProcessor{
     private $obj;
     private $new = false;
 
-    public function process($chunk){
+    public function process($chunk)
+    {
 
         //set the flag: a new object is loaded
         $this->new = true;
-        $chunk = json_decode($chunk, true);
-        $this->obj = $this->flatten($chunk);
+        $this->obj = $this->flatten(json_decode($chunk, true));
     }
 
-    private function flatten($ar){
+    private function flatten($ar)
+    {
         $new = array();
-        if(!empty($ar)){
-            foreach($ar as $k => $v) {
-                if(is_array($v)){
+
+        if (!empty($ar)) {
+            foreach ($ar as $k => $v) {
+                if (is_array($v)) {
+
+                    if (is_int($k)) {
+                        $k++;
+                    }
+
                     $prefix = $k;
                     $flat = $this->flatten($v);
-                    foreach($flat as $fkey => $fval){
+
+                    foreach ($flat as $fkey => $fval) {
                         $new[$prefix . "_" . $fkey] = $fval;
                     }
-                }else{
+                } else {
+
+                    if (is_int($k)) {
+                        $k++;
+                    }
+
                     $new[$k] = $v;
                 }
             }
@@ -34,11 +47,13 @@ class JsonProcessor implements \tdt\json\JSONChunkProcessor{
         return $ar;
     }
 
-    public function hasNew(){
+    public function hasNew()
+    {
         return $this->new;
     }
 
-    public function pop(){
+    public function pop()
+    {
         if($this->new){
             $this->new = false;
             return $this->obj;

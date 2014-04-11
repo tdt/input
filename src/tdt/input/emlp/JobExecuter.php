@@ -6,7 +6,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 /**
- * The job class can kickstart the emlp sequence assembled by
+ * The jobexecuter class kickstarts the emlp sequence assembled by
  *      * the extractor
  *      * the mapper (can be null)
  *      * the loader

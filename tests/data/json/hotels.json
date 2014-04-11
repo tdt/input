@@ -1,0 +1,51 @@
+[
+  {
+    "address1" : null,
+    "address2" : " 37 rue Poincaré",
+    "address3" : null,
+    "city" : " DUNKERQUE",
+    "createDate" : "2006-01-24 23:00:00",
+    "descriptions" : {
+      "en" : " Comfortable hotel right in the centre of Dunkirk",
+      "fr" : " Accueil 7j/7j et 24h/24h -   L'hôtel dispose d'une suite et de 40 chambres avec salles de bain privative (baignoire et douche). Les petits déjeuners sont servis sous forme de buffet continental.  Accès WIFI gratuit",
+      "nl" : " Motel 25 ligt op een steenworp afstand van de omwalling van Bergues en heeft 41 moderne kamers. "
+    },
+    "id" : "HOTNPDC0001000A6",
+    "latitude" : 51.0352814,
+    "longitude" : 2.3800527,
+    "mailAddresses" : [ "contact@hotel-welcome.fr" ],
+    "majorDate" : "2013-09-22 22:00:00",
+    "phoneNumbers" : [ "03 28 59 20 70" ],
+    "postalCode" : " 59140",
+    "site" : " www.hotel-welcome.fr",
+    "pictures" : [ {
+      "url" : "http://birp.tourinsoft.com/upload/MEDIA_3bd8267c-39a8-4cd1-8ed1-c67cddbf4cae.jpg",
+      "label" : "Welcome 01",
+      "copyright" : "© DFCO",
+      "objectId" : "HOTNPDC0001000A6"
+    } ],
+    "names" : {
+      "en" : " WELCOME HÔTEL ",
+      "fr" : " WELCOME HÔTEL ",
+      "nl" : " WELCOME HÔTEL "
+    },
+    "locationTypes" : {
+      "en" : [ " In the town centre", " Close to a motorway", " In town" ],
+      "fr" : [ " En centre ville", " A proximité d'une autoroute", " En ville" ],
+      "nl" : [ " In het stadscentrum", " In de nabijheid van een autosnelweg", " In de stad" ]
+    },
+    "inseeCode" : null,
+    "publishable" : true,
+    "facilities" : {
+      "en" : [ "Internet access", "Television", "Private garaging", "Lift", "Bar" ],
+      "fr" : [ "Accès Internet", "Télévision", "Garage privé", "Ascenseur", "Bar" ],
+      "nl" : [ "Internettoegang", "Televisie", "Privégarage", "Lift", "Bar" ]
+    },
+    "categories" : {
+      "fr" : " 3 étoiles"
+    },
+    "maxPrices" : [ "80,00" ],
+    "minPrices" : [ ],
+    "rooms" : 41
+  }
+]
