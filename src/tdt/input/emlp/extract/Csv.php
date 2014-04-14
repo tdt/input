@@ -1,14 +1,16 @@
 <?php
 
-namespace tdt\input\emlp\extract;
+namespace Tdt\Input\EMLP\Extract;
 
-class Csv extends AExtractor{
+class Csv extends AExtractor
+{
 
     private $handle;
     private $row_index;
     private $header;
 
-    protected function open(){
+    protected function open()
+    {
 
         $uri = $this->extractor->uri;
 
@@ -18,17 +20,18 @@ class Csv extends AExtractor{
         // Open a filehandle for the uri
         $this->handle = fopen($uri, 'r');
 
-        if(!$this->handle){
+        if (!$this->handle) {
             $this->log("Could not open the file with location $uri.");
             die();
         }
 
         $this->log("Opened the CSV file located at $uri");
 
-        if($this->extractor->has_header_row && ($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== FALSE){
+        if ($this->extractor->has_header_row && ($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
 
             $i=0;
-            foreach($data as &$el){
+
+            foreach ($data as &$el) {
                 $this->header[$i] = $el;
                 $i++;
             }
@@ -40,7 +43,8 @@ class Csv extends AExtractor{
      * Tells us if there are more chunks to retrieve
      * @return a boolean whether the end of the file has been reached or not
      */
-    public function hasNext(){
+    public function hasNext()
+    {
         return !feof($this->handle);
     }
 
@@ -48,17 +52,18 @@ class Csv extends AExtractor{
      * Gives us the next chunk to process through our emlp
      * @return a chunk in a php array
      */
-    public function pop(){
+    public function pop()
+    {
 
         $row = array();
 
-        if(($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== FALSE){
+        if (($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
 
             $i=0;
 
-            foreach($data as &$el){
+            foreach ($data as &$el) {
 
-                if($this->extractor->has_header_row){
+                if ($this->extractor->has_header_row) {
                     $row[$this->header[$i]] = $el;
                 }
 
@@ -75,7 +80,8 @@ class Csv extends AExtractor{
     /**
      * Finalization, closing a handle can be done here. This function is called from the destructor of this class
      */
-    protected function close(){
+    protected function close()
+    {
         fclose($this->handle);
     }
 }

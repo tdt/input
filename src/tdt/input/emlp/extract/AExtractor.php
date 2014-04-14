@@ -1,27 +1,31 @@
 <?php
 
-namespace tdt\input\emlp\extract;
+namespace Tdt\Input\EMLP\Extract;
 
-abstract class AExtractor{
+abstract class AExtractor
+{
 
     protected $extractor;
     protected $command;
 
-    public function __construct($extractor, $command){
+    public function __construct($extractor, $command)
+    {
 
         $this->extractor = $extractor;
         $this->command = $command;
         $this->open();
     }
 
-    public function __destruct(){
+    public function __destruct()
+    {
         $this->close();
     }
 
     /**
      * Initialize function provides room for custom pre-execution initialization.
      */
-    public function init(){
+    public function init()
+    {
 
     }
 
@@ -53,8 +57,8 @@ abstract class AExtractor{
     /**
      * Log something to the output
      */
-    protected function log($message, $type = 'info'){
-
+    protected function log($message, $type = 'info')
+    {
         $class = explode('\\', get_called_class());
         $class = end($class);
 

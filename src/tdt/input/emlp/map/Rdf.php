@@ -1,21 +1,24 @@
 <?php
 
-namespace tdt\input\emlp\map;
+namespace Tdt\Input\EMLP\Map;
 
 use tdt\streamingrdfmapper\vertere\Vertere;
 use tdt\streamingrdfmapper\StreamingRDFMapper;
 
-class Rdf extends AMapper {
+class Rdf extends AMapper
+{
 
     private $mapping_processor;
     private $map_count;
 
-    function __construct($model, $command){
+    public function __construct($model, $command)
+    {
 
         parent::__construct($model, $command);
     }
 
-    public function init(){
+    public function init()
+    {
 
         // Keep track of the number of chunks mapped
         $this->map_count = 1;
@@ -39,7 +42,7 @@ class Rdf extends AMapper {
         // TODO make the type a variable in the model
         $mapping_type = "Vertere";
 
-        if(!$mapping_file){
+        if (!$mapping_file) {
             $this->log("The mapping file could not be retrieved on location $this->mapper->mapfile.");
         }
 
@@ -50,7 +53,8 @@ class Rdf extends AMapper {
     /**
      * Execute the mapping of a chunk of data
      */
-    public function execute(&$chunk) {
+    public function execute(&$chunk)
+    {
 
         $this->log("Executing mapping rules for data chunk $this->map_count.");
 
@@ -59,9 +63,9 @@ class Rdf extends AMapper {
         $this->map_count++;
 
         // Log the state of the graph (it's amount of triples)
-        if($rdf_graph->isEmpty()){
+        if ($rdf_graph->isEmpty()) {
             $this->log("The graph created from mapping the data chunk was empty!");
-        }else{
+        } else {
             $count = $rdf_graph->countTriples();
             $this->log("The graph created from mapping the data chunk contains $count triples.");
         }

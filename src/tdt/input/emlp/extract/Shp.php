@@ -9,27 +9,23 @@
  * @license AGPLv3
  */
 
-namespace tdt\input\emlp\extract;
+namespace Tdt\Input\EMLP\Extract;
 
 include_once(__DIR__ . "/../../../../lib/ShapeFile.inc.php");
 include_once(__DIR__ . "/../../../../lib/proj4php/proj4php.php");
 
-
-/**
- *
- * CLASS STILL NEEDS TO BE REFACTORED, DO NOT ATTEMPT AT USING THIS CLASS TO EXTRACT SHAPE INFORMATOIN
- * IN A STREAMING WAY.
- */
-class SHP extends AExtractor{
+class SHP extends AExtractor
+{
 
     private $read_record; // the ShapeFile.inc has a function getNext() which basically is the combination of hasNext() and pop()
     // therefore we're going to wrap getNext() into hasNext() and set read_record, which we return in pop().
     private $shape_file_wrapper; // represents the library, containing the file handler and several help functions.
     private $EPSG = "";
 
-    protected function open($uri){
+    protected function open($uri)
+    {
         set_time_limit(1337); // reading records can take a long while, set the time limit to a high number.
-        if(isset($this->config["EPSG"])){
+        if (isset($this->config["EPSG"])) {
             $this->EPSG = $this->config["EPSG"];
         }
 
@@ -43,7 +39,7 @@ class SHP extends AExtractor{
 
         try {
             $options = array('noparts' => false);
-            $isUrl = (substr($uri , 0, 4) == "http");
+            $isUrl = (substr($uri, 0, 4) == "http");
             if ($isUrl) {
                 $tmpFile = uniqid();
                 file_put_contents("tmp/" . $tmpFile . ".shp", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".shp"));
@@ -54,23 +50,24 @@ class SHP extends AExtractor{
             } else {
                 $this->shape_file_wrapper = new \ShapeFile($uri, $options); // along this file the class will use file.shx and file.dbf
             }
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             throw new \Exception("Something went wrong during the configuration of the SHP Loader: $ex->getMessage()");
         }
     }
 
-    public function hasNext(){
+    public function hasNext()
+    {
         /**
          * We have to return our information in non-hierarchical manner!
-             * This brings some complications with handling shp files ofourcse
-             * This class will be used as a normal reader would be used namely
-             * while(hasNext()){ $data = pop()}
-             *
-             * Since our records are hierarchical we will deliver a flattened object of the record since the ETML expects this
-             *
-             */
+         * This brings some complications with handling shp files ofourcse
+         * This class will be used as a normal reader would be used namely
+         * while(hasNext()){ $data = pop()}
+         *
+         * Since our records are hierarchical we will deliver a flattened object of the record since the ETML expects this
+         *
+         */
 
-            if(($record = $this->shape_file_wrapper->getNext()) != false) {
+        if (($record = $this->shape_file_wrapper->getNext()) != false) {
             // read meta data
 
             $rowobject =array();
@@ -83,16 +80,16 @@ class SHP extends AExtractor{
             }
 
             $shp_data = $record->getShpData();
-            if(isset($shp_data['parts']) || $shp_data['x']) {
+            if (isset($shp_data['parts']) || $shp_data['x']) {
                 // read shape data
 
                 if ($this->EPSG != "") {
                     $proj4 = new \Proj4php();
-                    $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG,$proj4);
-                    $projDest = new \Proj4phpProj('EPSG:4326',$proj4);
+                    $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $proj4);
+                    $projDest = new \Proj4phpProj('EPSG:4326', $proj4);
                 }
 
-                if(isset($shp_data['parts'])) {
+                if (isset($shp_data['parts'])) {
 
                     $parts = array();
                     foreach ($shp_data['parts'] as $part) {
@@ -101,28 +98,28 @@ class SHP extends AExtractor{
                             $x = $point['x'];
                             $y = $point['y'];
                             if ($this->EPSG != "" || true) {
-                                $pointSrc = new \proj4phpPoint($x,$y);
+                                $pointSrc = new \proj4phpPoint($x, $y);
 
-                                $pointDest = $proj4->transform($projSrc,$projDest,$pointSrc);
+                                $pointDest = $proj4->transform($projSrc, $projDest, $pointSrc);
                                 $x = $pointDest->x;
                                 $y = $pointDest->y;
                             }
 
                             $points[] = $x.','.$y;
                         }
-                        array_push($parts,implode(" ",$points));
+                        array_push($parts, implode(" ", $points));
                     }
 
                     $rowobject["coords"] = implode(';', $parts);
                 }
 
-                if(isset($shp_data['x'])) {
+                if (isset($shp_data['x'])) {
                     $x = $shp_data['x'];
                     $y = $shp_data['y'];
 
                     if ($EPSG != "") {
-                        $pointSrc = new \proj4phpPoint($x,$y);
-                        $pointDest = $proj4->transform($projSrc,$projDest,$pointSrc);
+                        $pointSrc = new \proj4phpPoint($x, $y);
+                        $pointDest = $proj4->transform($projSrc, $projDest, $pointSrc);
                         $x = $pointDest->x;
                         $y = $pointDest->y;
                     }
@@ -133,17 +130,18 @@ class SHP extends AExtractor{
             }
             $this->read_record = $rowobject;
             return true;
-            }else{
+        } else {
             return false;
-            }
+        }
     }
 
-    public function pop(){
+    public function pop()
+    {
             return $this->read_record;
     }
 
-    protected function close(){
+    protected function close()
+    {
             // filehandlers are handled and properly closed in the shp library.
     }
-
 }

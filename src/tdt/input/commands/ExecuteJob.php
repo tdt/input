@@ -1,12 +1,12 @@
 <?php
 
-namespace tdt\input\commands;
+namespace Tdt\Input\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use tdt\input\controllers\InputController;
-use tdt\input\emlp\JobExecuter;
+use Tdt\Input\Controllers\InputController;
+use Tdt\Input\EMLP\JobExecuter;
 
 /**
  * The ExecuteJobCommand class holds the functionality to execute a job
@@ -15,7 +15,8 @@ use tdt\input\emlp\JobExecuter;
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class ExecuteJob extends Command {
+class ExecuteJob extends Command
+{
 
     /**
      * The console command name
@@ -36,7 +37,8 @@ class ExecuteJob extends Command {
      *
      * @return void
      */
-    public function fire(){
+    public function fire()
+    {
 
         $job_name = $this->argument('jobname');
 
@@ -47,7 +49,7 @@ class ExecuteJob extends Command {
                    ->where('collection_uri', '=', $collection_uri)
                    ->first();
 
-        if(empty($job)){
+        if (empty($job)) {
             $this->error("The job with identified by: $job_name could not be found.\n");
             exit();
         }
@@ -63,7 +65,8 @@ class ExecuteJob extends Command {
      *
      * @return array
      */
-    protected function getArguments(){
+    protected function getArguments()
+    {
         return array(
             array('jobname', InputArgument::REQUIRED, 'Full name of the job that needs to be executed. (the uri that was given to PUT the meta-data for this job).'),
         );
@@ -74,7 +77,8 @@ class ExecuteJob extends Command {
      *
      * @return array
      */
-    protected function getOptions(){
+    protected function getOptions()
+    {
         return array(
 
         );

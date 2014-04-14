@@ -1,6 +1,6 @@
 <?php
 
-namespace tdt\input\emlp;
+namespace Tdt\Input\EMLP;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -15,7 +15,8 @@ use Monolog\Logger;
  * @author Jan Vansteenlandt <jan@okfn.be>
  * @author Pieter Colpaert <pieter@okfn.be>
  */
-class JobExecuter{
+class JobExecuter
+{
 
     private $job;
     private $command;
@@ -23,7 +24,8 @@ class JobExecuter{
     /**
      * Create a new job with emlp relations
      */
-    public function __construct($job, $command){
+    public function __construct($job, $command)
+    {
 
         $this->job = $job;
         $this->command = $command;
@@ -32,7 +34,8 @@ class JobExecuter{
     /**
      * Execute the job
      */
-    public function execute(){
+    public function execute()
+    {
 
         // Fetch the extractor, mapper (optional), loader and publisher (optional)
         // and use as constructor variables for the empl wrappers
@@ -40,7 +43,7 @@ class JobExecuter{
         $extractor = $this->getExecuter($extractor_model);
 
         $mapper_model = null;
-        if(!empty($this->job->mapper_type)){
+        if (!empty($this->job->mapper_type)) {
 
             $mapper_model = $this->job->mapper()->first();
             $mapper = $this->getExecuter($mapper_model);
@@ -50,7 +53,7 @@ class JobExecuter{
         $loader = $this->getExecuter($loader_model);
 
         $publisher_model = null;
-        if(!empty($this->job->publisher_type)){
+        if (!empty($this->job->publisher_type)) {
 
             $publisher_model = $this->job->publisher()->first();
             $publisher = $this->getExecuter($publisher_model);
@@ -78,12 +81,12 @@ class JobExecuter{
             $chunk = $extractor->pop();
 
 
-            if(!empty($chunk)){
+            if (!empty($chunk)) {
 
                 $count_chunks++;
 
                 // Perform the mapping if present
-                if(!empty($mapper)) {
+                if (!empty($mapper)) {
 
                     $chunk = $mapper->execute($chunk);
                 }
@@ -92,10 +95,10 @@ class JobExecuter{
                 $loader->execute($chunk);
 
                 // Cumulate the amount of triples
-                if(!empty($chunk)){
+                if (!empty($chunk)) {
                     $count_triples += $chunk->countTriples();
                 }
-            }else{
+            } else {
                 $this->log("Empty chunk retrieved from the extractor, previous chunk count was $count_chunks.");
 
             }
@@ -109,7 +112,7 @@ class JobExecuter{
         $this->log("Extracted a total of $count_chunks chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
-        if(!empty($publisher)){
+        if (!empty($publisher)) {
             $publisher->execute();
         }
 
@@ -124,15 +127,16 @@ class JobExecuter{
      * example $model -> class is extract\Csv
      * @return new emlp\extract\Csv($model)
      */
-    private function getExecuter($model){
+    private function getExecuter($model)
+    {
 
-        if(empty($model)){
+        if (empty($model)) {
             return $model;
         }
 
         $executer = 'tdt\\input\\emlp\\' . get_class($model);
 
-        if(!class_exists($executer)){
+        if (!class_exists($executer)) {
 
             $model_class = get_class($model);
 
@@ -150,7 +154,8 @@ class JobExecuter{
     /**
      * Log something to the output
      */
-    protected function log($message){
+    protected function log($message)
+    {
 
         $class = explode('\\', get_called_class());
         $class = end($class);

@@ -1,17 +1,20 @@
 <?php
 
-namespace tdt\input\emlp\extract;
+namespace Tdt\Input\EMLP\Extract;
 
-use tdt\input\emlp\helper\json\JsonProcessor;
-use tdt\input\emlp\helper\json\Parser;
+use Tdt\Input\EMLP\Helper\Json\JsonProcessor;
+use Tdt\Input\EMLP\Helper\Json\Parser;
 
-class Json extends AExtractor{
+class Json extends AExtractor
+{
 
     private $handle;
 
-    private $parser, $listener;
+    private $parser;
+    private $listener;
 
-    protected function open(){
+    protected function open()
+    {
 
         $uri = $this->extractor->uri;
         $this->listener = new JsonProcessor();
@@ -25,7 +28,8 @@ class Json extends AExtractor{
      * Tells us if there are more chunks to retrieve
      * @return a boolean whether the end of the file has been reached or not
      */
-    public function hasNext(){
+    public function hasNext()
+    {
         return !feof($this->handle);
     }
 
@@ -33,15 +37,19 @@ class Json extends AExtractor{
      * Gives us the next chunk to process through our ETML
      * @return a chunk from the json document or NULL
      */
-    public function pop(){
+    public function pop()
+    {
 
-         while(!$this->listener->hasNew() && !feof($this->handle)){
+        while (!$this->listener->hasNew() && !feof($this->handle)) {
+
             $char = fread($this->handle, 1);
-            if($char !== "" && $char != "\n"){
+
+            if ($char !== "" && $char != "\n") {
                 $this->parser->readChar($char);
             }
         }
-        if($this->listener->hasNew()){
+
+        if ($this->listener->hasNew()) {
             return $this->listener->pop();
         }
     }
@@ -49,7 +57,8 @@ class Json extends AExtractor{
     /**
      * Finalization, closing a handle can be done here. This function is called from the destructor of this class
      */
-    protected function close(){
+    protected function close()
+    {
         fclose($this->handle);
     }
 }

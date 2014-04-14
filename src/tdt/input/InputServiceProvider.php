@@ -1,13 +1,14 @@
 <?php
 
-namespace tdt\input;
+namespace Tdt\Input;
 
 use Illuminate\Support\ServiceProvider;
-use tdt\input\commands\Import;
-use tdt\input\commands\Export;
-use tdt\input\commands\ExecuteJob;
+use Tdt\Input\Commands\Import;
+use Tdt\Input\Commands\Export;
+use Tdt\Input\Commands\ExecuteJob;
 
-class InputServiceProvider extends ServiceProvider {
+class InputServiceProvider extends ServiceProvider
+{
 
     /**
      * Indicates if loading of the provider is deferred.
@@ -25,15 +26,15 @@ class InputServiceProvider extends ServiceProvider {
     {
         $this->package('tdt/input');
 
-        $this->app['input.execute'] = $this->app->share(function($app){
+        $this->app['input.execute'] = $this->app->share(function ($app) {
             return new ExecuteJob();
         });
 
-        $this->app['input.export'] = $this->app->share(function($app){
+        $this->app['input.export'] = $this->app->share(function ($app) {
             return new Export();
         });
 
-        $this->app['input.import'] = $this->app->share(function($app){
+        $this->app['input.import'] = $this->app->share(function ($app) {
             return new Import();
         });
 
@@ -63,5 +64,4 @@ class InputServiceProvider extends ServiceProvider {
     {
         return array();
     }
-
 }

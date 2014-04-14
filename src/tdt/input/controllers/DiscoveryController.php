@@ -1,15 +1,15 @@
 <?php
 
-namespace tdt\input\controllers;
-
-use tdt\core\ContentNegotiator;
+namespace Tdt\Input\Controllers;
 
 /**
  * Controller that helps building the discovery document.
  */
-class DiscoveryController extends \Controller{
+class DiscoveryController extends \Controller
+{
 
-    public static function createDiscoveryDocument(){
+    public static function createDiscoveryDocument()
+    {
 
         // Create and return a document that holds a self-explanatory document
         // about how to interface with the datatank
@@ -34,7 +34,8 @@ class DiscoveryController extends \Controller{
     /**
      * Create the get discovery documentation.
      */
-    private static function createGetDocumentation(){
+    private static function createGetDocumentation()
+    {
 
         $get = new \stdClass();
 
@@ -48,7 +49,8 @@ class DiscoveryController extends \Controller{
     /**
      * Create the put discovery documentation.
      */
-    private static function createPutDocumentation(){
+    private static function createPutDocumentation()
+    {
 
         $put = new \stdClass();
 
@@ -80,7 +82,7 @@ class DiscoveryController extends \Controller{
                     $type = strtolower($matches[1]);
 
 
-                    if(method_exists($model, 'getCreateProperties')){
+                    if (method_exists($model, 'getCreateProperties')) {
 
                         $extract_types[$type] = new \stdClass();
                         $extract_types[$type]->parameters = $model::getCreateProperties();
@@ -111,7 +113,7 @@ class DiscoveryController extends \Controller{
                     $type = strtolower($matches[1]);
 
 
-                    if(method_exists($model, 'getCreateProperties')){
+                    if (method_exists($model, 'getCreateProperties')) {
 
                         $map_types[$type] = new \stdClass();
                         $map_types[$type]->parameters = $model::getCreateProperties();
@@ -142,7 +144,7 @@ class DiscoveryController extends \Controller{
                     $type = strtolower($matches[1]);
 
 
-                    if(method_exists($model, 'getCreateProperties')){
+                    if (method_exists($model, 'getCreateProperties')) {
 
                         $load_types[$type] = new \stdClass();
                         $load_types[$type]->parameters = $model::getCreateProperties();
@@ -166,7 +168,8 @@ class DiscoveryController extends \Controller{
     /**
      * Create the delete discovery documentation.
      */
-    private static function createDeleteDocumentation(){
+    private static function createDeleteDocumentation()
+    {
 
         $delete = new \stdClass();
 

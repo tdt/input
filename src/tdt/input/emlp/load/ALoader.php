@@ -1,13 +1,15 @@
 <?php
 
-namespace tdt\input\emlp\load;
+namespace Tdt\Input\EMLP\Load;
 
-abstract class ALoader{
+abstract class ALoader
+{
 
-	protected $loader;
+    protected $loader;
     protected $command;
 
-    public function __construct($loader, $command){
+    public function __construct($loader, $command)
+    {
 
         $this->loader = $loader;
         $this->command = $command;
@@ -16,7 +18,8 @@ abstract class ALoader{
     /**
      * Initialize function provides room for custom pre-execution initialization.
      */
-    public function init(){
+    public function init()
+    {
 
     }
 
@@ -25,14 +28,16 @@ abstract class ALoader{
     /**
      * Clean up is called after the execute() function is performed.
      */
-    public function cleanUp(){
+    public function cleanUp()
+    {
 
     }
 
     /**
      * Log something to the output
      */
-    protected function log($message, $type = 'info'){
+    protected function log($message, $type = 'info')
+    {
 
         $class = explode('\\', get_called_class());
         $class = end($class);

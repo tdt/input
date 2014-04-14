@@ -1,7 +1,8 @@
 <?php
 
-namespace tdt\input\emlp\helper\json;
+namespace Tdt\Input\EMLP\Helper\Json;
 
-class ParserinError extends Exception {
+class ParserinError extends Exception
+{
 
 }

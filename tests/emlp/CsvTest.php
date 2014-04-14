@@ -71,7 +71,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $extract_model->delimiter = $config['delimiter'];
             $extract_model->start_row = $config['start_row'];
 
-            $csv_extractor = new \tdt\input\emlp\extract\Csv($extract_model, $command);
+            $csv_extractor = new \Tdt\Input\EMLP\Extract\Csv($extract_model, $command);
 
             $obj_count = 0;
 
@@ -106,7 +106,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $extract_model->delimiter = $config['extract']['delimiter'];
             $extract_model->start_row = $config['extract']['start_row'];
 
-            $csv_extractor = new \tdt\input\emlp\extract\Csv($extract_model, $command);
+            $csv_extractor = new \Tdt\Input\EMLP\Extract\Csv($extract_model, $command);
 
             // We only extract one item, and check for conversion correctness
 
@@ -132,7 +132,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
                 $map_model->mapfile = __DIR__ . '/../map/' . $config['map']['file'];
                 $map_model->base_uri = $config['map']['base_uri'];
 
-                $mapper = new \tdt\input\emlp\map\Rdf($map_model, $command);
+                $mapper = new \Tdt\Input\EMLP\Map\Rdf($map_model, $command);
                 $mapper->init();
 
                 $graph = $mapper->execute($chunk);

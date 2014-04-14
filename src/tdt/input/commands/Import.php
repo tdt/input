@@ -1,15 +1,15 @@
 <?php
 
-namespace tdt\input\commands;
+namespace Tdt\Input\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Illuminate\Filesystem\Filesystem;
-use tdt\input\controllers\InputController;
+use Tdt\Input\Controllers\InputController;
 
-class Import extends Command {
-
+class Import extends Command
+{
     /**
      * The console command name.
      *
@@ -44,25 +44,25 @@ class Import extends Command {
         // Get the input file from the arguments, if none specified use the default file path from the export command
         $file = $this->argument('file');
 
-        if(empty($file)){
+        if (empty($file)) {
             $file = Export::getExportFile();
         }
 
         $safe = $this->option('safe');
 
         // Get the contents from the file if it exists
-        if(File::exists($file)){
+        if (File::exists($file)) {
 
             $content = json_decode(File::get($file), true);
 
             // If the content is legit, proceed to make the calls to the input endpoint
-            if($content){
+            if ($content) {
 
-                foreach($content as $identifier => $job_definition){
+                foreach ($content as $identifier => $job_definition) {
 
                     // If the safe option is passed, prompt the user with the identifier and body
-                    if($safe){
-                        if(!$this->confirm("A job with identifier $identifier is about to be added, are you sure about this? [y|n]")){
+                    if ($safe) {
+                        if (!$this->confirm("A job with identifier $identifier is about to be added, are you sure about this? [y|n]")) {
                             $this->info("The job with identifier $identifier was prevented of being added.");
                             break;
                         }
@@ -74,19 +74,19 @@ class Import extends Command {
 
                     $status_code = $response->getStatusCode();
 
-                    if($status_code == 200){
+                    if ($status_code == 200) {
                         $this->info("A new definition with identifier ($identifier) was succesfully added.");
-                    }else{
+                    } else {
                         $this->error("A status of $status_code was returned when adding $identifier, check the logs for indications of what may have gone wrong.");
                     }
                 }
 
-            }else{
+            } else {
                 $this->error("We failed to extract the input jobs from the json, make sure the JSON content is valid.");
                 die;
             }
 
-        }else{
+        } else {
             $this->error("We couldn't find the file ($file) containing the input jobs, make sure the path is reachable for the datatank.");
             die;
         }
@@ -119,7 +119,8 @@ class Import extends Command {
     /**
      * Custom API call function
      */
-    public function updateRequest($method, $headers = array(), $data = array()){
+    public function updateRequest($method, $headers = array(), $data = array())
+    {
 
         // Set the custom headers.
         \Request::getFacadeRoot()->headers->replace($headers);
@@ -128,9 +129,8 @@ class Import extends Command {
         \Request::setMethod($method);
 
         // Set the content body.
-        if(is_array($data)){
+        if (is_array($data)) {
             \Input::merge($data);
         }
     }
-
 }

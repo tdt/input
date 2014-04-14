@@ -1,6 +1,6 @@
 <?php
 
-namespace tdt\input\emlp\helper\json;
+namespace Tdt\Input\EMLP\Helper\Json;
 
 class Parser{
 

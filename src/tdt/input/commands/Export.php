@@ -1,13 +1,14 @@
 <?php
 
-namespace tdt\input\commands;
+namespace Tdt\Input\Commands;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use tdt\input\controllers\InputController;
+use Tdt\Input\Controllers\InputController;
 
-class Export extends Command {
+class Export extends Command
+{
 
     /**
      * The default file to write the export to.
@@ -21,7 +22,8 @@ class Export extends Command {
      *
      * @var string
      */
-    public static function getExportFile(){
+    public static function getExportFile()
+    {
         return app_path() . "/commands/" . self::$EXPORT_FILE;
     }
 
@@ -60,7 +62,7 @@ class Export extends Command {
         // Get the file option from the command line
         $filename = $this->option('file');
 
-        if(empty($file)){
+        if (empty($file)) {
             $file = self::getExportFile();
         }
 
@@ -68,23 +70,23 @@ class Export extends Command {
         $jobid = $this->argument('jobid');
         $content = null;
 
-        if(empty($jobid)){
+        if (empty($jobid)) {
 
             $jobs = \Job::all();
 
             $content = array();
 
-            foreach($jobs as $job){
+            foreach ($jobs as $job) {
                 $content[$job->collection_uri . '/' . $job->name] = $job->getAllProperties();
             }
 
             $content = json_encode($content);
 
-        }else{
+        } else {
 
             $job = InputController::get($jobid);
 
-            if(empty($job)){
+            if (empty($job)) {
                 $this->error("No input job has been found with the given identifer ($jobid).");
                 die;
             }
@@ -94,15 +96,16 @@ class Export extends Command {
         }
 
         // Output
-        if(empty($filename)){
+        if (empty($filename)) {
             // Print to console
             echo $content;
-        }else{
-            try{
+        } else {
+
+            try {
                 // Write to file
                 file_put_contents($filename, $content);
                 $this->info("The export has been written to the file '$filename'.");
-            }catch(Exception $e){
+            } catch (Exception $e) {
                 $this->error("The contents could not be written to the file '$filename'.");
                 die();
             }
@@ -132,5 +135,4 @@ class Export extends Command {
             array('file', 'f', InputOption::VALUE_OPTIONAL, 'The file to write the JSON export to.', null),
         );
     }
-
 }

@@ -1,13 +1,15 @@
 <?php
 
-namespace tdt\input\emlp\map;
+namespace Tdt\Input\EMLP\Map;
 
-abstract class AMapper{
+abstract class AMapper
+{
 
     protected $mapper;
     protected $command;
 
-    public function __construct($mapper, $command){
+    public function __construct($mapper, $command)
+    {
 
         $this->mapper = $mapper;
         $this->command = $command;
@@ -16,7 +18,8 @@ abstract class AMapper{
     /**
      * Initialize function provides room for custom pre-execution initialization.
      */
-    public function init(){
+    public function init()
+    {
 
     }
 
@@ -25,7 +28,8 @@ abstract class AMapper{
     /**
      * Log something to the output
      */
-    protected function log($message, $type = 'info'){
+    protected function log($message, $type = 'info')
+    {
 
         $class = explode('\\', get_called_class());
         $class = end($class);

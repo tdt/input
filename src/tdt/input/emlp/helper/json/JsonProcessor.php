@@ -1,8 +1,9 @@
 <?php
 
-namespace tdt\input\emlp\helper\json;
+namespace Tdt\Input\EMLP\Helper\Json;
 
-class JsonProcessor implements \tdt\json\JSONChunkProcessor{
+class JsonProcessor implements \tdt\json\JSONChunkProcessor
+{
 
     private $obj;
     private $new = false;
@@ -54,10 +55,10 @@ class JsonProcessor implements \tdt\json\JSONChunkProcessor{
 
     public function pop()
     {
-        if($this->new){
+        if ($this->new) {
             $this->new = false;
             return $this->obj;
-        }else{
+        } else {
             return null;
         }
     }
