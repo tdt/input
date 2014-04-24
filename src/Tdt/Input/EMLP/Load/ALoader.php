@@ -38,7 +38,6 @@ abstract class ALoader
      */
     protected function log($message, $type = 'info')
     {
-
         $class = explode('\\', get_called_class());
         $class = end($class);
 

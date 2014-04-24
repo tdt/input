@@ -7,7 +7,8 @@
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Graph extends Eloquent{
+class Graph extends Eloquent
+{
 
     protected $table = 'input_graph';
 

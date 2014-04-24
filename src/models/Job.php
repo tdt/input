@@ -6,7 +6,8 @@
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Job extends Eloquent{
+class Job extends Eloquent
+{
 
     protected $table = 'input_job';
 
@@ -16,35 +17,40 @@ class Job extends Eloquent{
     /**
      * Relationship with an extractor
      */
-    public function extractor(){
+    public function extractor()
+    {
         return $this->morphTo();
     }
 
     /**
      * Relationship with a mapper
      */
-    public function mapper(){
+    public function mapper()
+    {
         return $this->morphTo();
     }
 
     /**
      * Relationship with a loader
      */
-    public function loader(){
+    public function loader()
+    {
         return $this->morphTo();
     }
 
     /**
      * Relationship with a publisher
      */
-    public function publisher(){
+    public function publisher()
+    {
         return $this->morphTo();
     }
 
     /**
      * Return the properties ( = column fields ) for this model.
      */
-    public static function getCreateProperties(){
+    public static function getCreateProperties()
+    {
 
         return array(
 
@@ -55,7 +61,8 @@ class Job extends Eloquent{
      * Retrieve the set of validation rules for every create parameter.
      * If the parameters doesn't have any rules, it's not mentioned in the array.
      */
-    public static function getCreateValidators(){
+    public static function getCreateValidators()
+    {
         return array(
             'name' => 'unique:job|required',
         );
@@ -64,14 +71,15 @@ class Job extends Eloquent{
     /**
      * Return all properties from a definition, including the properties of his relational objects
      */
-    public function getAllProperties(){
+    public function getAllProperties()
+    {
 
         // Put all of the properties in an array
         $properties = array();
 
         // Get all of the properties of the job model
-        foreach(self::getCreateProperties() as $property => $info){
-            if(!empty($this->$property)){
+        foreach (self::getCreateProperties() as $property => $info) {
+            if (!empty($this->$property)) {
                 $properties[$property] = $this->$property;
             }
         }
@@ -80,19 +88,19 @@ class Job extends Eloquent{
         $relations = array('extract' => $this->extractor()->first());
 
         // Don't fetch null relationships
-        if(!empty($this->mapper_type)){
+        if (!empty($this->mapper_type)) {
             $relations['map'] = $this->mapper()->first();
         }
 
         $relations['load'] = $this->loader()->first();
 
         // Don't fetch null relationships
-        if(!empty($this->publisher_type)){
+        if (!empty($this->publisher_type)) {
             $relations['publish'] = $this->publisher()->first();
         }
 
         // Add all the properties that are mass assignable
-        foreach($relations as $key => $relation){
+        foreach ($relations as $key => $relation) {
 
             // Get the type out of the classname
             $class_names = explode('\\', get_class($relation));
@@ -100,7 +108,7 @@ class Job extends Eloquent{
 
             $type_properties = array('type' => $type);
 
-            foreach($relation->getFillable() as $prop_key){
+            foreach ($relation->getFillable() as $prop_key) {
                 $type_properties[$prop_key] = $relation->getAttributeValue($prop_key);
             }
 
@@ -114,25 +122,26 @@ class Job extends Eloquent{
     /**
      * Delete the related source type
      */
-    public function delete(){
+    public function delete()
+    {
 
         // Fill in the relationships in empl order
         $relations = array('extract' => $this->extractor()->first());
 
         // Don't fetch null relationships
-        if(!empty($this->mapper_id)){
+        if (!empty($this->mapper_id)) {
             $relations['mapper'] = $this->mapper()->first();
         }
 
         $relations['loader'] = $this->loader()->first();
 
         // Don't fetch null relationships
-        if(!empty($this->publisher_id)){
+        if (!empty($this->publisher_id)) {
             $relations['publisher'] = $this->publisher()->first();
         }
 
         // Delete the job's relationships
-        foreach($relations as $key => $relation){
+        foreach ($relations as $key => $relation) {
             $relation->delete();
         }
 

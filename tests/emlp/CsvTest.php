@@ -97,7 +97,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         foreach ($this->test_emlp_cases as $config) {
 
-            $extract_model = Mockery::mock('extract\Csv');
+            $extract_model = Mockery::mock('Extract\Csv');
 
             $command = $this->getMockedCommand();
 
@@ -127,7 +127,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
                 // Map the object from the json extraction and compare the amount of
                 // triples as a parameter of test
 
-                $map_model = Mockery::mock('map\Rdf');
+                $map_model = Mockery::mock('Map\Rdf');
 
                 $map_model->mapfile = __DIR__ . '/../map/' . $config['map']['file'];
                 $map_model->base_uri = $config['map']['base_uri'];

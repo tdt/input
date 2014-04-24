@@ -1,6 +1,6 @@
 <?php
 
-namespace extract;
+namespace Extract;
 
 use Eloquent;
 
@@ -10,7 +10,8 @@ use Eloquent;
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Json extends Eloquent{
+class Json extends Eloquent
+{
 
     protected $table = 'input_jsonextract';
 
@@ -19,14 +20,16 @@ class Json extends Eloquent{
     /**
      * Relationship with Job
      */
-    public function job(){
+    public function job()
+    {
         return $this->morphOne('Job', 'extractor');
     }
 
     /**
      * Validate the input for this model and related models.
      */
-    public static function validate($params){
+    public static function validate($params)
+    {
 
         $json_params = array_only($params, array_keys(self::getCreateProperties()));
         return parent::validate($json_params);
@@ -36,7 +39,8 @@ class Json extends Eloquent{
      * Retrieve the set of create parameters that make up a JSON definition.
      * Include the parameters that make up relationships with this model.
      */
-    public static function getAllProperties(){
+    public static function getAllProperties()
+    {
         return self::getCreateProperties();
     }
 
@@ -44,7 +48,8 @@ class Json extends Eloquent{
      * Retrieve the set of validation rules for every create parameter.
      * If the parameters doesn't have any rules, it's not mentioned in the array.
      */
-    public static function getCreateValidators(){
+    public static function getCreateValidators()
+    {
         return array(
             'uri' => 'file|required',
         );
@@ -53,7 +58,8 @@ class Json extends Eloquent{
     /**
      * Return the properties ( = column fields ) for this model.
      */
-    public static function getCreateProperties(){
+    public static function getCreateProperties()
+    {
         return array(
                 'uri' => array(
                     'required' => true,
