@@ -67,17 +67,20 @@ class Tdt extends Eloquent
                 'uri' => array(
                     'required' => true,
                     'description' => 'The datatank uri to which the data will be published, consists of the datatank root uri, collection and resource name. (e.g. http://foo/definitions/trees/tree_resource)',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'URI',
                 ),
                 'user' => array(
                     'required' => false,
                     'description' => 'The datatank user that has permission to add a datatank definition.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'User',
                 ),
                 'password' => array(
                     'required' => false,
                     'description' => 'The datatank password of the user that has permission to add a datatank definition.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'Password',
                 ),
         );
     }

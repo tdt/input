@@ -64,7 +64,8 @@ class Json extends Eloquent
                 'uri' => array(
                     'required' => true,
                     'description' => 'The location of the JSON file, either a URL or a local file location.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'URI',
                 ),
         );
     }

@@ -70,28 +70,33 @@ class Sparql extends Eloquent
                 'user' => array(
                     'required' => true,
                     'description' => 'The username of the sparql endpoint.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'User',
                 ),
                 'endpoint' => array(
                     'required' => true,
                     'description' => 'The endpoint that defines the sparql endpoint.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'Endpoint',
                 ),
                 'password' => array(
                     'required' => true,
                     'description' => 'The password of the sparql endpoint, that provides together with the username credentials that have write permissions to the sparql endpoint.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'Password',
                 ),
                 'buffer_size' => array(
                     'required' => false,
                     'description' => 'The buffer size declares how many triples per insert query will be put.',
                     'default_value' => 4,
-                    'type' => 'integer'
+                    'type' => 'integer',
+                    'name' => 'Buffer size',
                 ),
                 'graph_name' => array(
                     'required' => true,
                     'description' => 'The graph name that will serve as a basis to create the graph name to which triples will be inserted.',
-                    'type' => 'string'
+                    'type' => 'string',
+                    'name' => 'Graph name',
                 ),
         );
     }
