@@ -51,9 +51,9 @@ class Import extends Command
         $safe = $this->option('safe');
 
         // Get the contents from the file if it exists
-        if (File::exists($file)) {
+        if (\File::exists($file)) {
 
-            $content = json_decode(File::get($file), true);
+            $content = json_decode(\File::get($file), true);
 
             // If the content is legit, proceed to make the calls to the input endpoint
             if ($content) {
