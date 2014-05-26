@@ -64,11 +64,13 @@ class Shp extends Eloquent
                 'uri' => array(
                     'required' => true,
                     'description' => 'The location of the SHP file, either a URL or a local file location.',
+                    'type' => 'string'
                 ),
                 'epsg' => array(
                     'required' => false,
                     'description' => 'The EPSG code of the SHP file.',
                     'default_value' => 4326,
+                    'type' => 'string'
                 ),
         );
     }

@@ -65,10 +65,12 @@ class Rdf extends Eloquent
                 'mapfile' => array(
                     'required' => true,
                     'description' => 'The location of the mapping file, either a URL or a local file location.',
+                    'type' => 'string'
                 ),
                 'base_uri' => array(
                     'required' => true,
-                    'description' => 'The base uri that will be used as a base for the subject of the triples.'
+                    'description' => 'The base uri that will be used as a base for the subject of the triples.',
+                    'type' => 'string'
                 ),
         );
     }

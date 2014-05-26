@@ -66,16 +66,19 @@ class Csv extends Eloquent
                 'uri' => array(
                     'required' => true,
                     'description' => 'The location of the CSV file, either a URL or a local file location.',
+                    'type' => 'string'
                 ),
                 'delimiter' => array(
                     'required' => false,
                     'description' => 'The delimiter of the separated value file.',
                     'default_value' => ',',
+                    'type' => 'string'
                 ),
                 'has_header_row' => array(
                     'required' => false,
                     'description' => 'Boolean parameter defining if the separated value file contains a header row that contains the column names.',
                     'default_value' => 1,
+                    'type' => 'boolean'
                 )
         );
     }
