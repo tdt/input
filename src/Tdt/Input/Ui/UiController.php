@@ -7,6 +7,8 @@
  */
 namespace Tdt\Input\Ui;
 
+use Tdt\Input\Controllers\InputController;
+
 class UiController extends \Controller
 {
 
@@ -17,11 +19,35 @@ class UiController extends \Controller
     {
         switch ($uri) {
             case 'jobs':
+
+                // Get list of jobs
+                $jobs = \Job::all();
+
                 return \View::make('input::ui.jobs.list')
-                            ->with('title', 'Jobs management | The Datatank')
-                            ->with('jobs', 'test');
+                            ->with('title', 'Jobs management |co The Datatank')
+                            ->with('jobs', $jobs);
 
                 break;
+            case (preg_match('/^jobs\/delete/i', $uri) ? true : false):
+
+                // Delete a job
+
+                // Get the id
+                $id = str_replace('jobs/delete/', '', $uri);
+
+                if (is_numeric($id)) {
+                    $job = \Job::find($id);
+                    if (!empty($job)) {
+                        $job->delete();
+                    }
+
+                    return \Redirect::to('api/admin/jobs');
+                } else {
+                    return false;
+                }
+
+                break;
+
         }
 
         return false;
@@ -36,7 +62,7 @@ class UiController extends \Controller
             array(
                 'title' => 'Jobs',
                 'slug' => 'jobs',
-                'permission' => null,
+                'permission' => 'tdt.input.view',
                 'icon' => 'fa-wrench',
                 'priority' => 40
                 ),

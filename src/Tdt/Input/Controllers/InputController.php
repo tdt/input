@@ -74,10 +74,10 @@ class InputController extends \Controller
         $publisher = @$params['publish'];
 
         // Check for every emlp part if the type is supported
-        $extractor = self::validateType(@$extract, 'extract');
-        $mapper = self::validateType(@$map, 'map');
-        $loader = self::validateType(@$load, 'load');
-        $publisher = self::validateType(@$publisher, 'publish');
+        $extractor = self::validateType(@$extract, 'Extract');
+        $mapper = self::validateType(@$map, 'Map');
+        $loader = self::validateType(@$load, 'Load');
+        $publisher = self::validateType(@$publisher, 'Publish');
 
         // Save the emlp models
         $extractor->save();
@@ -128,7 +128,7 @@ class InputController extends \Controller
 
         // Map and publish are not obligatory
         if (empty($type)) {
-            if ($ns != 'map' && $ns != 'publish') {
+            if (strtolower($ns) != 'map' && strtolower($ns) != 'publish') {
                 \App::abort(400, "No type of $ns was given, please provide a type of $ns which are listed in the discovery document.");
             } else {
                 return;
