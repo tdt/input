@@ -6,4 +6,4 @@
 |--------------------------------------------------------------------------
 */
 
-Route::any('api/input/{all?}', 'tdt\input\controllers\InputController@handle')->where('all', '.*');
+Route::any('api/input/{all?}', 'Tdt\Input\Controllers\InputController@handle')->where('all', '.*');
