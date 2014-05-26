@@ -78,7 +78,7 @@ class DiscoveryController extends \Controller
                 // Skip the . and .. directory
                 if (preg_match("/(.+)\.php/", $entry, $matches)) {
 
-                    $model = 'extract\\' . $matches[1];
+                    $model = 'Extract\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
 
@@ -109,7 +109,7 @@ class DiscoveryController extends \Controller
                 // Skip the . and .. directory
                 if (preg_match("/(.+)\.php/", $entry, $matches)) {
 
-                    $model = 'map\\' . $matches[1];
+                    $model = 'Map\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
 
@@ -140,7 +140,7 @@ class DiscoveryController extends \Controller
                 // Skip the . and .. directory
                 if (preg_match("/(.+)\.php/", $entry, $matches)) {
 
-                    $model = 'load\\' . $matches[1];
+                    $model = 'Load\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
 
@@ -156,9 +156,6 @@ class DiscoveryController extends \Controller
 
         $load->parameters['type'] = $load_types;
         $parameters['load'] = $load;
-
-        // Add the publishing options
-        // TODO
 
         $put->body = $parameters;
 
