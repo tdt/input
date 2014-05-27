@@ -15,7 +15,7 @@ class Shp extends Eloquent
 
     protected $table = 'input_shpextract';
 
-    protected $fillable = array('uri');
+    protected $fillable = array('uri', 'epsg');
 
     /**
      * Relationship with Job

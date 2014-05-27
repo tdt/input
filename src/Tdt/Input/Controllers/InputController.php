@@ -293,7 +293,7 @@ class InputController extends \Controller
     public static function getParts($uri)
     {
 
-        if (preg_match('/(.*)\/([^\/]*)$/', $uri, $matches)) {
+        if (preg_match('/(.+)\/([^\/]+)$/', $uri, $matches)) {
             $collection_uri = $matches[1];
             $name = @$matches[2];
         } else {
