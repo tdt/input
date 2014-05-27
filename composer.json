@@ -22,6 +22,19 @@
             "Tdt\\Input": "src/"
         }
     },
+    "scripts": {
+        "pre-update-cmd": [
+            "php artisan clear-compiled"
+        ],
+        "post-install-cmd": [
+            "php artisan optimize",
+            "php artisan asset:publish tdt/input"
+        ],
+        "post-update-cmd": [
+            "php artisan optimize",
+            "php artisan asset:publish tdt/input"
+        ]
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
