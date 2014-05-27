@@ -22,7 +22,7 @@
 
         @foreach($jobs as $job)
 
-            <div class="panel dataset dataset-link button-row panel-default">
+            <div class="panel dataset dataset-link button-row panel-default clickable-row" data-href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}'>
                 <div class="panel-body">
                     <div class='icon'>
                         <i class='fa fa-lg fa-file-code-o'></i>
