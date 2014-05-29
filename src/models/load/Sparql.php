@@ -55,7 +55,7 @@ class Sparql extends Eloquent
             'user' => 'required',
             'endpoint' => 'required',
             'password' => 'required',
-            'buffer_size' => 'integer|min:1|max:124',
+            'buffer_size' => 'integer|min:1|max:24',
             'graph_name' => 'required',
         );
     }
