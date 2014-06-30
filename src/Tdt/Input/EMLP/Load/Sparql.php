@@ -212,9 +212,8 @@ class Sparql extends ALoader
 
     /**
      * Send a POST request to the triplestore endpoint using cURL
-     * @param string $url to request
-     * @param array $post values to send
-     * @param array $options for cURL
+     * @param string $url    The url to perform the request to
+     * @param string $method The HTTP method to use with the request
      * @return boolean
     */
     private function performQuery($query, $method = "GET")
@@ -228,7 +227,6 @@ class Sparql extends ALoader
         $post = array(
             "update" => $query
         );
-
 
         $url = $this->loader->endpoint . "?query=" . urlencode($query);
 
@@ -254,6 +252,7 @@ class Sparql extends ALoader
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->log("After executing the insertion query the endpoint responded with code: $response_code");
+
         curl_close($ch);
 
         if ($response_code >= 400) {
