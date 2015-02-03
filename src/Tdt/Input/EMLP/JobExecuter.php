@@ -6,7 +6,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 /**
- * The jobexecuter class kickstarts the emlp sequence assembled by
+ * The jobexecuter class bootstraps the emlp sequence assembled by
  *      * the extractor
  *      * the mapper (can be null)
  *      * the loader
@@ -23,6 +23,8 @@ class JobExecuter
 
     /**
      * Create a new job with emlp relations
+     *
+     * @return mixed
      */
     public function __construct($job, $command)
     {
@@ -33,6 +35,8 @@ class JobExecuter
 
     /**
      * Execute the job
+     *
+     * @return void
      */
     public function execute()
     {
@@ -109,7 +113,7 @@ class JobExecuter
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Extracted a total of $count_chunks chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
+        $this->log("Completed the ETL process in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if (!empty($publisher)) {
@@ -117,6 +121,7 @@ class JobExecuter
         }
 
         $timestamp = date('d-m-Y H:i:s');
+
         $this->log("Ended job execution at $timestamp.");
     }
 
@@ -125,11 +130,11 @@ class JobExecuter
      * $model will be any existing empl model
      *
      * example $model -> class is extract\Csv
-     * @return new emlp\extract\Csv($model)
+     *
+     * @return mixed
      */
     private function getExecuter($model)
     {
-
         if (empty($model)) {
             return $model;
         }
@@ -165,7 +170,7 @@ class JobExecuter
     }
 
     /**
-     * Log something to the output
+     * Log something to the CLI output
      */
     protected function log($message)
     {

@@ -23,7 +23,6 @@ class DiscoveryController extends \Controller
         $methods->get = self::createGetDocumentation();
         $methods->put = self::createPutDocumentation();
         $methods->delete = self::createDeleteDocumentation();
-        //$methods->patch = self::createPatchDocumentation();
 
         // Attach the methods to the input discovery object
         $discovery_document->methods = $methods;
@@ -80,7 +79,6 @@ class DiscoveryController extends \Controller
 
                     $model = 'Extract\\' . $matches[1];
                     $type = strtolower($matches[1]);
-
 
                     if (method_exists($model, 'getCreateProperties')) {
 
