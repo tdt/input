@@ -52,7 +52,10 @@ class InputServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(
+            'Tdt\Input\Repositories\Interfaces\JobLogRepositoryInterface',
+            'Tdt\Input\Repositories\JobLogRepository'
+        );
     }
 
     /**

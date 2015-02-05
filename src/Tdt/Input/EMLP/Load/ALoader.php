@@ -59,5 +59,19 @@ abstract class ALoader
                 $this->command->line($message);
                 break;
         }
+
+        // Also log this to the mongo collection
+        $client = new \MongoClient(\Config::get('input::mongolog.server'));
+
+        $collection = $client->selectCollection(\Config::get('input::mongolog.database'), \Config::get('input::mongolog.collection'));
+
+        $log = array('message' => $message);
+
+        // Add the identifier and the timestamp to the log document
+        $log['execution_timestamp'] = $this->loader->execution_timestamp;
+
+        $log['identifier'] = $this->command->argument('jobname');
+
+        $collection->insert($log);
     }
 }

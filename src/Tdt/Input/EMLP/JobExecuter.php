@@ -31,6 +31,8 @@ class JobExecuter
 
         $this->job = $job;
         $this->command = $command;
+
+        $this->timestamp = time();
     }
 
     /**
@@ -44,9 +46,11 @@ class JobExecuter
         // Fetch the extractor, mapper (optional), loader and publisher (optional)
         // and use as constructor variables for the empl wrappers
         $extractor_model = $this->job->extractor()->first();
+
         $extractor = $this->getExecuter($extractor_model);
 
         $mapper_model = null;
+
         if (!empty($this->job->mapper_type)) {
 
             $mapper_model = $this->job->mapper()->first();
@@ -57,6 +61,7 @@ class JobExecuter
         $loader = $this->getExecuter($loader_model);
 
         $publisher_model = null;
+
         if (!empty($this->job->publisher_type)) {
 
             $publisher_model = $this->job->publisher()->first();
@@ -163,6 +168,8 @@ class JobExecuter
             \App::abort(500, "The executer ($executer) was not found for the corresponding model $model_class).");
         }
 
+        $model->execution_timestamp = $this->timestamp;
+
         $executer = new $executer($model, $this->command);
         $executer->init();
 
@@ -178,6 +185,25 @@ class JobExecuter
         $class = explode('\\', get_called_class());
         $class = end($class);
 
-        $this->command->info("JobExecuter: " . $message);
+        $log_message = "JobExecuter: " . $message;
+
+        $this->command->info($log_message);
+
+        // Also log this to the mongo collection
+        $client = new \MongoClient(\Config::get('input::mongolog.server'));
+
+        $collection = $client->selectCollection(
+            \Config::get('input::mongolog.database'),
+            \Config::get('input::mongolog.collection')
+        );
+
+        $log = array('message' => $log_message);
+
+        // Add the identifier and the timestamp to the log document
+        $log['execution_timestamp'] = $this->timestamp;
+
+        $log['identifier'] = $this->command->argument('jobname');
+
+        $collection->insert($log);
     }
 }

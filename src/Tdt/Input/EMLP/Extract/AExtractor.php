@@ -29,7 +29,6 @@ abstract class AExtractor
 
     }
 
-
     /**
      * Preparatory work before starting to process the file. This function is called from the constructor of this class
      */
@@ -37,6 +36,7 @@ abstract class AExtractor
 
     /**
      * Tells us if there are more chunks to retrieve
+     *
      * @return a boolean whether the end of the file has been reached or not
      */
     abstract public function hasNext();
@@ -65,7 +65,7 @@ abstract class AExtractor
         $prefix = "Extractor[" . $class . "]: ";
         $message = $prefix . $message;
 
-        switch($type){
+        switch ($type) {
 
             case 'info':
 
@@ -80,5 +80,18 @@ abstract class AExtractor
                 $this->command->line($message);
                 break;
         }
+
+        // Also log this to the mongo collection
+        $client = new \MongoClient(\Config::get('input::mongolog.server'));
+
+        $collection = $client->selectCollection(\Config::get('input::mongolog.database'), \Config::get('input::mongolog.collection'));
+
+        $log = array('message' => $message);
+
+        // Add the identifier and the timestamp to the log document
+        $log['execution_timestamp'] = $this->extractor->execution_timestamp;
+        $log['identifier'] = $this->command->argument('jobname');
+
+        $collection->insert($log);
     }
 }
