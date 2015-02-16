@@ -13,7 +13,6 @@ use Eloquent;
  */
 class Sparql extends Eloquent
 {
-
     protected $table = 'input_sparqlextract';
 
     protected $fillable = array('query', 'endpoint', 'user', 'password');
@@ -72,19 +71,19 @@ class Sparql extends Eloquent
                 'endpoint' => array(
                     'required' => true,
                     'description' => 'The endpoint to which the sparql query needs to be fired.',
-                    'type' => 'text',
+                    'type' => 'string',
                     'name' => 'Sparql endpoint',
                 ),
                 'user' => array(
                     'required' => false,
                     'description' => 'The user that has read permissions on the given endpoint.',
-                    'type' => 'text',
+                    'type' => 'string',
                     'name' => 'User',
                 ),
                 'password' => array(
                     'required' => false,
                     'description' => 'The password of the user.',
-                    'type' => 'text',
+                    'type' => 'string',
                     'name' => 'Password',
                 ),
         );

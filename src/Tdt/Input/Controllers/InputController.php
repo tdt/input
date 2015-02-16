@@ -75,7 +75,7 @@ class InputController extends \Controller
 
         // Check for every emlp part if the type is supported
         $extractor = self::validateType(@$extract, 'Extract');
-        $mapper = self::validateType(@$map, 'Map');
+        //$mapper = self::validateType(@$map, 'Map');
         $loader = self::validateType(@$load, 'Load');
         $publisher = self::validateType(@$publisher, 'Publish');
 
@@ -103,8 +103,8 @@ class InputController extends \Controller
 
         $job->extractor_id = $extractor->id;
         $job->extractor_type = self::getClass($extractor);
-        $job->mapper_id = @$mapper->id;
-        $job->mapper_type = self::getClass($mapper);
+        //$job->mapper_id = @$mapper->id;
+        //$job->mapper_type = self::getClass($mapper);
         $job->loader_id = $loader->id;
         $job->loader_type = self::getClass($loader);
         $job->publisher_id = @$publisher->id;

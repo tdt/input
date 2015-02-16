@@ -16,12 +16,7 @@ class MongodbLoader extends Migration {
 		Schema::create('input_mongoload', function ($table) {
 
 			$table->increments('id');
-			$table->string('host', 255);
-			$table->string('database', 255);
-			$table->string('collection', 255);
-			$table->string('port', 255);
-			$table->string('user', 255);
-			$table->string('password', 255);
+			$table->string('model', 255);
 			$table->timestamps();
 		});
 	}

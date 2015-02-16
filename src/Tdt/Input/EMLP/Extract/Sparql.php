@@ -9,7 +9,7 @@ namespace Tdt\Input\EMLP\Extract;
 
 class Sparql extends AExtractor
 {
-    private static $PAGE_SIZE = 8;
+    private static $PAGE_SIZE = 30;
 
     protected function open()
     {

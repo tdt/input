@@ -12,7 +12,6 @@ use Eloquent;
  */
 class Csv extends Eloquent
 {
-
     protected $table = 'input_csvextract';
 
     protected $fillable = array('uri', 'delimiter', 'has_header_row');

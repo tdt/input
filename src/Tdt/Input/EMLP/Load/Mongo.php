@@ -47,6 +47,9 @@ class Mongo extends ALoader
 
         // Keep track of the @id's so we can perform the cleaning up
         $this->ids = array();
+
+        // Set the model to map to
+        $this->model_name = 'Ilastic\\' . ucfirst(strtolower($model->model));
     }
 
     public function init()
@@ -61,27 +64,16 @@ class Mongo extends ALoader
     {
         $this->log("Starting the clean up.");
 
-        // Get the collection of data
-        $collection = $this->getMongoCollection();
-
         $this->log("Removing old entries from the collection.");
 
         // Delete the old entries
-        $delete_result = $collection->remove(
-            array(
-                '$and' => array(
-                    array(
-                        '@id' => array('$in' => $this->ids)
-                        ),
-                    array(
-                        'schema:datePublished' => array('$lt' => $this->timestamp)
-                        ),
-                    array(
-                        'source:source' => $this->source
-                        )
-                    )
-                )
-            );
+        $model = new $this->model_name();
+
+        $delete_result = $model
+            ->whereIn('@id', $this->ids)
+            ->where('schema:datePublished', '<', $this->timestamp)
+            ->where('source:source', $this->source)
+            ->delete();
 
         // Because of possible partial graph results in a construct query we might encounter
         // documents in the store that have the same subject, but are divided in 2 or more documents.
@@ -89,9 +81,31 @@ class Mongo extends ALoader
 
         // Find all the results that have two or more occurences (@id field)
 
-        $this->log("Aggregating the partial graph results.");
+        // Iterate over id slices - instead of all the ids -
+        // of the large sets of data, we might get an internal object coming from
+        // the aggregation framework larger than 16MB, which results in an error.
 
-        $group = array(
+        $ids = $this->ids;
+
+        $collection = $model->getConnection()->getCollection($model->getTable());
+
+        $this->log("Aggregating the partial graph results in the collection " . $model->getTable());
+
+        while (!empty($ids)) {
+
+            $rest_ids = array_splice($ids, 5);
+
+            $this->log("Cleaning up for the following ids: " . implode(', ', $ids));
+
+            $slice = array(
+                '$match' => array(
+                    '@id' => array(
+                        '$in' => $ids
+                    )
+                )
+            );
+
+            $group = array(
                         '$group' => array(
                             '_id' => "$@id",
                             'count' => array(
@@ -103,54 +117,47 @@ class Mongo extends ALoader
                         )
                     );
 
-        $match = array(
-                    '$match' => array(
-                        'count' => array(
-                            '$gte' => 2
+            $match = array(
+                        '$match' => array(
+                            'count' => array(
+                                '$gte' => 2
+                            )
                         )
-                    )
-                );
+                    );
 
-        $results = $collection->aggregate($group, $match);
+            $results = $collection->aggregate($slice, $group, $match);
 
-        $results = $results['result'];
+            $results = $results['result'];
 
-        // For each of the results, merge them, insert the resulting document and delete the other partial documents
-        foreach ($results as $result) {
+            // For each of the results, merge them, insert the resulting document and delete the other partial documents
+            foreach ($results as $result) {
 
-            $document = array();
+                $document = array();
 
-            foreach ($result['document'] as $partial_result) {
+                foreach ($result['document'] as $partial_result) {
 
-                $document = array_merge($document, $partial_result);
+                    $document = array_merge($document, $partial_result);
+                }
+
+                unset($document['document']);
+                unset($document['_id']);
+
+                // Update the collection with the merged document
+
+                $this->log("Removing the partial graphs for @id " . $document['@id'] . ".");
+
+                $delete_result = $model
+                    ->where('@id', $document['@id'])
+                    ->where('schema:datePublished', $this->timestamp)
+                    ->where('source:source', $this->source)
+                    ->delete();
+
+                $this->log("Inserting the new document for @id " . $document['@id']);
+
+                $this->insertDocument($document, $collection);
             }
 
-            unset($document['document']);
-            unset($document['_id']);
-
-            // Update the collection with the merged document
-
-            $this->log("Removing the partial graphs for @id " . $document['@id'] . ".");
-
-            $delete_result = $collection->remove(
-                array(
-                    '$and' => array(
-                        array(
-                            '@id' => $document['@id']
-                            ),
-                        array(
-                            'schema:datePublished' => $this->timestamp
-                            ),
-                        array(
-                            'source:source' => $this->source
-                        )
-                        )
-                    )
-                );
-
-            $this->log("Inserting the new document for @id " . $document['@id'] . ".");
-
-            $this->insertDocument($document, $collection);
+            $ids = $rest_ids;
         }
     }
 
@@ -174,7 +181,7 @@ class Mongo extends ALoader
         // For every result in the expanded document, compact it
         // because uri's contain dots which are not allowed as a key character
         // in mongodb
-        foreach((array) $jsonld as $document) {
+        foreach ((array) $jsonld as $document) {
 
             // Add the meta-data for tracking purposes (needed to delete old entries e.g.)
             $timestamp = 'http://schema.org/datePublished';
@@ -187,11 +194,7 @@ class Mongo extends ALoader
 
             $compact_document = JsonLD::compact($document, $this->context);
 
-            $collection = $this->getMongoCollection();
-
-            $this->log("Inserting the document in the collection.");
-
-            $this->insertDocument((array) $compact_document, $collection);
+            $this->insertDocument((array) $compact_document);
         }
     }
 
@@ -200,36 +203,21 @@ class Mongo extends ALoader
      * Before that happens, remove all the entries with
      * the same timestamp and @id
      *
-     * @param array            $document
-     * @param \MongoCollection $collection
+     * @param array $document
      *
      * @return void
      */
-    private function insertDocument($document, $collection)
+    private function insertDocument($document)
     {
         // Add the @id in the collection of ids
         $this->ids[] = $document['@id'];
 
-        $result = $collection->insert($document);
-    }
+        $model_instance = new $this->model_name($document);
 
-    /**
-     * Create and return the configured mongo collection
-     *
-     * @return \MongoCollection
-     */
-    private function getMongoCollection()
-    {
-        $connString = 'mongodb://' . $this->loader->host . ':' . $this->loader->port;
-
-        try {
-
-            $client = new \MongoClient($connString);
-
-        } catch (\MongoConnectionException $ex) {
-            \App::abort("Failed to create a mongo connection: " . $ex->getMessage());
+        foreach ($document as $key => $val) {
+            $model_instance->$key = $val;
         }
 
-        return $client->selectCollection($this->loader->database, $this->loader->collection);
+        $model_instance->save();
     }
 }
