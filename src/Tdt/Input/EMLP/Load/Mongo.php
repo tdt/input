@@ -70,7 +70,7 @@ class Mongo extends ALoader
         $model = new $this->model_name();
 
         $delete_result = $model
-            ->whereIn('@id', $this->ids)
+            //->whereIn('@id', $this->ids)
             ->where('schema:datePublished', '<', $this->timestamp)
             ->where('source:source', $this->source)
             ->delete();
@@ -170,7 +170,7 @@ class Mongo extends ALoader
      */
     public function execute(&$graph)
     {
-        $this->log("Processing new graph.");
+        $this->log("Processing new graph. Starting: " . time());
 
         $serializer = new \EasyRdf_Serialiser_JsonLd();
 
@@ -196,6 +196,8 @@ class Mongo extends ALoader
 
             $this->insertDocument((array) $compact_document);
         }
+
+        $this->log("Done loading graph. Ended at: " . time());
     }
 
     /**

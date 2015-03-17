@@ -16,7 +16,7 @@ class SparqlExtractor extends Migration {
 		Schema::create('input_sparqlextract', function ($table) {
 
 			$table->increments('id');
-			$table->string('query', 255);
+			$table->text('query');
 			$table->string('endpoint', 255);
 			$table->string('user', 255);
 			$table->string('password', 255);
