@@ -96,7 +96,7 @@ class Sparql extends AExtractor
         $response = $this->executeUri($query_uri, $user, $password);
 
         $result = new \EasyRdf_Graph();
-        $parser = new \EasyRdf_Parser_turtle();
+        $parser = new \EasyRdf_Parser_Turtle();
 
         $parser->parse($result, $response, 'turtle', null);
 
