@@ -143,7 +143,6 @@ class Mongo extends ALoader
                 unset($document['_id']);
 
                 // Update the collection with the merged document
-
                 $this->log("Removing the partial graphs for @id " . $document['@id'] . ".");
 
                 $delete_result = $model
