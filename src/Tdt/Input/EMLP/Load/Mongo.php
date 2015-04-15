@@ -93,7 +93,7 @@ class Mongo extends ALoader
 
         while (!empty($ids)) {
 
-            $rest_ids = array_splice($ids, 1);
+            $rest_ids = array_splice($ids, 5);
 
             $this->log("Cleaning up for the following ids: " . implode(', ', $ids));
 
