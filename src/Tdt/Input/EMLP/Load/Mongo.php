@@ -93,7 +93,7 @@ class Mongo extends ALoader
 
         while (!empty($ids)) {
 
-            $rest_ids = array_splice($ids, 5);
+            $rest_ids = array_splice($ids, 1);
 
             $this->log("Cleaning up for the following ids: " . implode(', ', $ids));
 
@@ -135,12 +135,18 @@ class Mongo extends ALoader
                 $document = array();
 
                 foreach ($result['document'] as $partial_result) {
-
-                    $document = array_merge($document, $partial_result);
+                    $document = $this->mergeMe($document, $partial_result);
                 }
 
                 unset($document['document']);
                 unset($document['_id']);
+
+                if (is_array($document['@id'])) {
+                    $id = array_shift($document['@id']);
+
+                    unset($document['@id']);
+                    $document['@id'] = $id;
+                }
 
                 // Update the collection with the merged document
                 $this->log("Removing the partial graphs for @id " . $document['@id'] . ".");
@@ -220,5 +226,24 @@ class Mongo extends ALoader
         }
 
         $model_instance->save();
+    }
+
+    public function mergeMe($array1, $array2)
+    {
+        $merged = $array1;
+
+        foreach ($array2 as $key => & $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->mergeMe($merged[$key], $value);
+            } else if (is_numeric($key)) {
+                if (!in_array($value, $merged)) {
+                    $merged[] = $value;
+                }
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
     }
 }

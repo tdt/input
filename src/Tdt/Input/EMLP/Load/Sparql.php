@@ -85,7 +85,6 @@ class Sparql extends ALoader
      */
     public function execute(&$chunk)
     {
-
         if (!$chunk->isEmpty()) {
 
             // Don't use EasyRdf's ntriple serializer, as something might be wrong with its unicode byte characters
@@ -137,7 +136,6 @@ class Sparql extends ALoader
      */
     private function addTriples($triples)
     {
-
         $triples_string = implode(' ', $triples);
 
         $serialized = $this->serialize($triples_string);
