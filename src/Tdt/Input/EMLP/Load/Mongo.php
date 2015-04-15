@@ -134,19 +134,39 @@ class Mongo extends ALoader
 
                 $document = array();
 
+                $graph = new \EasyRdf_Graph();
+
                 foreach ($result['document'] as $partial_result) {
-                    $document = $this->mergeMe($document, $partial_result);
+
+                    $json_ld = json_encode($partial_result);
+
+                    $graph->parse($json_ld, 'jsonld');
                 }
 
-                unset($document['document']);
-                unset($document['_id']);
+                $serializer = new \EasyRdf_Serialiser_JsonLd();
 
-                if (is_array($document['@id'])) {
-                    $id = array_shift($document['@id']);
+                $jsonld = $serializer->serialise($graph, 'jsonld');
 
-                    unset($document['@id']);
-                    $document['@id'] = $id;
+                $jsonld = JsonLD::expand($jsonld);
+
+                // For every result in the expanded document, compact it
+                // because uri's contain dots which are not allowed as a key character
+                // in mongodb
+                foreach ((array) $jsonld as $document) {
+
+                    // Add the meta-data for tracking purposes (needed to delete old entries e.g.)
+                    $timestamp = 'http://schema.org/datePublished';
+                    $source = 'http://foo.bar/source';
+
+                    $this->log("Adding the timestamp and source to the document.");
+
+                    $document->$timestamp = $this->timestamp;
+                    $document->$source = $this->source;
+
+                    $document = JsonLD::compact($document, $this->context);
                 }
+
+                $document = (array)$document;
 
                 // Update the collection with the merged document
                 $this->log("Removing the partial graphs for @id " . $document['@id'] . ".");
@@ -226,24 +246,5 @@ class Mongo extends ALoader
         }
 
         $model_instance->save();
-    }
-
-    public function mergeMe($array1, $array2)
-    {
-        $merged = $array1;
-
-        foreach ($array2 as $key => & $value) {
-            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
-                $merged[$key] = $this->mergeMe($merged[$key], $value);
-            } else if (is_numeric($key)) {
-                if (!in_array($value, $merged)) {
-                    $merged[] = $value;
-                }
-            } else {
-                $merged[$key] = $value;
-            }
-        }
-
-        return $merged;
     }
 }
