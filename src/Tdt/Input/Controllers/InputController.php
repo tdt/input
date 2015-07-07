@@ -43,7 +43,6 @@ class InputController extends \Controller
      */
     public static function createJob($uri)
     {
-
         list($collection_uri, $name) = self::getParts($uri);
 
         // Retrieve the parameters of the PUT requests (either a JSON document or a key=value string)
@@ -75,17 +74,26 @@ class InputController extends \Controller
 
         // Check for every emlp part if the type is supported
         $extractor = self::validateType(@$extract, 'Extract');
-        $mapper = self::validateType(@$map, 'Map');
+
+        // Map is not obligatory, check if the values are empty or not
+        $map_values = array_values($map);
+
+        // Throw away the default rdf value
+        array_shift($map_values);
+
+        if (array_filter($map_values)) {
+
+            $mapper = self::validateType(@$map, 'Map');
+
+            $mapper->save();
+        }
+
         $loader = self::validateType(@$load, 'Load');
         $publisher = self::validateType(@$publisher, 'Publish');
 
         // Save the emlp models
         $extractor->save();
         $loader->save();
-
-        if (!empty($mapper)) {
-            $mapper->save();
-        }
 
         if (!empty($publisher)) {
             $publisher->save();
@@ -103,8 +111,12 @@ class InputController extends \Controller
 
         $job->extractor_id = $extractor->id;
         $job->extractor_type = self::getClass($extractor);
-        $job->mapper_id = @$mapper->id;
-        $job->mapper_type = self::getClass($mapper);
+
+        if (!empty($mapper)) {
+            $job->mapper_id = @$mapper->id;
+            $job->mapper_type = self::getClass($mapper);
+        }
+
         $job->loader_id = $loader->id;
         $job->loader_type = self::getClass($loader);
         $job->publisher_id = @$publisher->id;
@@ -122,7 +134,6 @@ class InputController extends \Controller
      */
     private static function validateType($params, $ns)
     {
-
         $type = @$params['type'];
         $type = ucfirst(mb_strtolower($type));
 

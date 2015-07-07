@@ -26,7 +26,6 @@ class JobExecuter
      */
     public function __construct($job, $command)
     {
-
         $this->job = $job;
         $this->command = $command;
     }
@@ -95,7 +94,7 @@ class JobExecuter
                 $loader->execute($chunk);
 
                 // Cumulate the amount of triples
-                if (!empty($chunk)) {
+                if (!empty($chunk) && !is_array($chunk)) {
                     $count_triples += $chunk->countTriples();
                 }
             } else {

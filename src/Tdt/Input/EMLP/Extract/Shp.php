@@ -11,8 +11,8 @@
 
 namespace Tdt\Input\EMLP\Extract;
 
-include_once(__DIR__ . "/../../../../lib/ShapeFile.inc.php");
-include_once(__DIR__ . "/../../../../lib/proj4php/proj4php.php");
+include_once(__DIR__ . "/../../../../../lib/ShapeFile.inc.php");
+include_once(__DIR__ . "/../../../../../lib/proj4php/proj4php.php");
 
 class SHP extends AExtractor
 {
@@ -22,12 +22,15 @@ class SHP extends AExtractor
     private $shape_file_wrapper; // represents the library, containing the file handler and several help functions.
     private $EPSG = "";
 
-    protected function open($uri)
+    protected function open()
     {
         set_time_limit(1337); // reading records can take a long while, set the time limit to a high number.
-        if (isset($this->config["EPSG"])) {
-            $this->EPSG = $this->config["EPSG"];
+
+        if (isset($this->extractor["EPSG"])) {
+            $this->EPSG = $this->extractor["EPSG"];
         }
+
+        $uri = $this->extractor['uri'];
 
         /**
          *  Put the files into a temp directory if it's not been done already.
@@ -83,11 +86,9 @@ class SHP extends AExtractor
             if (isset($shp_data['parts']) || $shp_data['x']) {
                 // read shape data
 
-                if ($this->EPSG != "") {
-                    $proj4 = new \Proj4php();
-                    $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $proj4);
-                    $projDest = new \Proj4phpProj('EPSG:4326', $proj4);
-                }
+                $proj4 = new \Proj4php();
+                $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $proj4);
+                $projDest = new \Proj4phpProj('EPSG:4326', $proj4);
 
                 if (isset($shp_data['parts'])) {
 

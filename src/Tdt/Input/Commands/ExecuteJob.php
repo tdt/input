@@ -39,25 +39,45 @@ class ExecuteJob extends Command
      */
     public function fire()
     {
+        // Check for a list option
+        $list = $this->option('list');
 
-        $job_name = $this->argument('jobname');
+        if (empty($list)) {
 
-        list($collection_uri, $name) = InputController::getParts($job_name);
+            $job_name = $this->argument('jobname');
 
-        // Check if the job exists
-        $job = \Job::where('name', '=', $name)
-                   ->where('collection_uri', '=', $collection_uri)
-                   ->first();
+            list($collection_uri, $name) = InputController::getParts($job_name);
 
-        if (empty($job)) {
-            $this->error("The job with identified by: $job_name could not be found.\n");
-            exit();
+            // Check if the job exists
+            $job = \Job::where('name', '=', $name)
+                       ->where('collection_uri', '=', $collection_uri)
+                       ->first();
+
+            if (empty($job)) {
+                $this->error("The job with identified by: $job_name could not be found.\n");
+                exit();
+            }
+
+            $this->line('The job has been found.');
+
+            $job_exec = new JobExecuter($job, $this);
+            $job_exec->execute();
+
+        } else {
+
+            $jobs = \Job::all(['name', 'collection_uri'])->toArray();
+
+            if (!empty($jobs)) {
+
+                $this->info("=== Job names ===");
+
+                foreach ($jobs as $job) {
+                    $this->info($job['collection_uri'] . '/' . $job['name']);
+                }
+            } else {
+                $this->info("No jobs found.");
+            }
         }
-
-        $this->line('The job has been found.');
-
-        $job_exec = new JobExecuter($job, $this);
-        $job_exec->execute();
     }
 
     /**
@@ -68,7 +88,7 @@ class ExecuteJob extends Command
     protected function getArguments()
     {
         return array(
-            array('jobname', InputArgument::REQUIRED, 'Full name of the job that needs to be executed. (the uri that was given to PUT the meta-data for this job).'),
+            array('jobname', InputArgument::OPTIONAL, 'Full name of the job that needs to be executed. (the uri that was given to PUT the meta-data for this job).'),
         );
     }
 
@@ -80,7 +100,7 @@ class ExecuteJob extends Command
     protected function getOptions()
     {
         return array(
-
+            array('list', 'l', InputOption::VALUE_NONE, 'Display a list of all available jobs.', null),
         );
     }
 }

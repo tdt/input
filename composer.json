@@ -6,7 +6,8 @@
         "illuminate/support": "4.1.*",
         "tdt/streamingrdfmapper": "dev-master",
         "tdt/json" : "dev-master",
-        "semsol/arc2" : "dev-master"
+        "semsol/arc2" : "dev-master",
+        "neitanod/forceutf8": "dev-master"
     },
     "require-dev": {
         "mockery/mockery" : "dev-master",

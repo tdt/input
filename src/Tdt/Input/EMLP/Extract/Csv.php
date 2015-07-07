@@ -2,6 +2,8 @@
 
 namespace Tdt\Input\EMLP\Extract;
 
+use \ForceUTF8\Encoding;
+
 class Csv extends AExtractor
 {
 
@@ -32,9 +34,10 @@ class Csv extends AExtractor
             $i=0;
 
             foreach ($data as &$el) {
-                $this->header[$i] = $el;
+                $this->header[$i] = Encoding::fixUTF8($el);
                 $i++;
             }
+
             $this->row_index++;
         }
     }
@@ -61,13 +64,14 @@ class Csv extends AExtractor
 
             $i=0;
 
-            foreach ($data as &$el) {
+            foreach ($data as $el) {
 
                 if ($this->extractor->has_header_row) {
-                    $row[$this->header[$i]] = $el;
+                    $row[$this->header[$i]] = Encoding::fixUTF8($el);
+                } else {
+                    $row[$i] = Encoding::fixUTF8($el);
                 }
 
-                $row[$i] = $el;
                 $i++;
             }
         }

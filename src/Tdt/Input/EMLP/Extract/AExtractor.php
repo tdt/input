@@ -10,7 +10,6 @@ abstract class AExtractor
 
     public function __construct($extractor, $command)
     {
-
         $this->extractor = $extractor;
         $this->command = $command;
         $this->open();
