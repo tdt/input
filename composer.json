@@ -12,7 +12,10 @@
     "require-dev": {
         "mockery/mockery" : "dev-master",
         "phpunit/phpunit" : "4.0.*",
-        "doctrine/dbal": "~2.3"
+        "doctrine/dbal": "~2.3",
+        "coreation/gisconverter" : "dev-master",
+        "muka/shape-reader" : "dev-master",
+        "jsor/proj4php" : "dev-master"
     },
     "autoload": {
         "classmap": [

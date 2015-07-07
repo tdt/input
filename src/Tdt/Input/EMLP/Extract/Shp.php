@@ -11,23 +11,19 @@
 
 namespace Tdt\Input\EMLP\Extract;
 
-include_once(__DIR__ . "/../../../../../lib/ShapeFile.inc.php");
-include_once(__DIR__ . "/../../../../../lib/proj4php/proj4php.php");
+use muka\ShapeReader\ShapeReader;
 
 class SHP extends AExtractor
 {
 
-    private $read_record; // the ShapeFile.inc has a function getNext() which basically is the combination of hasNext() and pop()
-    // therefore we're going to wrap getNext() into hasNext() and set read_record, which we return in pop().
-    private $shape_file_wrapper; // represents the library, containing the file handler and several help functions.
+    private $read_record;
+    private $shape_file_wrapper;
     private $EPSG = "";
 
     protected function open()
     {
-        set_time_limit(1337); // reading records can take a long while, set the time limit to a high number.
-
-        if (isset($this->extractor["EPSG"])) {
-            $this->EPSG = $this->extractor["EPSG"];
+        if (isset($this->extractor["epsg"])) {
+            $this->EPSG = $this->extractor["epsg"];
         }
 
         $uri = $this->extractor['uri'];
@@ -43,15 +39,16 @@ class SHP extends AExtractor
         try {
             $options = array('noparts' => false);
             $isUrl = (substr($uri, 0, 4) == "http");
+
             if ($isUrl) {
                 $tmpFile = uniqid();
                 file_put_contents("tmp/" . $tmpFile . ".shp", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".shp"));
                 file_put_contents("tmp/" . $tmpFile . ".dbf", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".dbf"));
                 file_put_contents("tmp/" . $tmpFile . ".shx", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".shx"));
 
-                $this->shape_file_wrapper = new \ShapeFile("tmp/" . $tmpFile . ".shp", $options); // along this file the class will use file.shx and file.dbf
+                $this->shape_file_wrapper = new ShapeReader("tmp/" . $tmpFile . ".shp", $options);
             } else {
-                $this->shape_file_wrapper = new \ShapeFile($uri, $options); // along this file the class will use file.shx and file.dbf
+                $this->shape_file_wrapper = new ShapeReader($uri, $options);
             }
         } catch (Exception $ex) {
             throw new \Exception("Something went wrong during the configuration of the SHP Loader: $ex->getMessage()");
@@ -66,13 +63,12 @@ class SHP extends AExtractor
          * This class will be used as a normal reader would be used namely
          * while(hasNext()){ $data = pop()}
          *
-         * Since our records are hierarchical we will deliver a flattened object of the record since the ETML expects this
+         * Since our records are hierarchical we will deliver a flattened object
+         * of the record since the ETML expects this
          *
          */
 
         if (($record = $this->shape_file_wrapper->getNext()) != false) {
-            // read meta data
-
             $rowobject =array();
 
             $dbf_data = $record->getDbfData();
@@ -83,21 +79,23 @@ class SHP extends AExtractor
             }
 
             $shp_data = $record->getShpData();
-            if (isset($shp_data['parts']) || $shp_data['x']) {
-                // read shape data
 
+            if (isset($shp_data['parts']) || $shp_data['x']) {
                 $proj4 = new \Proj4php();
+
                 $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $proj4);
                 $projDest = new \Proj4phpProj('EPSG:4326', $proj4);
 
                 if (isset($shp_data['parts'])) {
-
                     $parts = array();
+
                     foreach ($shp_data['parts'] as $part) {
                         $points = array();
+
                         foreach ($part['points'] as $point) {
                             $x = $point['x'];
                             $y = $point['y'];
+
                             if ($this->EPSG != "" || true) {
                                 $pointSrc = new \proj4phpPoint($x, $y);
 
@@ -118,7 +116,7 @@ class SHP extends AExtractor
                     $x = $shp_data['x'];
                     $y = $shp_data['y'];
 
-                    if ($EPSG != "") {
+                    if ($this->EPSG != "") {
                         $pointSrc = new \proj4phpPoint($x, $y);
                         $pointDest = $proj4->transform($projSrc, $projDest, $pointSrc);
                         $x = $pointDest->x;
@@ -130,6 +128,7 @@ class SHP extends AExtractor
                 }
             }
             $this->read_record = $rowobject;
+
             return true;
         } else {
             return false;
@@ -138,11 +137,10 @@ class SHP extends AExtractor
 
     public function pop()
     {
-            return $this->read_record;
+        return $this->read_record;
     }
 
     protected function close()
     {
-            // filehandlers are handled and properly closed in the shp library.
     }
 }
