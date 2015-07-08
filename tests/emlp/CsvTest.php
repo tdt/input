@@ -32,7 +32,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
                 'base_uri' => 'http://foo.mock/',
                 'triples_amount' => 6,
             ),
-        ),
+            ),
     );
 
     private function getMockedCommand()
@@ -55,9 +55,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testExtraction()
     {
-
         foreach ($this->test_extraction_cases as $test_case_name => $config) {
-
             // Extractor Csv model - mock
             Mockery::mock('Eloquent');
 
@@ -76,7 +74,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $obj_count = 0;
 
             while ($csv_extractor->hasNext()) {
-
                 $obj =$csv_extractor->pop();
 
                 // The pop() can return a NULL value for it streams data and creates objects.
@@ -96,7 +93,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testEMLP()
     {
         foreach ($this->test_emlp_cases as $config) {
-
             $extract_model = Mockery::mock('Extract\Csv');
 
             $command = $this->getMockedCommand();
@@ -113,7 +109,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $this->assertTrue($csv_extractor->hasNext());
 
             if ($csv_extractor->hasNext()) {
-
                 $chunk = $csv_extractor->pop();
 
                 // Serialize the object to make comparing object easy

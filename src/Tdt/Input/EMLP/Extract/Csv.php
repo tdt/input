@@ -13,7 +13,6 @@ class Csv extends AExtractor
 
     protected function open()
     {
-
         $uri = $this->extractor->uri;
 
         // Keep track at which row the Csv handler is
@@ -30,7 +29,6 @@ class Csv extends AExtractor
         $this->log("Opened the CSV file located at $uri");
 
         if ($this->extractor->has_header_row && ($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
-
             $i=0;
 
             foreach ($data as &$el) {
@@ -61,11 +59,9 @@ class Csv extends AExtractor
         $row = array();
 
         if (($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
-
             $i=0;
 
             foreach ($data as $el) {
-
                 if ($this->extractor->has_header_row) {
                     $row[$this->header[$i]] = Encoding::fixUTF8($el);
                 } else {
