@@ -1,26 +1,22 @@
 <?php
 
-namespace Tdt\Input\EMLP\Load;
+namespace Tdt\Input\ETL\Load;
 
 /**
  * The Sparql class loads triples into a triplestore.
  */
 class Sparql extends ALoader
 {
-
-
     private $buffer = array();
     private $graph;
 
     public function __construct($model, $command)
     {
-
         parent::__construct($model, $command);
     }
 
     public function init()
     {
-
         // Get the job and use the identifier as a graph name
         $job = $this->loader->job;
 
@@ -50,7 +46,6 @@ class Sparql extends ALoader
         $this->log("Cleaning up the Sparql loader, checking for remaining triples in the buffer.");
 
         try {
-
             // If the buffer isn't empty, load triples into the triple store
             while (!empty($this->buffer)) {
 

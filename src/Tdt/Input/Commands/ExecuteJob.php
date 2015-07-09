@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Tdt\Input\Controllers\InputController;
-use Tdt\Input\EMLP\JobExecuter;
+use Tdt\Input\ETL\JobExecuter;
 
 /**
  * The ExecuteJobCommand class holds the functionality to execute a job

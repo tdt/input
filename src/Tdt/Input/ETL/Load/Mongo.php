@@ -1,6 +1,6 @@
 <?php
 
-namespace Tdt\Input\EMLP\Load;
+namespace Tdt\Input\ETL\Load;
 
 use MongoClient;
 

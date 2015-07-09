@@ -2,15 +2,13 @@
 
 namespace Load;
 
-use Eloquent;
-
 /**
  * Mongo load model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Mongo extends Eloquent
+class Mongo extends Type
 {
     protected $table = 'input_mongoload';
 

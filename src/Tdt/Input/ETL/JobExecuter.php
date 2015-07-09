@@ -1,9 +1,6 @@
 <?php
 
-namespace Tdt\Input\EMLP;
-
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+namespace Tdt\Input\ETL;
 
 /**
  * The jobexecuter class kickstarts the emlp sequence assembled by
@@ -15,6 +12,10 @@ use Monolog\Logger;
  * @author Jan Vansteenlandt <jan@okfn.be>
  * @author Pieter Colpaert <pieter@okfn.be>
  */
+
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 class JobExecuter
 {
 
@@ -146,10 +147,9 @@ class JobExecuter
 
         $model_name = rtrim($model_name, '\\');
 
-        $executer = 'Tdt\\Input\\EMLP\\' . $model_name;
+        $executer = 'Tdt\\Input\\ETL\\' . $model_name;
 
         if (!class_exists($executer)) {
-
             $model_class = get_class($model);
 
             // This error shouldn't occur when validation has returned true

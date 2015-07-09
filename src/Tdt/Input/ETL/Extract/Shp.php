@@ -1,5 +1,7 @@
 <?php
 
+namespace Tdt\Input\ETL\Extract;
+
 /**
  * This class handles a SHP file, using the ShapeFile.inc.php file as its library.
  * This library reads a SHP file through file handlers, thus making its workflow read the
@@ -9,13 +11,10 @@
  * @license AGPLv3
  */
 
-namespace Tdt\Input\EMLP\Extract;
-
 use muka\ShapeReader\ShapeReader;
 
 class SHP extends AExtractor
 {
-
     private $read_record;
     private $shape_file_wrapper;
     private $EPSG = "";
@@ -28,10 +27,6 @@ class SHP extends AExtractor
 
         $uri = $this->extractor['uri'];
 
-        /**
-         *  Put the files into a temp directory if it's not been done already.
-         * TODO clear the tmp via the uniqid() return value after extraction.
-         */
         if (!is_dir("tmp")) {
             mkdir("tmp");
         }

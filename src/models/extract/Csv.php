@@ -2,15 +2,13 @@
 
 namespace Extract;
 
-use Eloquent;
-
 /**
  * Csv model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Csv extends Eloquent
+class Csv extends Type
 {
 
     protected $table = 'input_csvextract';

@@ -15,22 +15,23 @@ class InputController extends \Controller
 
         switch ($method) {
             case "PUT":
-
                 Auth::requirePermissions('tdt.input.create');
 
                 $uri = self::getUri();
                 return self::createJob($uri);
                 break;
             case "GET":
-
                 Auth::requirePermissions('tdt.input.view');
 
                 return self::getJob();
                 break;
             case "DELETE":
-
                 Auth::requirePermissions('tdt.input.delete');
                 return self::deleteJob();
+                break;
+            case "EDIT":
+                Auth::requirePermissions('tdt.input.edit');
+                return self::editJob();
                 break;
             default:
                 \App::abort(400, "The method $method is not supported by the jobs.");
@@ -38,8 +39,12 @@ class InputController extends \Controller
         }
     }
 
-     /**
+    /**
      * Create a new job based on the PUT parameters given and content-type.
+     *
+     * @param $uri string The identifier of the job
+     *
+     * @return void
      */
     public static function createJob($uri)
     {
@@ -68,36 +73,16 @@ class InputController extends \Controller
 
         // Check which parts are set for validation purposes
         $extract = @$params['extract'];
-        $map = @$params['map'];
         $load = @$params['load'];
-        $publisher = @$params['publish'];
 
         // Check for every emlp part if the type is supported
         $extractor = self::validateType(@$extract, 'Extract');
 
-        // Map is not obligatory, check if the values are empty or not
-        $map_values = array_values($map);
-
-        // Throw away the default rdf value
-        array_shift($map_values);
-
-        if (array_filter($map_values)) {
-
-            $mapper = self::validateType(@$map, 'Map');
-
-            $mapper->save();
-        }
-
         $loader = self::validateType(@$load, 'Load');
-        $publisher = self::validateType(@$publisher, 'Publish');
 
         // Save the emlp models
         $extractor->save();
         $loader->save();
-
-        if (!empty($publisher)) {
-            $publisher->save();
-        }
 
         // Create the job associated with emlp relations
         $job = new \Job();
@@ -112,15 +97,8 @@ class InputController extends \Controller
         $job->extractor_id = $extractor->id;
         $job->extractor_type = self::getClass($extractor);
 
-        if (!empty($mapper)) {
-            $job->mapper_id = @$mapper->id;
-            $job->mapper_type = self::getClass($mapper);
-        }
-
         $job->loader_id = $loader->id;
         $job->loader_type = self::getClass($loader);
-        $job->publisher_id = @$publisher->id;
-        $job->publisher_type = self::getClass($publisher);
         $job->save();
 
         $response = \Response::make(null, 200);
@@ -136,15 +114,6 @@ class InputController extends \Controller
     {
         $type = @$params['type'];
         $type = ucfirst(mb_strtolower($type));
-
-        // Map and publish are not obligatory
-        if (empty($type)) {
-            if (strtolower($ns) != 'map' && strtolower($ns) != 'publish') {
-                \App::abort(400, "No type of $ns was given, please provide a type of $ns which are listed in the discovery document.");
-            } else {
-                return;
-            }
-        }
 
         $class_name = $ns . "\\" . $type;
 
@@ -170,18 +139,14 @@ class InputController extends \Controller
      */
     private static function validateParameters($type, $short_name, $params)
     {
-
         $validated_params = array();
 
         $create_params = $type::getCreateProperties();
         $rules = $type::getCreateValidators();
 
         foreach ($create_params as $key => $info) {
-
             if (!array_key_exists($key, $params)) {
-
                 if (!empty($info['required']) && $info['required']) {
-
                     if (strtolower($type) != 'job') {
                         \App::abort(400, "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
                     } else {
@@ -192,9 +157,7 @@ class InputController extends \Controller
                 $validated_params[$key] = @$info['default_value'];
 
             } else {
-
                 if (!empty($rules[$key])) {
-
                     $validator = \Validator::make(
                         array($key => $params[$key]),
                         array($key => $rules[$key])
@@ -217,7 +180,6 @@ class InputController extends \Controller
      */
     private static function deleteJob()
     {
-
         $uri = self::getUri();
         $job = self::get($uri);
 
@@ -232,11 +194,13 @@ class InputController extends \Controller
     }
 
     /**
-     * PATCH a job based on the PATCH parameters and URI.
+     * Edit a job
+     *
+     * return \Response
      */
-    private static function patchJob($uri)
+    private function editJob()
     {
-        \App::abort(500, "Method currently not implemented.");
+
     }
 
     /**
@@ -246,10 +210,11 @@ class InputController extends \Controller
     {
         \App::abort(500, "Method currently not implemented");
     }
-    /*
+
+    /**
      * GET a job based on the uri provided
-     * TODO add support function get retrieve collections, instead full resources
-     .
+     *
+     * @return \Response
      */
     private static function getJob()
     {
@@ -303,7 +268,6 @@ class InputController extends \Controller
      */
     public static function getParts($uri)
     {
-
         if (preg_match('/(.+)\/([^\/]+)$/', $uri, $matches)) {
             $collection_uri = $matches[1];
             $name = @$matches[2];
@@ -350,7 +314,6 @@ class InputController extends \Controller
      */
     private static function makeResponse($data)
     {
-
          // Create response
         $response = \Response::make($data, 200);
 

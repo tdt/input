@@ -2,15 +2,13 @@
 
 namespace Extract;
 
-use Eloquent;
-
 /**
  * Shp model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Shp extends Eloquent
+class Shp extends Type
 {
     protected $table = 'input_shpextract';
 

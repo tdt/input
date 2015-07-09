@@ -1,6 +1,6 @@
 <?php
 
-namespace Tdt\Input\EMLP\Extract;
+namespace Tdt\Input\ETL\Extract;
 
 abstract class AExtractor
 {
@@ -64,18 +64,14 @@ abstract class AExtractor
         $prefix = "Extractor[" . $class . "]: ";
         $message = $prefix . $message;
 
-        switch($type){
-
+        switch ($type) {
             case 'info':
-
                 $this->command->info($message);
                 break;
             case 'error':
-
                 $this->command->error($message);
                 break;
             default:
-
                 $this->command->line($message);
                 break;
         }

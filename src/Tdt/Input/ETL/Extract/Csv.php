@@ -1,12 +1,11 @@
 <?php
 
-namespace Tdt\Input\EMLP\Extract;
+namespace Tdt\Input\ETL\Extract;
 
 use \ForceUTF8\Encoding;
 
 class Csv extends AExtractor
 {
-
     private $handle;
     private $row_index;
     private $header;
@@ -23,7 +22,7 @@ class Csv extends AExtractor
 
         if (!$this->handle) {
             $this->log("Could not open the file with location $uri.");
-            die();
+            die;
         }
 
         $this->log("Opened the CSV file located at $uri");

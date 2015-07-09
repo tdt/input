@@ -63,7 +63,7 @@ class JsonTest extends PHPUnit_Framework_TestCase
 
             $extract_model->uri = __DIR__ . '/../data/' . $config['file'];
 
-            $json_extractor = new \Tdt\Input\EMLP\Extract\Json($extract_model, $command);
+            $json_extractor = new \Tdt\Input\ETL\Extract\Json($extract_model, $command);
 
             $obj_count = 0;
 
@@ -85,7 +85,7 @@ class JsonTest extends PHPUnit_Framework_TestCase
     /**
      * Test the em (lp) sequence
      */
-    public function testEMLP()
+    public function testETL()
     {
         foreach ($this->test_emlp_cases as $config) {
 
@@ -96,7 +96,7 @@ class JsonTest extends PHPUnit_Framework_TestCase
 
             $extract_model->uri = __DIR__ . '/../data/' . $config['extract']['file'];
 
-            $json_extractor = new \Tdt\Input\EMLP\Extract\Json($extract_model, $command);
+            $json_extractor = new \Tdt\Input\ETL\Extract\Json($extract_model, $command);
 
             // We only extract one item, and check for conversion correctness
 
@@ -121,13 +121,6 @@ class JsonTest extends PHPUnit_Framework_TestCase
 
                 $map_model->mapfile = __DIR__ . '/../map/' . $config['map']['file'];
                 $map_model->base_uri = $config['map']['base_uri'];
-
-                $mapper = new \Tdt\Input\EMLP\Map\Rdf($map_model, $command);
-                $mapper->init();
-
-                $graph = $mapper->execute($chunk);
-
-                $this->assertEquals($config['map']['triples_amount'], $graph->countTriples());
             }
         }
     }

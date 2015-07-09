@@ -4,6 +4,7 @@
  * @copyright (C) 2011, 2014 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Michiel Vancoillie <michiel@okfn.be>
+ * @author Jan Vansteenlandt <jan@okfn.be>
  */
 namespace Tdt\Input\Ui;
 
@@ -15,6 +16,8 @@ class UiController extends \Controller
 
     /**
      * Request handeling
+     *
+     * TODO: Change everything to work with $id
      */
     public static function handle($uri)
     {
@@ -34,6 +37,12 @@ class UiController extends \Controller
                 // Create new job
                 return self::addJob();
                 break;
+            case (preg_match('/^jobs\/edit/i', $uri) ? true : false):
+                // Set permission
+                Auth::requirePermissions('tdt.input.edit');
+                // Edit a job
+                return self::editJob($uri);
+                break;
 
             case (preg_match('/^jobs\/delete/i', $uri) ? true : false):
                 // Set permission
@@ -41,7 +50,6 @@ class UiController extends \Controller
                 // Delete a job
                 return self::deleteJob($uri);
                 break;
-
         }
 
         return false;
@@ -64,7 +72,9 @@ class UiController extends \Controller
     }
 
     /**
-     * Job list
+     * Return a list of jobs
+     *
+     * @return \View
      */
     private static function listJobs()
     {
@@ -78,6 +88,8 @@ class UiController extends \Controller
 
     /**
      * Add a job
+     *
+     * @return \View
      */
     private static function addJob()
     {
@@ -93,7 +105,50 @@ class UiController extends \Controller
     }
 
     /**
+     * Edit a job
+     *
+     * @param string $uri The uri of the job
+     *
+     * @return \View
+     */
+    private static function editJob($uri)
+    {
+        $pieces = explode('/', $uri);
+
+        $id = array_pop($pieces);
+
+        if (is_numeric($id)) {
+            $job = \Job::find($id)->with('extractor', 'loader')->first();
+
+            if (empty($job)) {
+                return \Redirect::to('api/admin/jobs');
+            }
+        }
+
+        $discovery = \App::make('Tdt\Core\Definitions\DiscoveryController');
+        $discovery = json_decode($discovery->get()->getcontent());
+
+        // Get spec for media types
+        $input_extract_spec = $discovery->resources->input->methods->put->body->extract->parameters->type;
+        $input_load_spec = $discovery->resources->input->methods->put->body->load->parameters->type;
+
+        $extract_type = strtolower($job->extractor->type);
+        $load_type = strtolower($job->loader->type);
+
+        $extract_parameters = $input_extract_spec->$extract_type->parameters;
+        $load_parameters = $input_load_spec->$load_type->parameters;
+
+        return \View::make('input::ui.jobs.edit')
+                    ->with('title', 'Edit a job | The Datatank')
+                    ->with('extract_parameters', $extract_parameters)
+                    ->with('load_parameters', $load_parameters)
+                    ->with('job', $job);
+    }
+
+    /**
      * Delete a job
+     *
+     * @return mixed
      */
     private static function deleteJob($uri)
     {
