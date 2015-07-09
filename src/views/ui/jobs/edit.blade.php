@@ -48,13 +48,13 @@
 
             <h4>Extract</h4>
             <ul class="nav nav-tabs">
-                <li class='active'><a href="#{{ $job->extractor->type }}" data-toggle="tab">{{ strtoupper($job->extractor->type) }}</a></li>
+                <li class='active' id='extract'><a href="#{{ $job->extractor->type }}" data-toggle="tab">{{ strtoupper($job->extractor->type) }}</a></li>
             </ul>
 
             <div class='panel'>
                 <div class='panel-body'>
                     <div class="tab-content">
-                        <div class="tab-pane fade in active" id="{{ $job->extractor->type }}" data-type='{{ $job->extractor->type }}'>
+                        <div class="tab-pane fade in active" id="extract" data-type='{{ $job->extractor->type }}'>
                             @foreach($extract_parameters as $param => $param_options)
                             <div class='row'>
                                 <div class="form-group">
@@ -91,7 +91,7 @@
             <div class='panel'>
                 <div class='panel-body'>
                     <div class="tab-content">
-                        <div class="tab-pane fade in active" id="{{ $job->loader->type }}" data-type='{{ $job->loader->type }}'>
+                        <div class="tab-pane fade in active" id="load" data-type='{{ $job->loader->type }}'>
                             @foreach($load_parameters as $param => $param_options)
                             <div class='row'>
                                 <div class="form-group">

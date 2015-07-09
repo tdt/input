@@ -7,7 +7,6 @@ use Tdt\Core\Auth\Auth;
 
 class InputController extends \Controller
 {
-
     public function handle()
     {
         // Propage the request based on the HTTPMethod of the request.
@@ -17,21 +16,21 @@ class InputController extends \Controller
             case "PUT":
                 Auth::requirePermissions('tdt.input.create');
 
-                $uri = self::getUri();
-                return self::createJob($uri);
+                $uri = $this->getUri();
+                return $this->createJob($uri);
                 break;
             case "GET":
                 Auth::requirePermissions('tdt.input.view');
 
-                return self::getJob();
+                return $this->getJob();
                 break;
             case "DELETE":
                 Auth::requirePermissions('tdt.input.delete');
-                return self::deleteJob();
+                return $this->deleteJob();
                 break;
-            case "EDIT":
+            case "POST":
                 Auth::requirePermissions('tdt.input.edit');
-                return self::editJob();
+                return $this->editJob();
                 break;
             default:
                 \App::abort(400, "The method $method is not supported by the jobs.");
@@ -46,9 +45,9 @@ class InputController extends \Controller
      *
      * @return void
      */
-    public static function createJob($uri)
+    public function createJob($uri)
     {
-        list($collection_uri, $name) = self::getParts($uri);
+        list($collection_uri, $name) = $this->getParts($uri);
 
         // Retrieve the parameters of the PUT requests (either a JSON document or a key=value string)
         $params = \Request::getContent();
@@ -66,7 +65,7 @@ class InputController extends \Controller
         }
 
         // Validate the job properties
-        $job_params = self::validateParameters('Job', 'job', $params);
+        $job_params = $this->validateParameters('Job', 'job', $params);
 
         // Retrieve the collection uri and resource name
         $matches = array();
@@ -76,9 +75,9 @@ class InputController extends \Controller
         $load = @$params['load'];
 
         // Check for every emlp part if the type is supported
-        $extractor = self::validateType(@$extract, 'Extract');
+        $extractor = $this->getClassOfType(@$extract, 'Extract');
 
-        $loader = self::validateType(@$load, 'Load');
+        $loader = $this->getClassOfType(@$load, 'Load');
 
         // Save the emlp models
         $extractor->save();
@@ -95,10 +94,10 @@ class InputController extends \Controller
         }
 
         $job->extractor_id = $extractor->id;
-        $job->extractor_type = self::getClass($extractor);
+        $job->extractor_type = $this->getClass($extractor);
 
         $job->loader_id = $loader->id;
-        $job->loader_type = self::getClass($loader);
+        $job->loader_type = $this->getClass($loader);
         $job->save();
 
         $response = \Response::make(null, 200);
@@ -108,9 +107,9 @@ class InputController extends \Controller
     }
 
     /**
-     * Check if a given type of the emlp exists.
+     * Check if a given type of the ETL exists.
      */
-    private static function validateType($params, $ns)
+    private function getClassOfType($params, $ns)
     {
         $type = @$params['type'];
         $type = ucfirst(mb_strtolower($type));
@@ -124,7 +123,7 @@ class InputController extends \Controller
         $class = new $class_name();
 
         // Validate the properties of the given type
-        $validated_params = self::validateParameters($class, $type, $params);
+        $validated_params = $this->validateParameters($class, $type, $params);
 
         foreach ($validated_params as $key => $value) {
             $class->$key = $value;
@@ -137,7 +136,7 @@ class InputController extends \Controller
      * Validate the create parameters based on the rules of a certain job.
      * If something goes wrong, abort the application and return a corresponding error message.
      */
-    private static function validateParameters($type, $short_name, $params)
+    private function validateParameters($type, $short_name, $params)
     {
         $validated_params = array();
 
@@ -178,10 +177,10 @@ class InputController extends \Controller
     /**
      * Delete a job based on the URI given.
      */
-    private static function deleteJob()
+    private function deleteJob()
     {
-        $uri = self::getUri();
-        $job = self::get($uri);
+        $uri = $this->getUri();
+        $job = $this->get($uri);
 
         if (empty($job)) {
             \App::abort(400, "The given uri, $uri, could not be resolved as a resource that can be deleted.");
@@ -190,23 +189,72 @@ class InputController extends \Controller
         $job->delete();
 
         $response = \Response::make(null, 200);
+
         return $response;
     }
 
     /**
      * Edit a job
      *
-     * return \Response
+     * @return \Response
      */
     private function editJob()
     {
+        $uri = $this->getUri();
+
+        $job = $this->get($uri);
+
+        $config = \Request::getContent();
+
+        $config = json_decode($config, true);
+
+        if (empty($job)) {
+            return \Redirect::to('api/admin/jobs');
+        }
+
+        // Validate the job properties
+        $job_params = $this->validateParameters('Job', 'job', $config);
+
+        // Retrieve the collection uri and resource name
+        $matches = array();
+
+        // Check which parts are set for validation purposes
+        $extract = @$config['extract'];
+        $load = @$config['load'];
+
+        // Check for every ETL part if the type is supported
+        $extractor = $this->getClassOfType(@$extract, 'Extract');
+        $loader = $this->getClassOfType(@$load, 'Load');
+
+        $job->extractor()->delete();
+        $job->loader()->delete();
+
+        $extractor->save();
+        $loader->save();
+
+        // Add the validated job params
+        foreach ($job_params as $key => $value) {
+            $job->$key = $value;
+        }
+
+        $job->extractor_id = $extractor->id;
+        $job->extractor_type = $this->getClass($extractor);
+
+        $job->loader_id = $loader->id;
+        $job->loader_type = $this->getClass($loader);
+        $job->save();
+
+        $response = \Response::make(null, 200);
+        $response->header('Location', \Request::getHost() . '/' . $uri);
+
+        return $response;
 
     }
 
     /**
      * Return the headers of a call made to the uri given.
      */
-    private static function headJob($uri)
+    private function headJob($uri)
     {
         \App::abort(500, "Method currently not implemented");
     }
@@ -216,14 +264,12 @@ class InputController extends \Controller
      *
      * @return \Response
      */
-    private static function getJob()
+    private function getJob()
     {
-
-        $uri = self::getUri();
+        $uri = $this->getUri();
 
         // If the uri is nothing, return a list of all the jobs
         if ($uri == '/') {
-
             $jobs = \Job::all();
 
             $input_document = array();
@@ -232,41 +278,42 @@ class InputController extends \Controller
                 $input_document[$job->collection_uri . '/' . $job->name] = $job->getAllProperties();
             }
 
-            return self::makeResponse(str_replace('\/', '/', json_encode($input_document)), 200);
+            return $this->makeResponse(str_replace('\/', '/', json_encode($input_document)), 200);
         }
 
-        if (!self::exists($uri)) {
+        if (!$this->exists($uri)) {
             \App::abort(404, "No job has been found with the uri $uri");
         }
 
         // Get Definition object based on the given uri
-        $job = self::get($uri);
+        $job = $this->get($uri);
         $job = $job->getAllProperties();
 
-        return self::makeResponse(str_replace('\/', '/', json_encode($job)), 200);
+        return $this->makeResponse(str_replace('\/', '/', json_encode($job)), 200);
     }
 
     /**
      * Get a job object with the given uri.
      */
-    public static function get($uri)
+    public function get($uri)
     {
-        return \Job::whereRaw("? like CONCAT(collection_uri, '/', name , '/', '%')", array($uri . '/'))->first();
+        return \Job::whereRaw("? like CONCAT(collection_uri, '/', name , '/', '%')", array($uri . '/'))
+                ->with('extractor', 'loader')->first();
     }
 
     /**
      * Check if a resource exists with a given uri.
      */
-    public static function exists($uri)
+    public function exists($uri)
     {
-        $job = self::get($uri);
+        $job = $this->get($uri);
         return !empty($job);
     }
 
     /**
      * Return the collection uri and resource (if it exists)
      */
-    public static function getParts($uri)
+    public function getParts($uri)
     {
         if (preg_match('/(.+)\/([^\/]+)$/', $uri, $matches)) {
             $collection_uri = $matches[1];
@@ -281,7 +328,7 @@ class InputController extends \Controller
     /**
      * Get the class without the namespace
      */
-    private static function getClass($obj)
+    private function getClass($obj)
     {
         if (is_null($obj)) {
             return null;
@@ -296,7 +343,7 @@ class InputController extends \Controller
     /**
      * Get the stripped uri, without the prefix slug
      */
-    private static function getUri()
+    private function getUri()
     {
         $uri = \Request::path();
 
@@ -312,7 +359,7 @@ class InputController extends \Controller
     /**
      * Return the response with the given data ( formatted in json )
      */
-    private static function makeResponse($data)
+    private function makeResponse($data)
     {
          // Create response
         $response = \Response::make($data, 200);
