@@ -2,15 +2,13 @@
 
 namespace Extract;
 
-use Eloquent;
-
 /**
  * Xml model
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Xml extends Eloquent
+class Xml extends Type
 {
 
     protected $table = 'input_xmlextract';

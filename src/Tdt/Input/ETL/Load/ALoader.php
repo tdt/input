@@ -1,17 +1,17 @@
 <?php
 
-namespace Tdt\Input\EMLP\Map;
+namespace Tdt\Input\ETL\Load;
 
-abstract class AMapper
+abstract class ALoader
 {
 
-    protected $mapper;
+    protected $loader;
     protected $command;
 
-    public function __construct($mapper, $command)
+    public function __construct($loader, $command)
     {
 
-        $this->mapper = $mapper;
+        $this->loader = $loader;
         $this->command = $command;
     }
 
@@ -26,15 +26,22 @@ abstract class AMapper
     abstract public function execute(&$chunk);
 
     /**
+     * Clean up is called after the execute() function is performed.
+     */
+    public function cleanUp()
+    {
+
+    }
+
+    /**
      * Log something to the output
      */
     protected function log($message, $type = 'info')
     {
-
         $class = explode('\\', get_called_class());
         $class = end($class);
 
-        $prefix = "Mapper[" . $class . "]: ";
+        $prefix = "Loader[" . $class . "]: ";
         $message = $prefix . $message;
 
         switch($type){

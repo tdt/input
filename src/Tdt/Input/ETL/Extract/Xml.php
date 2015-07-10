@@ -1,6 +1,6 @@
 <?php
 
-namespace Tdt\Input\EMLP\Extract;
+namespace Tdt\Input\ETL\Extract;
 
 class XML extends AExtractor
 {

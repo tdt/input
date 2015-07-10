@@ -22,14 +22,14 @@
 
         @foreach($jobs as $job)
 
-            <div class="panel dataset dataset-link button-row panel-default clickable-row" data-href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}'>
+            <div class="panel dataset dataset-link button-row panel-default clickable-row" data-href='{{ URL::to('api/admin/jobs/edit/' . $job->id) }}'>
                 <div class="panel-body">
                     <div class='icon'>
                         <i class='fa fa-lg fa-file-code-o'></i>
                     </div>
                     <div>
                         <div class='row'>
-                            <div class='col-sm-4'>
+                            <div class='col-sm-3'>
                                 <h4 class='dataset-title'>
                                     {{ $job->collection_uri . '/' . $job->name  }}
                                 </h4>
@@ -45,11 +45,17 @@
                             </div>
                             <div class='col-sm-2 text-right'>
                                 <div class='btn-group'>
-                                    @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.delete'))
-                                        <a href='{{ URL::to('api/admin/jobs/delete/'. $job->id) }}' class='btn delete' title='Delete this dataset'>
-                                            <i class='fa fa-times icon-only'></i>
-                                        </a>
-                                    @endif
+                                @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.edit'))
+                                    <a href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}' class='btn' title='View the JSON definition'
+
+                                        <i class='fa fa-external-link'></i> JSON view
+                                    </a>
+                                @endif
+                                @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.delete'))
+                                <a href='{{ URL::to('api/admin/jobs/delete/'. $job->id) }}' class='btn delete' title='Delete this dataset'>
+                                    <i class='fa fa-times icon-only'></i>
+                                </a>
+                                @endif
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tdt\Input\EMLP\Helper\Json;
+namespace Tdt\Input\ETL\Helper\Json;
 
 interface Listener
 {

@@ -66,7 +66,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             $extract_model->uri = __DIR__ . '/../data/' . $config['file'];
             $extract_model->arraylevel = $config['arraylevel'];
 
-            $xml_extractor = new \Tdt\Input\EMLP\Extract\Xml($extract_model, $command);
+            $xml_extractor = new \Tdt\Input\ETL\Extract\Xml($extract_model, $command);
 
             $obj_count = 0;
 
@@ -88,7 +88,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
     /**
      * Test the em (lp) sequence
      */
-    public function testEMLP()
+    public function testETL()
     {
         foreach ($this->test_emlp_cases as $config) {
 
@@ -100,7 +100,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             $extract_model->uri = __DIR__ . '/../data/' . $config['extract']['file'];
             $extract_model->arraylevel = $config['extract']['arraylevel'];
 
-            $xml_extractor = new \Tdt\Input\EMLP\Extract\Xml($extract_model, $command);
+            $xml_extractor = new \Tdt\Input\ETL\Extract\Xml($extract_model, $command);
 
             // We only extract one item, and check for conversion correctness
 
@@ -125,13 +125,6 @@ class XmlTest extends PHPUnit_Framework_TestCase
 
                 $map_model->mapfile = __DIR__ . '/../map/' . $config['map']['file'];
                 $map_model->base_uri = $config['map']['base_uri'];
-
-                $mapper = new \Tdt\Input\EMLP\Map\Rdf($map_model, $command);
-                $mapper->init();
-
-                $graph = $mapper->execute($chunk);
-
-                $this->assertEquals($config['map']['triples_amount'], $graph->countTriples());
             }
         }
     }

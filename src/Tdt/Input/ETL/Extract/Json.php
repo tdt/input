@@ -1,9 +1,9 @@
 <?php
 
-namespace Tdt\Input\EMLP\Extract;
+namespace Tdt\Input\ETL\Extract;
 
-use Tdt\Input\EMLP\Helper\Json\JsonProcessor;
-use Tdt\Input\EMLP\Helper\Json\Parser;
+use Tdt\Input\ETL\Helper\Json\JsonProcessor;
+use Tdt\Input\ETL\Helper\Json\Parser;
 
 class Json extends AExtractor
 {
@@ -41,7 +41,6 @@ class Json extends AExtractor
     {
 
         while (!$this->listener->hasNew() && !feof($this->handle)) {
-
             $char = fread($this->handle, 1);
 
             if ($char !== "" && $char != "\n") {
