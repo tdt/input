@@ -3,11 +3,14 @@
 namespace Tdt\Input\Controllers;
 
 /**
- * Controller that helps building the discovery document.
+ * Controller that builds the discovery document for the input package.
+ *
+ * @author Jan Vansteenlandt jan@okfn.be
+ * @license aGPLv3
+ * @copyright OK Belgium
  */
 class DiscoveryController extends \Controller
 {
-
     public static function createDiscoveryDocument()
     {
         // Create and return a document that holds a self-explanatory document
@@ -34,7 +37,6 @@ class DiscoveryController extends \Controller
      */
     private static function createGetDocumentation()
     {
-
         $get = new \stdClass();
 
         $get->httpMethod = "GET";
@@ -49,7 +51,6 @@ class DiscoveryController extends \Controller
      */
     private static function createPutDocumentation()
     {
-
         $put = new \stdClass();
 
         $put->httpMethod = "PUT";
@@ -72,16 +73,12 @@ class DiscoveryController extends \Controller
         // Fetch all the supported extract models by iterating the models/extract directory
         if ($handle = opendir(__DIR__ . '/../../../models/extract')) {
             while (false !== ($entry = readdir($handle))) {
-
                 // Skip the . and .. directory
                 if (preg_match("/(.+)\.php/", $entry, $matches)) {
-
                     $model = 'Extract\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
-
                     if (method_exists($model, 'getCreateProperties')) {
-
                         $extract_types[$type] = new \stdClass();
                         $extract_types[$type]->parameters = $model::getCreateProperties();
                     }
@@ -103,16 +100,13 @@ class DiscoveryController extends \Controller
         // Fetch all the supported load models by iterating the models/load directory
         if ($handle = opendir(__DIR__ . '/../../../models/load')) {
             while (false !== ($entry = readdir($handle))) {
-
                 // Skip the . and .. directory
                 if (preg_match("/(.+)\.php/", $entry, $matches)) {
-
                     $model = 'Load\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
 
                     if (method_exists($model, 'getCreateProperties')) {
-
                         $load_types[$type] = new \stdClass();
                         $load_types[$type]->parameters = $model::getCreateProperties();
                     }
@@ -134,7 +128,6 @@ class DiscoveryController extends \Controller
      */
     private static function createDeleteDocumentation()
     {
-
         $delete = new \stdClass();
 
         $delete->httpMethod = "DELETE";

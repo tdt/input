@@ -70,6 +70,17 @@
                                         <input type="number" class="form-control" id="{{ $param }}" name="{{ $param }}" @if(isset($job->extractor->$param)) value='{{ $job->extractor->$param }}' @endif>
                                         @elseif($param_options->type == 'boolean')
                                         <input type='checkbox' class="form-control" id="{{ $param }}" name="{{ $param }}" checked='checked'/>
+                                        @elseif($param_options->type == 'list')
+                                        <select id="{{ $param }}" name="{{ $param }}">
+
+                                            @foreach ($param_options->list as $value)
+                                            @if ($value == 'UTF-8')
+                                            <option value="{{ $value }}" selected>{{ $value }}</option>
+                                            @else
+                                            <option value="{{ $value }}">{{ $value }}</option>
+                                            @endif
+                                            @endforeach
+                                        </select>
                                         @endif
                                         <div class='help-block'>
                                             {{{ $param_options->description }}}

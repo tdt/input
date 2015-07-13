@@ -46,12 +46,12 @@
 
         <hr/>
 
-        @foreach($input_spec as $part => $part_options)
+        @foreach($configuration as $part => $part_options)
 
             <h4>{{ ucfirst($part) }}</h4>
             <ul class="nav nav-tabs">
                 <?php $i = 0 ?>
-                @foreach($part_options->parameters->type as $type => $type_options)
+                @foreach($part_options as $type => $type_options)
                     <li @if($i == 0) class='active' @endif><a href="#{{ $part . '-' . $type }}" data-toggle="tab">{{ strtoupper($type) }}</a></li>
                     <?php $i++ ?>
                 @endforeach
@@ -61,12 +61,14 @@
                 <div class='panel-body'>
                     <div class="tab-content">
                         <?php $i = 0 ?>
-                        @foreach($part_options->parameters->type as $type => $type_options)
+                        @foreach($part_options as $type => $type_options)
                             <div class="tab-pane fade in @if($i == 0){{ 'active' }}@endif" id="{{ $part . '-' . $type }}" data-type='{{ $type }}' data-part='{{ $part }}'>
-                                @foreach($type_options->parameters as $param => $param_options)
+
+                                @foreach($type_options as $param => $param_options)
                                     <div class='row'>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">
+
                                                 {{ $param_options->name }}
                                             </label>
                                             <div class="col-sm-10">
@@ -78,6 +80,17 @@
                                                     <input type="number" class="form-control" id="{{ $param }}" name="{{ $param }}" placeholder="" @if(isset($param_options->default_value)) value='{{ $param_options->default_value }}' @endif>
                                                 @elseif($param_options->type == 'boolean')
                                                     <input type='checkbox' class="form-control" id="{{ $param }}" name="{{ $param }}" checked='checked'/>
+                                                @elseif($param_options->type == 'list')
+                                                    <select id="{{ $param }}" name="{{ $param }}">
+
+                                                    @foreach ($param_options->list as $value)
+                                                        @if ($value == 'UTF-8')
+                                                        <option value="{{ $value }}" selected>{{ $value }}</option>
+                                                        @else
+                                                        <option value="{{ $value }}">{{ $value }}</option>
+                                                        @endif
+                                                    @endforeach
+                                                    </select>
                                                 @endif
                                                 <div class='help-block'>
                                                     {{{ $param_options->description }}}

@@ -80,7 +80,14 @@ class Csv extends Type
                     'default_value' => 1,
                     'type' => 'boolean',
                     'name' => 'Header row',
-                )
+                ),
+                'encoding' => array(
+                    'required' => false,
+                    'description' => 'The type of encoding of the data. If no value is provided, the data encoding will default to UTF-8.',
+                    'type' => 'list',
+                    'list' => 'api/encodings',
+                    'name' => 'Encoding'
+                ),
         );
     }
 }

@@ -15,11 +15,11 @@ class UiController extends \Controller
 {
 
     /**
-     * Request handeling
+     * Request handling
      *
      * TODO: Change everything to work with $id
      */
-    public static function handle($uri)
+    public function handle($uri)
     {
         switch ($uri) {
             case 'jobs':
@@ -27,7 +27,7 @@ class UiController extends \Controller
                 Auth::requirePermissions('tdt.input.view');
 
                 // Get list of jobs
-                return self::listJobs();
+                return $this->listJobs();
                 break;
 
             case 'jobs/add':
@@ -35,20 +35,20 @@ class UiController extends \Controller
                 Auth::requirePermissions('tdt.input.create');
 
                 // Create new job
-                return self::addJob();
+                return $this->addJob();
                 break;
             case (preg_match('/^jobs\/edit/i', $uri) ? true : false):
                 // Set permission
                 Auth::requirePermissions('tdt.input.edit');
                 // Edit a job
-                return self::editJob($uri);
+                return $this->editJob($uri);
                 break;
 
             case (preg_match('/^jobs\/delete/i', $uri) ? true : false):
                 // Set permission
                 Auth::requirePermissions('tdt.input.delete');
                 // Delete a job
-                return self::deleteJob($uri);
+                return $this->deleteJob($uri);
                 break;
         }
 
@@ -58,7 +58,7 @@ class UiController extends \Controller
     /**
      * Define menu items
      */
-    public static function menu()
+    public function menu()
     {
         return array(
             array(
@@ -76,7 +76,7 @@ class UiController extends \Controller
      *
      * @return \View
      */
-    private static function listJobs()
+    private function listJobs()
     {
         // Get list of jobs
         $jobs = \Job::all();
@@ -91,17 +91,42 @@ class UiController extends \Controller
      *
      * @return \View
      */
-    private static function addJob()
+    private function addJob()
     {
         $discovery = \App::make('Tdt\Core\Definitions\DiscoveryController');
         $discovery = json_decode($discovery->get()->getcontent());
 
-        // Get spec for media types
+        // Get the configuration for the input
         $input_spec = $discovery->resources->input->methods->put->body;
+
+        $configuration = [];
+
+        // Fill in list parameters in the provided configurations
+        foreach ($input_spec as $el => $el_config) {
+            $el_type_config = $el_config->parameters->type;
+
+            $el_config = [];
+
+            foreach ($el_type_config as $type => $config) {
+                $processed_param = [];
+
+                foreach ($config->parameters as $parameter) {
+                    if ($parameter->type == 'list') {
+                        $parameter->list = json_decode($this->getDocument($parameter->list));
+                    }
+
+                    $processed_param[] = $parameter;
+                }
+
+                $el_config[$type] = $processed_param;
+            }
+
+            $configuration[$el] = $el_config;
+        }
 
         return \View::make('input::ui.jobs.add')
                     ->with('title', 'New job | The Datatank')
-                    ->with('input_spec', $input_spec);
+                    ->with('configuration', $configuration);
     }
 
     /**
@@ -111,14 +136,14 @@ class UiController extends \Controller
      *
      * @return \View
      */
-    private static function editJob($uri)
+    private function editJob($uri)
     {
         $pieces = explode('/', $uri);
 
         $id = array_pop($pieces);
 
         if (is_numeric($id)) {
-            $job = \Job::find($id)->with('extractor', 'loader')->first();
+            $job = \Job::where('id', $id)->with('extractor', 'loader')->first();
 
             if (empty($job)) {
                 return \Redirect::to('api/admin/jobs');
@@ -128,7 +153,7 @@ class UiController extends \Controller
         $discovery = \App::make('Tdt\Core\Definitions\DiscoveryController');
         $discovery = json_decode($discovery->get()->getcontent());
 
-        // Get spec for media types
+        // Get the configuration for the selected ETL
         $input_extract_spec = $discovery->resources->input->methods->put->body->extract->parameters->type;
         $input_load_spec = $discovery->resources->input->methods->put->body->load->parameters->type;
 
@@ -137,6 +162,14 @@ class UiController extends \Controller
 
         $extract_parameters = $input_extract_spec->$extract_type->parameters;
         $load_parameters = $input_load_spec->$load_type->parameters;
+
+        // Fill in list parameters in the provided configurations
+
+        foreach ($extract_parameters as $parameter) {
+            if ($parameter->type == 'list') {
+                $parameter->list = json_decode($this->getDocument($parameter->list));
+            }
+        }
 
         return \View::make('input::ui.jobs.edit')
                     ->with('title', 'Edit a job | The Datatank')
@@ -148,9 +181,11 @@ class UiController extends \Controller
     /**
      * Delete a job
      *
+     * @param string $uri The unique identifier URI of the job
+     *
      * @return mixed
      */
-    private static function deleteJob($uri)
+    private function deleteJob($uri)
     {
         // Get the id
         $id = str_replace('jobs/delete/', '', $uri);
@@ -165,5 +200,20 @@ class UiController extends \Controller
         } else {
             return false;
         }
+    }
+
+    private function getDocument($uri)
+    {
+        // Create a CURL client
+        $cURL = new \Buzz\Client\Curl();
+        $cURL->setVerifyPeer(false);
+        $cURL->setTimeout(30);
+
+        // Get discovery document
+        $browser = new \Buzz\Browser($cURL);
+        $response = $browser->get(\URL::to($uri));
+
+        // Document content
+        return $response->getContent();
     }
 }
