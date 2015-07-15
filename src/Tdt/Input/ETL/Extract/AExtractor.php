@@ -28,7 +28,6 @@ abstract class AExtractor
 
     }
 
-
     /**
      * Preparatory work before starting to process the file. This function is called from the constructor of this class
      */

@@ -43,10 +43,11 @@ class ExecuteJob extends Command
         $list = $this->option('list');
 
         if (empty($list)) {
-
             $job_name = $this->argument('jobname');
 
-            list($collection_uri, $name) = InputController::getParts($job_name);
+            $inputController = new InputController();
+
+            list($collection_uri, $name) = $inputController->getParts($job_name);
 
             // Check if the job exists
             $job = \Job::where('name', '=', $name)
@@ -64,11 +65,9 @@ class ExecuteJob extends Command
             $job_exec->execute();
 
         } else {
-
             $jobs = \Job::all(['name', 'collection_uri'])->toArray();
 
             if (!empty($jobs)) {
-
                 $this->info("=== Job names ===");
 
                 foreach ($jobs as $job) {

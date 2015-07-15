@@ -2,10 +2,10 @@
 
 namespace Tdt\Input\ETL\Extract;
 
-use \ForceUTF8\Encoding;
-
 class Csv extends AExtractor
 {
+    use Encoding;
+
     private $handle;
     private $row_index;
     private $header;
@@ -13,6 +13,7 @@ class Csv extends AExtractor
     protected function open()
     {
         $uri = $this->extractor->uri;
+        $this->encoding = $this->extractor->encoding;
 
         // Keep track at which row the Csv handler is
         $this->row_index = 0;
@@ -31,7 +32,11 @@ class Csv extends AExtractor
             $i=0;
 
             foreach ($data as &$el) {
-                $this->header[$i] = Encoding::fixUTF8($el);
+                if ($this->encoding != 'UTF-8') {
+                    $el = $this->convertToUtf8($el, $this->encoding);
+                }
+
+                $this->header[$i] = $this->fixUtf8($el);
                 $i++;
             }
 
@@ -54,17 +59,20 @@ class Csv extends AExtractor
      */
     public function pop()
     {
-
         $row = array();
 
         if (($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
             $i=0;
 
             foreach ($data as $el) {
+                if ($this->encoding != 'UTF-8') {
+                    $el = $this->convertToUtf8($el, $this->encoding);
+                }
+
                 if ($this->extractor->has_header_row) {
-                    $row[$this->header[$i]] = Encoding::fixUTF8($el);
+                    $row[$this->header[$i]] = $this->fixUtf8($el);
                 } else {
-                    $row[$i] = Encoding::fixUTF8($el);
+                    $row[$i] = $this->fixUtf8($el);
                 }
 
                 $i++;

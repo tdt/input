@@ -71,7 +71,14 @@ class Xml extends Type
                     'description' => 'The level on which the objects that need to be mapped start. Example: <root><meta>...</meta><records><record>...</record></records>..., record starts at arraylevel 6 because textnodes also count as a level to be skipped.',
                     'type' => 'string',
                     'name' => 'Arraylevel',
-                )
+                ),
+                'encoding' => array(
+                    'required' => false,
+                    'description' => 'The type of encoding of the data. If no value is provided, the data encoding will default to UTF-8.',
+                    'type' => 'list',
+                    'list' => 'api/encodings',
+                    'name' => 'Encoding'
+                ),
         );
     }
 }

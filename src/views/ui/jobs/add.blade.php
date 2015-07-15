@@ -63,7 +63,6 @@
                         <?php $i = 0 ?>
                         @foreach($part_options as $type => $type_options)
                             <div class="tab-pane fade in @if($i == 0){{ 'active' }}@endif" id="{{ $part . '-' . $type }}" data-type='{{ $type }}' data-part='{{ $part }}'>
-
                                 @foreach($type_options as $param => $param_options)
                                     <div class='row'>
                                         <div class="form-group">

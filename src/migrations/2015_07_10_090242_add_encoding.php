@@ -16,15 +16,15 @@ class AddEncoding extends Migration {
         Schema::drop('input_sparqlload');
 
         Schema::table('input_csvextract', function ($table) {
-            $table->string('encoding', 50);
+            $table->string('encoding', 50)->nullable();
         });
 
         Schema::table('input_xmlextract', function ($table) {
-            $table->string('encoding', 50);
+            $table->string('encoding', 50)->nullable();
         });
 
         Schema::table('input_shpextract', function ($table) {
-            $table->string('encoding', 50);
+            $table->string('encoding', 50)->nullable();
         });
     }
 

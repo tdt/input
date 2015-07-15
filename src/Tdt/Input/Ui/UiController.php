@@ -110,12 +110,12 @@ class UiController extends \Controller
             foreach ($el_type_config as $type => $config) {
                 $processed_param = [];
 
-                foreach ($config->parameters as $parameter) {
+                foreach ($config->parameters as $name => $parameter) {
                     if ($parameter->type == 'list') {
                         $parameter->list = json_decode($this->getDocument($parameter->list));
                     }
 
-                    $processed_param[] = $parameter;
+                    $processed_param[$name] = $parameter;
                 }
 
                 $el_config[$type] = $processed_param;

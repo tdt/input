@@ -8,6 +8,7 @@ namespace Tdt\Input\ETL\Extract;
  * data through a stream.
  *
  * @copyright (C) 2011 by iRail vzw/asbl
+ * @author Jan Vansteenlandt jan@okfn.be
  * @license AGPLv3
  */
 
@@ -15,6 +16,8 @@ use muka\ShapeReader\ShapeReader;
 
 class SHP extends AExtractor
 {
+    use Encoding;
+
     private $read_record;
     private $shape_file_wrapper;
     private $EPSG = "";
@@ -25,6 +28,7 @@ class SHP extends AExtractor
             $this->EPSG = $this->extractor["epsg"];
         }
 
+        $this->encoding = $this->extractor["encoding"];
         $uri = $this->extractor['uri'];
 
         if (!is_dir("tmp")) {
@@ -45,7 +49,7 @@ class SHP extends AExtractor
             } else {
                 $this->shape_file_wrapper = new ShapeReader($uri, $options);
             }
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw new \Exception("Something went wrong during the configuration of the SHP Loader: $ex->getMessage()");
         }
     }
@@ -69,6 +73,14 @@ class SHP extends AExtractor
             $dbf_data = $record->getDbfData();
 
             foreach ($dbf_data as $property => $value) {
+                if ($this->encoding != 'UTF-8') {
+                    $property = $this->convertToUtf8($property, $this->encoding);
+                    $value = $this->convertToUtf8($value, $this->encoding);
+                }
+
+                $property = $this->fixUtf8($property);
+                $value = $this->fixUtf8($value);
+
                 $property = strtolower($property);
                 $rowobject[$property] = trim($value);
             }

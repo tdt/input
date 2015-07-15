@@ -4,6 +4,7 @@ namespace Tdt\Input\ETL\Extract;
 
 class XML extends AExtractor
 {
+    use Encoding;
 
     private $next;
     private $reader;
@@ -11,8 +12,8 @@ class XML extends AExtractor
 
     protected function open()
     {
-
         $uri = $this->extractor->uri;
+        $this->encoding = $this->extractor->encoding;
 
         $this->reader = new \XMLReader();
 
@@ -39,7 +40,6 @@ class XML extends AExtractor
      */
     public function hasNext()
     {
-
         if (!empty($this->next)) {
             return true;
         } else {
@@ -58,13 +58,20 @@ class XML extends AExtractor
      */
     public function pop()
     {
-
         if ($this->hasNext()) {
-
             $document = array();
             $this->makeFlat($document, $this->next);
-            unset($this->next); // Delete it to clear memory for the next operation
+
+            unset($this->next);
             $this->index= 0;
+
+            $utf8_document = [];
+
+            if ($this->encoding != 'UTF-8') {
+                foreach ($document as $key => $value) {
+
+                }
+            }
 
             return $document;
         } else {
@@ -86,21 +93,21 @@ class XML extends AExtractor
 
     private function makeFlat(&$document, &$xmlobject, $parentname = "", $index = null)
     {
-
-        //prefix for row names
+        // Prefix for row names
         if ($parentname == "") {
             $prefix = "";
             $name = $xmlobject->nodeName;
         } else {
             $prefix = $parentname;
             $name =  "_" . $xmlobject->nodeName;
+
             if (!empty($index)) {
-                $index--; // If we pass $index = 0, it will not pass the test as well, so lets take an assumed offset of 1, and then just adjust to a 0-based offset.
+                $index--;
                 $name = $name . "[" . $index . "]";
             }
         }
 
-        //first the attributes
+        // Parse the attributes
         $this->parseAttributes($document, $xmlobject, $prefix . $name);
 
         if (sizeof($xmlobject->childNodes) == 0) {
@@ -124,9 +131,8 @@ class XML extends AExtractor
             }
 
             foreach ($xmlobject->childNodes as $child) {
-                //if the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
+                // If the child's name did not occur yet, add both [0] and without the 0 for backward compatibility
                 if (isset($frequency[$child->nodeName])) { // This shouldn't be checked, just for safety measures.
-
                     if ($frequency[$child->nodeName] > 1) {
                         if ($current_index[$child->nodeName] == 1) {
                             $this->makeFlat($document, $child, $prefix . $name, null);
