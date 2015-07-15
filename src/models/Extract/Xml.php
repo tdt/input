@@ -13,7 +13,7 @@ class Xml extends Type
 
     protected $table = 'input_xmlextract';
 
-    protected $fillable = array('uri', 'arraylevel');
+    protected $fillable = array('uri', 'arraylevel', 'encoding');
 
     /**
      * Relationship with Job

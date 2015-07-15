@@ -13,7 +13,7 @@ class Csv extends Type
 
     protected $table = 'input_csvextract';
 
-    protected $fillable = array('uri', 'delimiter', 'has_header_row');
+    protected $fillable = array('uri', 'delimiter', 'has_header_row', 'encoding');
 
     /**
      * Relationship with Job

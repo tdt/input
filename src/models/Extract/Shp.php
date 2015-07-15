@@ -12,7 +12,7 @@ class Shp extends Type
 {
     protected $table = 'input_shpextract';
 
-    protected $fillable = array('uri', 'epsg');
+    protected $fillable = array('uri', 'epsg', 'encoding');
 
     /**
      * Relationship with Job
@@ -70,6 +70,13 @@ class Shp extends Type
                     'default_value' => 4326,
                     'type' => 'string',
                     'name' => 'EPSG',
+                ),
+                'encoding' => array(
+                    'required' => false,
+                    'description' => 'The type of encoding of the data. If no value is provided, the data encoding will default to UTF-8.',
+                    'type' => 'list',
+                    'list' => 'api/encodings',
+                    'name' => 'Encoding'
                 ),
         );
     }
