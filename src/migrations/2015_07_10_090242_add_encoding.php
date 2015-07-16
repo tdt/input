@@ -51,6 +51,7 @@ class AddEncoding extends Migration {
         Schema::create('input_rdfmap', function ($table) {
             $table->increments('id');
             $table->string('mapfile', 255);
+            $table->string('base_uri', 255);
 
             // created_at | updated_at DATETIME, are default expected by the Eloquent ORM
             $table->timestamps();
@@ -63,6 +64,7 @@ class AddEncoding extends Migration {
             $table->string('user', 255);
             $table->string('password', 255);
             $table->integer('buffer_size');
+            $table->string('hostname', 255);
 
             // created_at | updated_at DATETIME, are default expected by the Eloquent ORM
             $table->timestamps();
