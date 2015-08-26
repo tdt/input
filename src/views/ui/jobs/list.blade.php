@@ -4,14 +4,14 @@
 
     <div class='row header'>
         <div class="col-sm-7">
-            <h3>Manage your jobs</h3>
+            <h3>{{ trans('input::admin.manage_jobs') }}</h3>
         </div>
         <div class="col-sm-5 text-right">
             <a href='{{ URL::to('api/admin/jobs/add') }}' class='btn btn-primary margin-left'
                 data-step='1'
                 data-intro='Add a new job to the system.'
                 data-position="left">
-                <i class='fa fa-plus'></i> Add
+                <i class='fa fa-plus'></i> {{ trans('input::admin.add_button') }}
             </a>
         </div>
     </div>
@@ -46,9 +46,9 @@
                             <div class='col-sm-2 text-right'>
                                 <div class='btn-group'>
                                 @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.edit'))
-                                    <a href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}' class='btn' title='View the JSON definition'
+                                    <a href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}' class='btn' title="{{ trans('input::admin.view_json_def') }}"
 
-                                        <i class='fa fa-external-link'></i> JSON view
+                                        <i class='fa fa-external-link'></i> {{ trans('input::admin.view_json_def') }}
                                     </a>
                                 @endif
                                 @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.delete'))
@@ -70,9 +70,9 @@
             <div class="panel-body note">
                 <i class='fa fa-lg fa-warning'></i>&nbsp;&nbsp;
                 @if(count($jobs) === 0)
-                    This datatank has no configured jobs yet.
+                    {{ trans('admin.no_jobs_message') }}
                 @else
-                    No job(s) found with the filter <strong>'<span class='dataset-filter'></span>'</strong>
+                    {{ trans('admin.no_jobs_filter') }} <strong>'<span class='dataset-filter'></span>'</strong>
                 @endif
             </div>
         </div>

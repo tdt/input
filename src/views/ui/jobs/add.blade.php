@@ -7,7 +7,7 @@
                 <a href='{{ URL::to('api/admin/jobs') }}' class='back'>
                     <i class='fa fa-angle-left'></i>
                 </a>
-                Add a job
+                {{ trans('input::admin.add_job') }}
             </h3>
         </div>
         <div class='col-sm-2 text-right'>
@@ -30,7 +30,7 @@
 
         <div class="form-group">
             <label for="input_identifier" class="col-sm-2 control-label">
-                Identifier
+                {{ trans('input::admin.identifier') }}
             </label>
             <div class="col-sm-10">
 

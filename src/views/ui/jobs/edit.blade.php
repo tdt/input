@@ -7,7 +7,7 @@
                 <a href='{{ URL::to('api/admin/jobs') }}' class='back'>
                     <i class='fa fa-angle-left'></i>
                 </a>
-                Edit a job
+                {{ trans('input::admin.edit_job') }}
             </h3>
         </div>
         <div class='col-sm-2 text-right'>
@@ -30,7 +30,7 @@
 
         <div class="form-group">
             <label for="input_identifier" class="col-sm-2 control-label">
-                Identifier
+                {{ trans('input::admin.identifier') }}
             </label>
             <div class="col-sm-10">
                 <div class="input-group">
@@ -44,9 +44,7 @@
         </div>
 
         <hr/>
-
-
-            <h4>Extract</h4>
+            <h4>{{ trans('input::admin.extract') }}</h4>
             <ul class="nav nav-tabs">
                 <li class='active' id='extract'><a href="#{{ $job->extractor->type }}" data-toggle="tab">{{ strtoupper($job->extractor->type) }}</a></li>
             </ul>
@@ -94,7 +92,7 @@
                 </div>
             </div>
 
-            <h4>Load</h4>
+            <h4>{{ trans('input::admin.load') }}</h4>
             <ul class="nav nav-tabs">
                 <li class='active'><a href="#{{ $job->loader->type }}" data-toggle="tab">{{ strtoupper($job->loader->type) }}</a></li>
             </ul>

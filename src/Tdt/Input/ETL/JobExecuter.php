@@ -3,11 +3,8 @@
 namespace Tdt\Input\ETL;
 
 /**
- * The jobexecuter class kickstarts the emlp sequence assembled by
- *      * the extractor
- *      * the mapper (can be null)
- *      * the loader
- *      * the publisher (can be null)
+ * This class kickstarts and completes the ETL sequence.
+ *
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  * @author Pieter Colpaert <pieter@okfn.be>
@@ -18,7 +15,6 @@ use Monolog\Logger;
 
 class JobExecuter
 {
-
     private $job;
     private $command;
 
@@ -36,34 +32,19 @@ class JobExecuter
      */
     public function execute()
     {
-
         // Fetch the extractor, mapper (optional), loader and publisher (optional)
         // and use as constructor variables for the empl wrappers
         $extractor_model = $this->job->extractor()->first();
         $extractor = $this->getExecuter($extractor_model);
 
-        $mapper_model = null;
-        if (!empty($this->job->mapper_type)) {
-
-            $mapper_model = $this->job->mapper()->first();
-            $mapper = $this->getExecuter($mapper_model);
-        }
-
         $loader_model = $this->job->loader()->first();
         $loader = $this->getExecuter($loader_model);
-
-        $publisher_model = null;
-        if (!empty($this->job->publisher_type)) {
-
-            $publisher_model = $this->job->publisher()->first();
-            $publisher = $this->getExecuter($publisher_model);
-        }
 
         // Register the start of the execution
         $start = microtime(true);
 
-        // Keep track of the number of chunks that were processed
-        $numberofchunks = 0;
+        // Keep track of the number of objects that were processed
+        $numberofobjects = 0;
 
         // Create the job id
         $id = $this->job->collection_uri . '/' . $this->job->name;
@@ -72,36 +53,16 @@ class JobExecuter
         // Log the start of the entire emlp execution
         $this->log("Started executing the job identified by $id at $timestamp.");
 
-        // While the extractor reads chunks, keep executing the eml sequence
-        $count_triples = 0;
-        $count_chunks = 0;
+        // While the extractor reads objects, keep executing the eml sequence
+        $count_objects = 0;
+        $loaded_objects = 0;
 
         while ($extractor->hasNext()) {
-
             $chunk = $extractor->pop();
 
+            $count_objects++;
 
-            if (!empty($chunk)) {
-
-                $count_chunks++;
-
-                // Perform the mapping if present
-                if (!empty($mapper)) {
-
-                    $chunk = $mapper->execute($chunk);
-                }
-
-                // Perform the loader processing
-                $loader->execute($chunk);
-
-                // Cumulate the amount of triples
-                if (!empty($chunk) && !is_array($chunk)) {
-                    $count_triples += $chunk->countTriples();
-                }
-            } else {
-                $this->log("Empty chunk retrieved from the extractor, previous chunk count was $count_chunks.");
-
-            }
+            $loader->execute($chunk);
         }
 
         // Clean up after loader execution
@@ -109,7 +70,7 @@ class JobExecuter
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Extracted a total of $count_chunks chunks from the source file, loaded a total of $count_triples triples  in " . $duration . " seconds.");
+        $this->log("Extracted and loaded a total of $count_objects objects from the data source in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if (!empty($publisher)) {
@@ -122,10 +83,8 @@ class JobExecuter
 
     /**
      * Retrieve the executer for a certain model of the emlp
-     * $model will be any existing empl model
      *
-     * example $model -> class is extract\Csv
-     * @return new emlp\extract\Csv($model)
+     * @return mixed
      */
     private function getExecuter($model)
     {
@@ -168,7 +127,6 @@ class JobExecuter
      */
     protected function log($message)
     {
-
         $class = explode('\\', get_called_class());
         $class = end($class);
 

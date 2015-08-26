@@ -2,6 +2,9 @@
 
 namespace Tdt\Input\ETL\Extract;
 
+// Flexibility measure for MS-DOS, Mac line endings in a file.
+ini_set("auto_detect_line_endings", true);
+
 class Csv extends AExtractor
 {
     use Encoding;
@@ -80,6 +83,7 @@ class Csv extends AExtractor
         }
 
         $this->log("Extracted data from row $this->row_index");
+        $this->row_index++;
 
         return $row;
     }
