@@ -11,7 +11,7 @@
             </h3>
         </div>
         <div class='col-sm-2 text-right'>
-            <button type='submit' class='btn btn-cta btn-add-job margin-left'><i class='fa fa-plus'></i> Add</button>
+            <button type='submit' class='btn btn-cta btn-add-job margin-left'><i class='fa fa-plus'></i> {{ trans('input::admin.add_button') }}</button>
         </div>
     </div>
 

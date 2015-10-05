@@ -105,7 +105,6 @@ class DiscoveryController extends \Controller
                     $model = 'Load\\' . $matches[1];
                     $type = strtolower($matches[1]);
 
-
                     if (method_exists($model, 'getCreateProperties')) {
                         $load_types[$type] = new \stdClass();
                         $load_types[$type]->parameters = $model::getCreateProperties();

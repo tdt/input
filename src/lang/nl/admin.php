@@ -13,5 +13,6 @@ return array(
     "no_jobs_filter"    => "Er werden geen jobs gevonden via de gebruikte filter.",
     "menu_jobs"         => "Jobs",
     "add_button"        => "Voeg toe",
+    "edit_button"       => "Bewerk",
     "view_json_def"     => "Bekijk de configuratie in JSON",
 );

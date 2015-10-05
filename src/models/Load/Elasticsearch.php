@@ -3,16 +3,17 @@
 namespace Load;
 
 /**
- * Mongo load model
+ * Elasticsearch load model
+ *
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
  * @author Jan Vansteenlandt <jan@okfn.be>
  */
-class Mongo extends Type
+class Elasticsearch extends Type
 {
-    protected $table = 'input_mongoload';
+    protected $table = 'input_elasticsearchload';
 
-    protected $fillable = array('host', 'username', 'password', 'port', 'collection', 'database');
+    protected $fillable = array('host', 'username', 'password', 'port', 'es_index', 'es_type');
 
     /**
      * Relationship with Job
@@ -48,12 +49,11 @@ class Mongo extends Type
      */
     public static function getCreateValidators()
     {
-
         return array(
             'host' => 'required',
             'port' => 'required',
-            'database' => 'required',
-            'collection' => 'required',
+            'index' => 'required',
+            'type' => 'required',
         );
     }
 
@@ -65,28 +65,28 @@ class Mongo extends Type
         return array(
                 'host' => array(
                     'required' => true,
-                    'description' => 'The host of the mongodb',
+                    'description' => 'The host of the elasticsearch',
                     'type' => 'string',
                     'name' => 'Host',
                 ),
                 'port' => array(
                     'required' => true,
-                    'description' => 'The port on which the mongodb is listening.',
+                    'description' => 'The port on which the elasticsearch is listening.',
                     'type' => 'integer',
                     'name' => 'Port',
-                    'default_value' => 27017,
+                    'default_value' => 9200,
                 ),
-                'database' => array(
+                'es_index' => array(
                     'required' => true,
-                    'description' => 'The database to connect to.',
+                    'description' => 'The index to connect to.',
                     'type' => 'string',
-                    'name' => 'Database',
+                    'name' => 'Index',
                 ),
-                'collection' => array(
+                'es_type' => array(
                     'required' => false,
-                    'description' => 'The collection to insert the data into.',
+                    'description' => 'The type to insert the data into.',
                     'type' => 'string',
-                    'name' => 'Collection',
+                    'name' => 'Type',
                 ),
         );
     }

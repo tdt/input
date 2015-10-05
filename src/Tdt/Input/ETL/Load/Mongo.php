@@ -55,7 +55,7 @@ class Mongo extends ALoader
      * @param mixed $chunk
      * @return void
      */
-    public function execute(&$chunk)
+    public function execute($chunk)
     {
         $this->mongoCollection->save($chunk);
     }
