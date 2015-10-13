@@ -70,9 +70,9 @@
             <div class="panel-body note">
                 <i class='fa fa-lg fa-warning'></i>&nbsp;&nbsp;
                 @if(count($jobs) === 0)
-                    {{ trans('admin.no_jobs_message') }}
+                    {{ trans('input::admin.no_jobs_message') }}
                 @else
-                    {{ trans('admin.no_jobs_filter') }} <strong>'<span class='dataset-filter'></span>'</strong>
+                    {{ trans('input::admin.no_jobs_filter') }} <strong>'<span class='dataset-filter'></span>'</strong>
                 @endif
             </div>
         </div>
