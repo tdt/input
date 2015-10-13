@@ -15,4 +15,5 @@ return array(
     "add_button"        => "Add",
     "edit_button"        => "Modifier",
     "view_json_def"     => "View the definition in JSON",
+    'no_jobs_message'   => "Aucune de jobs ont été configurés.",
 );

@@ -88,6 +88,18 @@ class Mongo extends Type
                     'type' => 'string',
                     'name' => 'Collection',
                 ),
+                'username' => array(
+                    'required' => false,
+                    'description' => 'The username of the mongodb instance.',
+                    'type' => 'string',
+                    'name' => 'Username',
+                ),
+                'password' => array(
+                    'required' => false,
+                    'description' => 'The password of the user.',
+                    'type' => 'string',
+                    'name' => 'Password',
+                )
         );
     }
 }

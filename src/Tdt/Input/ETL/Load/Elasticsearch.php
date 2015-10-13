@@ -20,14 +20,25 @@ class Elasticsearch extends ALoader
 
     public function init()
     {
-        $prefix = '';
+        // Check for authentication
+        if (!empty($this->loader['username']) && !empty($this->loader['password'])) {
+            $auth = $this->loader['username'] . ':' . $this->loader['password'] . '@';
+
+            $parts = parse_url($this->loader['host']);
+
+            if ($parts['scheme'] == 'https') {
+                $schemeless_url = str_replace('https://', '', $this->loader['host']);
+                $this->loader['host'] = 'https://' . $auth . $schemeless_url;
+            } else {
+                $schemeless_url = str_replace('http://', '', $this->loader['host']);
+                $this->loader['host'] = 'http://' . $auth . $schemeless_url;
+            }
+        }
+
+        \Log::info($this->loader['host']);
 
         $hosts = ['hosts' => [$this->loader['host'] . ':' . $this->loader['port']]];
         $this->client = new Client($hosts);
-
-        if (!empty($this->loader['username'])) {
-            $prefix = $this->loader['username'] . $this->loader['password'];
-        }
 
         $this->type = $this->loader['es_type'];
         $this->index = $this->loader['es_index'];

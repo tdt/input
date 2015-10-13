@@ -15,4 +15,5 @@ return array(
     "add_button"        => "Voeg toe",
     "edit_button"       => "Bewerk",
     "view_json_def"     => "Bekijk de configuratie in JSON",
+    'no_jobs_message'   => "Er zijn nog geen jobs geconfigureerd.",
 );

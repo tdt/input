@@ -71,7 +71,7 @@ class Elasticsearch extends Type
                 ),
                 'port' => array(
                     'required' => true,
-                    'description' => 'The port on which the elasticsearch is listening.',
+                    'description' => 'The port on which the elasticsearch is listening, include the scheme (http, https) as well.',
                     'type' => 'integer',
                     'name' => 'Port',
                     'default_value' => 9200,
@@ -88,6 +88,18 @@ class Elasticsearch extends Type
                     'type' => 'string',
                     'name' => 'Type',
                 ),
+                'username' => array(
+                    'required' => false,
+                    'description' => 'The username of the elasticsearch instance.',
+                    'type' => 'string',
+                    'name' => 'Username',
+                ),
+                'password' => array(
+                    'required' => false,
+                    'description' => 'The password of the user.',
+                    'type' => 'string',
+                    'name' => 'Password',
+                )
         );
     }
 }
