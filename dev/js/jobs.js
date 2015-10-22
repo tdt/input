@@ -20,7 +20,7 @@ $('.btn-add-job').on('click', function(e){
             if($(this).attr('name')){
                 // Regular fields
                 if($(this).attr('type') == 'checkbox'){
-                    object[$(this).attr('name')] = $(this).attr('checked') ? 1 : 0;
+                    object[$(this).attr('name')] = $(this).prop('checked') ? 1 : 0;
                 }else{
                     object[$(this).attr('name')] = $(this).val();
                 }
@@ -29,6 +29,10 @@ $('.btn-add-job').on('click', function(e){
 
         data[pane.data('part')] = object;
     });
+
+    // Get the schedule
+    data['schedule'] = $('#schedule option:checked').val();
+    console.log(data);
 
     // Ajax call
     $.ajax({
@@ -86,7 +90,7 @@ $('.btn-edit-job').on('click', function(e){
             if($(this).attr('name')){
                 // Regular fields
                 if($(this).attr('type') == 'checkbox'){
-                    object[$(this).attr('name')] = $(this).attr('checked') ? 1 : 0;
+                    object[$(this).attr('name')] = $(this).prop('checked') ? 1 : 0;
                 }else{
                     object[$(this).attr('name')] = $(this).val();
                 }

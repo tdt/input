@@ -9,7 +9,7 @@ use Tdt\Input\Controllers\InputController;
 use Tdt\Input\ETL\JobExecuter;
 
 /**
- * The ExecuteJobCommand class holds the functionality to execute a job
+ * The ExecuteJob class holds the functionality to execute a job
  *
  * @copyright (C) 2011,2013 by OKFN Belgium vzw/asbl
  * @license AGPLv3
@@ -17,7 +17,6 @@ use Tdt\Input\ETL\JobExecuter;
  */
 class ExecuteJob extends Command
 {
-
     /**
      * The console command name
      *
@@ -60,6 +59,8 @@ class ExecuteJob extends Command
             }
 
             $this->line('The job has been found.');
+
+            \Log::info("Executing job $name");
 
             $job_exec = new JobExecuter($job, $this);
             $job_exec->execute();

@@ -43,6 +43,25 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="schedule" class="col-sm-2 control-label">
+                Schedule
+            </label>
+            <div class="col-sm-2">
+                <select class="form-control" id="schedule" name="schedule">
+                    @foreach ($job_config["schedule"] as $value)
+                        @if ($value == $job->schedule)
+                            <option value="{{ $value }}" selected>{{ $value }}</option>
+                        @else
+                            <option value="{{ $value }}">{{ $value }}</option>
+                        @endif
+                    @endforeach
+                </select>
+                <div class='help-block'>
+                </div>
+            </div>
+        </div>
+
         <hr/>
             <h4>{{ trans('input::admin.extract') }}</h4>
             <ul class="nav nav-tabs">
@@ -72,7 +91,7 @@
                                         <select id="{{ $param }}" name="{{ $param }}">
 
                                             @foreach ($param_options->list as $value)
-                                            @if ($value == 'UTF-8')
+                                            @if ($value == $job->extractor->$param)
                                             <option value="{{ $value }}" selected>{{ $value }}</option>
                                             @else
                                             <option value="{{ $value }}">{{ $value }}</option>
@@ -116,6 +135,17 @@
                                         <input type="number" class="form-control" id="{{ $param }}" name="{{ $param }}" @if(isset($job->loader->$param)) value='{{ $job->loader->$param }}' @endif>
                                         @elseif($param_options->type == 'boolean')
                                         <input type='checkbox' class="form-control" id="{{ $param }}" name="{{ $param }}" checked='checked'/>
+                                        @elseif($param_options->type == 'list')
+                                        <select id="{{ $param }}" name="{{ $param }}">
+
+                                            @foreach ($param_options->list as $value)
+                                            @if ($value == $job->loader->$param)
+                                            <option value="{{ $value }}" selected>{{ $value }}</option>
+                                            @else
+                                            <option value="{{ $value }}">{{ $value }}</option>
+                                            @endif
+                                            @endforeach
+                                        </select>
                                         @endif
                                         <div class='help-block'>
                                             {{{ $param_options->description }}}

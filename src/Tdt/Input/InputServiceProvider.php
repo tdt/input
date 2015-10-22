@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Tdt\Input\Commands\Import;
 use Tdt\Input\Commands\Export;
 use Tdt\Input\Commands\ExecuteJob;
+use Tdt\Input\Commands\TriggerJobs;
 
 class InputServiceProvider extends ServiceProvider
 {
@@ -37,9 +38,14 @@ class InputServiceProvider extends ServiceProvider
             return new Import();
         });
 
+        $this->app['input.triggerjobs'] = $this->app->share(function ($app) {
+            return new TriggerJobs();
+        });
+
         $this->commands('input.export');
         $this->commands('input.execute');
         $this->commands('input.import');
+        $this->commands('input.triggerjobs');
 
         include __DIR__ . '/../../routes.php';
     }
@@ -51,7 +57,6 @@ class InputServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**
@@ -61,6 +66,6 @@ class InputServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array();
+        return [];
     }
 }

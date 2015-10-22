@@ -96,37 +96,54 @@ class UiController extends \Controller
         $discovery = \App::make('Tdt\Core\Definitions\DiscoveryController');
         $discovery = json_decode($discovery->get()->getcontent());
 
-        // Get the configuration for the input
-        $input_spec = $discovery->resources->input->methods->put->body;
+        // Get the configuration for the etl configuration
+        $etl_config = $discovery->resources->input->methods->put->body;
+
+        $job_config = [];
+
+        // Job specific settings
+        $job_config['schedule'] = explode('|', $etl_config->schedule->list);
 
         $configuration = [];
 
+        $etl_parts = ['extract', 'load'];
+
         // Fill in list parameters in the provided configurations
-        foreach ($input_spec as $el => $el_config) {
-            $el_type_config = $el_config->parameters->type;
+        foreach ($etl_parts as $etl_part) {
+            $etl_part_config = $etl_config->$etl_part;
+            unset($etl_config->$etl_part);
 
-            $el_config = [];
+            foreach ($etl_part_config->parameters as $params) {
+                //$el_type_config = $el_config->parameters->type;
 
-            foreach ($el_type_config as $type => $config) {
-                $processed_param = [];
+                $el_config = [];
 
-                foreach ($config->parameters as $name => $parameter) {
-                    if ($parameter->type == 'list') {
-                        $parameter->list = json_decode($this->getDocument($parameter->list));
+                foreach ($params as $type => $config) {
+                    $processed_param = [];
+
+                    foreach ($config->parameters as $name => $parameter) {
+                        if ($parameter->type == 'list') {
+                            if (strpos($parameter->list, '|')) {
+                                $parameter->list = explode('|', $parameter->list);
+                            } else {
+                                $parameter->list = json_decode($this->getDocument($parameter->list));
+                            }
+                        }
+
+                        $processed_param[$name] = $parameter;
                     }
 
-                    $processed_param[$name] = $parameter;
+                    $el_config[$type] = $processed_param;
                 }
 
-                $el_config[$type] = $processed_param;
+                $configuration[$etl_part] = $el_config;
             }
-
-            $configuration[$el] = $el_config;
         }
 
         return \View::make('input::ui.jobs.add')
                     ->with('title', 'New job | The Datatank')
-                    ->with('configuration', $configuration);
+                    ->with('configuration', $configuration)
+                    ->with('job', $job_config);
     }
 
     /**
@@ -164,18 +181,38 @@ class UiController extends \Controller
         $load_parameters = $input_load_spec->$load_type->parameters;
 
         // Fill in list parameters in the provided configurations
-
         foreach ($extract_parameters as $parameter) {
             if ($parameter->type == 'list') {
-                $parameter->list = json_decode($this->getDocument($parameter->list));
+                if (strpos($parameter->list, '|')) {
+                    $parameter->list = explode('|', $parameter->list);
+                } else {
+                    $parameter->list = json_decode($this->getDocument($parameter->list));
+                }
             }
         }
+
+        // Fill in list parameters in the provided configurations
+        foreach ($load_parameters as $parameter) {
+            if ($parameter->type == 'list') {
+                if (strpos($parameter->list, '|')) {
+                    $parameter->list = explode('|', $parameter->list);
+                } else {
+                    $parameter->list = json_decode($this->getDocument($parameter->list));
+                }
+            }
+        }
+
+        $job_config = [];
+
+        // Job specific settings
+        $job_config['schedule'] = explode('|', $discovery->resources->input->methods->put->body->schedule->list);
 
         return \View::make('input::ui.jobs.edit')
                     ->with('title', 'Edit a job | The Datatank')
                     ->with('extract_parameters', $extract_parameters)
                     ->with('load_parameters', $load_parameters)
-                    ->with('job', $job);
+                    ->with('job', $job)
+                    ->with('job_config', $job_config);
     }
 
     /**

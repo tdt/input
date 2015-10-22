@@ -32,13 +32,28 @@
             <label for="input_identifier" class="col-sm-2 control-label">
                 {{ trans('input::admin.identifier') }}
             </label>
-            <div class="col-sm-10">
+            <div class="col-sm-8">
 
                 <div class="input-group">
                     <span class="input-group-addon">{{ URL::to('api/input') }}/</span>
                     <input type="text" class="form-control" id="input_identifier" name="collection" placeholder="">
                 </div>
 
+                <div class='help-block'>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="schedule" class="col-sm-2 control-label">
+                Schedule
+            </label>
+            <div class="col-sm-2">
+                <select class="form-control" id="schedule" name="schedule">
+                    @foreach ($job["schedule"] as $value)
+                        <option value="{{ $value }}">{{ $value }}</option>
+                    @endforeach
+                </select>
                 <div class='help-block'>
                 </div>
             </div>

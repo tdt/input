@@ -35,8 +35,6 @@ class Elasticsearch extends ALoader
             }
         }
 
-        \Log::info($this->loader['host']);
-
         $hosts = ['hosts' => [$this->loader['host'] . ':' . $this->loader['port']]];
         $this->client = new Client($hosts);
 

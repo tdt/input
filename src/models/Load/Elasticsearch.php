@@ -13,7 +13,7 @@ class Elasticsearch extends Type
 {
     protected $table = 'input_elasticsearchload';
 
-    protected $fillable = array('host', 'username', 'password', 'port', 'es_index', 'es_type');
+    protected $fillable = array('host', 'username', 'password', 'port', 'es_index', 'es_type', 'schedule');
 
     /**
      * Relationship with Job

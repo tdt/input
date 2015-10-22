@@ -7,7 +7,12 @@
         "tdt/streamingrdfmapper": "dev-master",
         "tdt/json" : "dev-master",
         "semsol/arc2" : "dev-master",
-        "neitanod/forceutf8": "dev-master"
+        "neitanod/forceutf8": "dev-master",
+        "coreation/gisconverter" : "dev-master",
+        "muka/shape-reader" : "dev-master",
+        "jsor/proj4php" : "dev-master",
+        "nesbot/carbon": "~1.14",
+        "pda/pheanstalk" : "2.1.0"
     },
     "require-dev": {
         "mockery/mockery" : "dev-master",
