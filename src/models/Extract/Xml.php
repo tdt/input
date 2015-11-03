@@ -68,7 +68,7 @@ class Xml extends Type
                 ),
                 'arraylevel' => array(
                     'required' => true,
-                    'description' => 'The level on which the objects that need to be mapped start. Example: <root><meta>...</meta><records><record>...</record></records>..., record starts at arraylevel 6 because textnodes also count as a level to be skipped.',
+                    'description' => 'The number of the XML element that identifies the array of elements that need to be extracted. Note that textnodes must also be taken into consideration. ',
                     'type' => 'string',
                     'name' => 'Arraylevel',
                 ),

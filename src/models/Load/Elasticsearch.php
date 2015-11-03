@@ -65,13 +65,13 @@ class Elasticsearch extends Type
         return array(
                 'host' => array(
                     'required' => true,
-                    'description' => 'The host of the elasticsearch',
+                    'description' => "The host of the Elasticsearch, don't forget to include the http scheme.",
                     'type' => 'string',
                     'name' => 'Host',
                 ),
                 'port' => array(
                     'required' => true,
-                    'description' => 'The port on which the elasticsearch is listening, include the scheme (http, https) as well.',
+                    'description' => 'The port on which the Elasticsearch is listening, include the scheme (http, https) as well.',
                     'type' => 'integer',
                     'name' => 'Port',
                     'default_value' => 9200,
@@ -90,7 +90,7 @@ class Elasticsearch extends Type
                 ),
                 'username' => array(
                     'required' => false,
-                    'description' => 'The username of the elasticsearch instance.',
+                    'description' => 'The username of the Elasticsearch instance.',
                     'type' => 'string',
                     'name' => 'Username',
                 ),

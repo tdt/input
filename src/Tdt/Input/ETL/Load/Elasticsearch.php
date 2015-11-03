@@ -26,7 +26,9 @@ class Elasticsearch extends ALoader
 
             $parts = parse_url($this->loader['host']);
 
-            if ($parts['scheme'] == 'https') {
+            if (empty($parts['scheme'])) {
+                $this->loader['host'] = 'http://' . $auth . $this->loader['host'];
+            } elseif ($parts['scheme'] == 'https') {
                 $schemeless_url = str_replace('https://', '', $this->loader['host']);
                 $this->loader['host'] = 'https://' . $auth . $schemeless_url;
             } else {

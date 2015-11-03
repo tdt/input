@@ -27,8 +27,8 @@ class Shp extends Type
      */
     public static function validate($params)
     {
-
         $shp_params = array_only($params, array_keys(self::getCreateProperties()));
+
         return parent::validate($shp_params);
     }
 

@@ -22,6 +22,13 @@ class SHP extends AExtractor
     private $shape_file_wrapper;
     private $EPSG = "";
 
+    private $RECORD_TYPES = [
+        1 => 'point',
+        3 => 'polyline',
+        5 => 'polygon',
+        8 => 'multipoint',
+    ];
+
     protected function open()
     {
         if (isset($this->extractor["epsg"])) {
@@ -56,17 +63,6 @@ class SHP extends AExtractor
 
     public function hasNext()
     {
-        /**
-         * We have to return our information in non-hierarchical manner!
-         * This brings some complications with handling shp files ofourcse
-         * This class will be used as a normal reader would be used namely
-         * while(hasNext()){ $data = pop()}
-         *
-         * Since our records are hierarchical we will deliver a flattened object
-         * of the record since the ETML expects this
-         *
-         */
-
         if (($record = $this->shape_file_wrapper->getNext()) != false) {
             $rowobject =array();
 
@@ -86,60 +82,147 @@ class SHP extends AExtractor
             }
 
             $shp_data = $record->getShpData();
+            $shape_type = $this->RECORD_TYPES[$record->getTypeCode()];
 
-            if (isset($shp_data['parts']) || $shp_data['x']) {
-                $proj4 = new \Proj4php();
+            // Prepare the projection class
+            $this->proj4 = new \Proj4php();
 
-                $projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $proj4);
-                $projDest = new \Proj4phpProj('EPSG:4326', $proj4);
+            $this->projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $this->proj4);
+            $this->projDest = new \Proj4phpProj('EPSG:4326', $this->proj4);
 
-                if (isset($shp_data['parts'])) {
-                    $parts = array();
+            $geometry = [];
 
-                    foreach ($shp_data['parts'] as $part) {
-                        $points = array();
-
-                        foreach ($part['points'] as $point) {
-                            $x = $point['x'];
-                            $y = $point['y'];
-
-                            if ($this->EPSG != "" || true) {
-                                $pointSrc = new \proj4phpPoint($x, $y);
-
-                                $pointDest = $proj4->transform($projSrc, $projDest, $pointSrc);
-                                $x = $pointDest->x;
-                                $y = $pointDest->y;
-                            }
-
-                            $points[] = $x.','.$y;
-                        }
-                        array_push($parts, implode(" ", $points));
-                    }
-
-                    $rowobject["coords"] = implode(';', $parts);
-                }
-
-                if (isset($shp_data['x'])) {
-                    $x = $shp_data['x'];
-                    $y = $shp_data['y'];
-
-                    if ($this->EPSG != "") {
-                        $pointSrc = new \proj4phpPoint($x, $y);
-                        $pointDest = $proj4->transform($projSrc, $projDest, $pointSrc);
-                        $x = $pointDest->x;
-                        $y = $pointDest->y;
-                    }
-
-                    $rowobject["long"] = $x;
-                    $rowobject["lat"] = $y;
-                }
+            switch ($shape_type) {
+                case 'point':
+                    $geometry = $this->parsePoint($shp_data);
+                    break;
+                case 'polyline':
+                    $geometry = $this->parsePolyline($shp_data);
+                    break;
+                case 'polygon':
+                    $geometry = $this->parsePolygon($shp_data);
+                    break;
+                case 'multipoint':
+                    $geometry = $this->parseMultipoint($shp_data);
+                    break;
             }
+
+            $rowobject['location'] = $geometry;
+
             $this->read_record = $rowobject;
 
             return true;
         } else {
             return false;
         }
+    }
+
+    private function parsePoint($shp_data)
+    {
+        $x = $shp_data['x'];
+        $y = $shp_data['y'];
+
+        if ($this->EPSG != "") {
+            $pointSrc = new \proj4phpPoint($x, $y);
+            $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+            $x = $pointDest->x;
+            $y = $pointDest->y;
+        }
+
+        return [
+            'coordinates' => [$x, $y],
+            'type' => 'point'
+        ];
+    }
+
+    private function parsePolyline($shp_data)
+    {
+        $parts = [];
+        $points = [];
+
+        foreach ($shp_data['parts'] as $part) {
+            foreach ($part['points'] as $point) {
+                $x = $point['x'];
+                $y = $point['y'];
+
+                if ($this->EPSG != "" || true) {
+                    $pointSrc = new \proj4phpPoint($x, $y);
+
+                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                    $x = $pointDest->x;
+                    $y = $pointDest->y;
+                }
+
+                $points[] = [$x . ',' . $y];
+            }
+            array_push($parts, $points);
+        }
+
+
+        return [
+            'coordinates' => $parts,
+            'type' => 'multilinestring'
+        ];
+    }
+
+    private function parsePolygon($shp_data)
+    {
+        $parts = [];
+        $points = [];
+
+        foreach ($shp_data['parts'] as $part) {
+            foreach ($part['points'] as $point) {
+                $x = $point['x'];
+                $y = $point['y'];
+
+                if ($this->EPSG != "" || true) {
+                    $pointSrc = new \proj4phpPoint($x, $y);
+
+                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                    $x = $pointDest->x;
+                    $y = $pointDest->y;
+                }
+
+                $points[] = [$x . ',' . $y];
+            }
+            array_push($parts, $points);
+        }
+
+
+        return [
+            'coordinates' => $parts,
+            'type' => 'polygon'
+        ];
+    }
+
+    private function parseMultipoint($shp_data)
+    {
+        $parts = [];
+        $points = [];
+
+        foreach ($shp_data['parts'] as $part) {
+            foreach ($part['points'] as $point) {
+                $x = $point['x'];
+                $y = $point['y'];
+
+                if ($this->EPSG != "" || true) {
+                    $pointSrc = new \proj4phpPoint($x, $y);
+
+                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                    $x = $pointDest->x;
+                    $y = $pointDest->y;
+                }
+
+                $points[] = $x . ',' . $y;
+            }
+            array_push($parts, $points);
+        }
+
+
+        return [
+            'coordinates' => $parts,
+            'type' => 'multipoint'
+        ];
     }
 
     public function pop()
