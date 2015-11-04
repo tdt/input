@@ -9,6 +9,7 @@ class XML extends AExtractor
     private $next;
     private $reader;
     private $index = 0;
+    private $node_name;
 
     protected function open()
     {
@@ -23,7 +24,6 @@ class XML extends AExtractor
 
         $arraylevel = $this->extractor->arraylevel;
 
-
         for ($i = 0; $i < $arraylevel; $i++) {
             $this->reader->read();
         }
@@ -35,17 +35,22 @@ class XML extends AExtractor
      */
     public function hasNext()
     {
-        if ($this->reader->next()) {
-            $this->next = $this->reader->readOuterXML();
+        $xml_string = $this->reader->readOuterXML();
 
-            if (empty($this->next)) {
-                return false;
-            }
-
-            return true;
-        } else {
-            return false;
+        if ($this->encoding != 'UTF-8') {
+            $xml_string = $this->convertToUtf8($xml_string, $this->encoding);
         }
+
+        $xml_string = $this->fixUtf8($xml_string);
+        $this->next = simplexml_load_string($xml_string);
+
+        if (empty($this->node_name)) {
+            $this->node_name = $this->next->getName();
+        }
+
+        $this->reader->next($this->node_name);
+
+        return !empty($this->next);
     }
 
     /**
@@ -54,21 +59,14 @@ class XML extends AExtractor
      */
     public function pop()
     {
-        if (!empty($this->next) && !empty(trim($this->next))) {
-            $xml_string = $this->next;
-
-            if ($this->encoding != 'UTF-8') {
-                $xml_string = $this->convertToUtf8($xml_string, $this->encoding);
-            }
-
-            $xml_string = $this->fixUtf8($xml_string);
-            $xml = simplexml_load_string($xml_string);
-
-            return get_object_vars($xml);
+        if (!empty($this->next)) {
+            // Convert the SimpleXMLElement to JSON, then to a PHP array
+            // That's the fastest way of converting it to a PHP object
+            $json = json_encode($this->next);
+            return json_decode($json, true);
         } else {
             return null;
         }
-
     }
 
     /**

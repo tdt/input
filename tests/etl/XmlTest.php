@@ -51,7 +51,6 @@ class XmlTest extends PHPUnit_Framework_TestCase
     public function testExtraction()
     {
         foreach ($this->test_extraction_cases as $test_case_name => $config) {
-
             // Extractor Xml model - mock
             Mockery::mock('Eloquent');
 
