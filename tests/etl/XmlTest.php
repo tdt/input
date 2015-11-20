@@ -19,7 +19,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
     );
 
     private $test_emlp_cases = array(
-         array(
+        array(
             'extract' => array(
                 'file' => 'xml/events.xml',
                 'arraylevel' => 2,

@@ -29,7 +29,7 @@ class ExecuteJob extends Command
      *
      * @var string
      */
-    protected $description = "Execute a defined extract-map-load-publish job.";
+    protected $description = "Execute a defined ETL job.";
 
     /**
      * Execute the console command

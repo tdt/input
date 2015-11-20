@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Tdt\Input\Controllers\InputController;
+use Illuminate\Filesystem\Filesystem;
 
 class Export extends Command
 {
@@ -62,8 +63,8 @@ class Export extends Command
         // Get the file option from the command line
         $filename = $this->option('file');
 
-        if (empty($file)) {
-            $file = self::getExportFile();
+        if (empty($filename)) {
+            $filename = self::getExportFile();
         }
 
         // Get the jobid, if none is provided, return all of the jobs by default
@@ -71,7 +72,6 @@ class Export extends Command
         $content = null;
 
         if (empty($jobid)) {
-
             $jobs = \Job::all();
 
             $content = array();
@@ -83,7 +83,6 @@ class Export extends Command
             $content = json_encode($content);
 
         } else {
-
             $job = InputController::get($jobid);
 
             if (empty($job)) {
@@ -95,20 +94,26 @@ class Export extends Command
             $content = json_encode($content);
         }
 
-        // Output
-        if (empty($filename)) {
-            // Print to console
-            echo $content;
-        } else {
+        try {
+            // Write to file
+            $fs = new Filesystem();
 
-            try {
-                // Write to file
-                file_put_contents($filename, $content);
-                $this->info("The export has been written to the file '$filename'.");
-            } catch (Exception $e) {
-                $this->error("The contents could not be written to the file '$filename'.");
-                die();
+            if ($fs->exists($filename)) {
+                $fs->put($filename, $content);
+            } else {
+                $handle = fopen($filename, "w");
+
+                if (!$handle) {
+                    \App::abort('Could not open/create the file ' . $filename);
+                }
+
+                fwrite($handle, $content);
             }
+
+            $this->info("The export has been written to the file '$filename'.");
+        } catch (Exception $e) {
+            $this->error("The contents could not be written to the file '$filename'.");
+            die();
         }
     }
 

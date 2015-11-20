@@ -4,13 +4,12 @@
     "require": {
         "php": ">=5.4.0",
         "illuminate/support": "4.1.*",
-        "tdt/streamingrdfmapper": "dev-master",
         "tdt/json" : "dev-master",
         "semsol/arc2" : "dev-master",
         "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
         "muka/shape-reader" : "dev-master",
-        "jsor/proj4php" : "dev-master",
+        "proj4php/proj4php" : "dev-inline-projections#89722067010a4c88b7c4c79a7ee187bb2ddb1b61",
         "nesbot/carbon": "~1.14",
         "pda/pheanstalk" : "2.1.0"
     },
@@ -18,9 +17,15 @@
         "mockery/mockery" : "dev-master",
         "phpunit/phpunit" : "4.0.*",
         "doctrine/dbal": "~2.3",
+        "illuminate/support": "4.1.*",
+        "tdt/json" : "dev-master",
+        "semsol/arc2" : "dev-master",
+        "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
         "muka/shape-reader" : "dev-master",
-        "jsor/proj4php" : "dev-master"
+        "proj4php/proj4php" : "dev-inline-projections",
+        "nesbot/carbon": "~1.14",
+        "pda/pheanstalk" : "2.1.0"
     },
     "autoload": {
         "classmap": [

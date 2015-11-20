@@ -52,14 +52,11 @@ class Import extends Command
 
         // Get the contents from the file if it exists
         if (\File::exists($file)) {
-
             $content = json_decode(\File::get($file), true);
 
             // If the content is legit, proceed to make the calls to the input endpoint
             if ($content) {
-
                 foreach ($content as $identifier => $job_definition) {
-
                     // If the safe option is passed, prompt the user with the identifier and body
                     if ($safe) {
                         if (!$this->confirm("A job with identifier $identifier is about to be added, are you sure about this? [y|n]")) {
@@ -70,7 +67,9 @@ class Import extends Command
 
                     $this->updateRequest('PUT', array(), $job_definition);
 
-                    $response = InputController::createJob($identifier);
+                    $input_controller = new InputController();
+
+                    $response = $input_controller->createJob($identifier);
 
                     $status_code = $response->getStatusCode();
 
