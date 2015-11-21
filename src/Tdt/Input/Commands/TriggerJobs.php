@@ -39,52 +39,55 @@ class TriggerJobs extends Command
      */
     public function fire()
     {
-        $jobs = \Job::whereNotNull('date_executed')->get();
+        $jobs = \Job::whereNotNull('date_executed')
+                ->get();
 
         foreach ($jobs as $job) {
-            // Check if they are due
-            $now = Carbon::now();
-            $exec_time = date('Y-m-d', $job->date_executed);
-            $job_exec_time = new Carbon($exec_time);
+            if (empty($job->added_to_queue) || !$job->added_to_queue) {
+                // Check if they are due
+                $now = Carbon::now();
+                $exec_time = date('Y-m-d', $job->date_executed);
+                $job_exec_time = new Carbon($exec_time);
 
-            $push_to_q = false;
+                $push_to_q = false;
 
-            switch ($job->schedule) {
-                case 'half-daily':
-                    $diff = $now->diffInHours($job_exec_time);
+                switch ($job->schedule) {
+                    case 'half-daily':
+                        $diff = $now->diffInHours($job_exec_time);
 
-                    if ($diff >= 6) {
-                        $push_to_q = true;
-                    }
-                    break;
-                case 'daily':
-                    $diff = $now->diffInDays($job_exec_time);
+                        if ($diff >= 6) {
+                            $push_to_q = true;
+                        }
+                        break;
+                    case 'daily':
+                        $diff = $now->diffInDays($job_exec_time);
 
-                    if ($diff >= 1) {
-                        $push_to_q = true;
-                    }
-                    break;
-                case 'weekly':
-                    $diff = $now->diffInweeks($job_exec_time);
+                        if ($diff >= 1) {
+                            $push_to_q = true;
+                        }
+                        break;
+                    case 'weekly':
+                        $diff = $now->diffInweeks($job_exec_time);
 
-                    if ($diff >= 1) {
-                        $push_to_q = true;
-                    }
-                    break;
-                case 'monthly':
-                    $diff = $now->diffInMonths($job_exec_time);
+                        if ($diff >= 1) {
+                            $push_to_q = true;
+                        }
+                        break;
+                    case 'monthly':
+                        $diff = $now->diffInMonths($job_exec_time);
 
-                    if ($diff >= 1) {
-                        $push_to_q = true;
-                    }
-                    break;
-            }
+                        if ($diff >= 1) {
+                            $push_to_q = true;
+                        }
+                        break;
+                }
 
-            if ($push_to_q) {
-                $job->date_executed = time();
-                $job->save();
+                if ($push_to_q) {
+                    $job->added_to_queue = true;
+                    $job->save();
 
-                $this->executeCommand($job->collection_uri . '/' . $job->name);
+                    $this->executeCommand($job->collection_uri . '/' . $job->name);
+                }
             }
         }
     }

@@ -65,6 +65,9 @@ class ExecuteJob extends Command
             $job_exec = new JobExecuter($job, $this);
             $job_exec->execute();
 
+            $job->date_executed = time();
+            $job->added_to_queue = false;
+            $job->save();
         } else {
             $jobs = \Job::all(['name', 'collection_uri'])->toArray();
 

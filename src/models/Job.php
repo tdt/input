@@ -11,7 +11,7 @@ class Job extends Eloquent
     protected $table = 'input_job';
 
     // These properties will be derived from the uri
-    protected $fillable = array('name', 'collection_uri', 'schedule', 'status', 'date_executed');
+    protected $fillable = array('name', 'collection_uri', 'schedule', 'status', 'date_executed', 'added_to_queue');
 
     /**
      * Relationship with an extractor
