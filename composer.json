@@ -3,7 +3,7 @@
     "description": "",
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "4.2.1",
+        "illuminate/support": "4.2.*",
         "tdt/json" : "dev-master",
         "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
@@ -16,7 +16,7 @@
         "mockery/mockery" : "dev-master",
         "phpunit/phpunit" : "4.0.*",
         "doctrine/dbal": "~2.3",
-        "illuminate/support": "4.2.1",
+        "illuminate/support": "4.2.*",
         "tdt/json" : "dev-master",
         "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
