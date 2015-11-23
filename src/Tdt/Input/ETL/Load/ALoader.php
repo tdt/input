@@ -23,6 +23,13 @@ abstract class ALoader
 
     }
 
+    /**
+     * Load a chunk of data into a datastore and return boolean on succes|error
+     *
+     * @param $chunk array
+     *
+     * @return bool
+     */
     abstract public function execute($chunk);
 
     /**
@@ -44,18 +51,14 @@ abstract class ALoader
         $prefix = "Loader[" . $class . "]: ";
         $message = $prefix . $message;
 
-        switch($type){
-
+        switch ($type) {
             case 'info':
-
                 $this->command->info($message);
                 break;
             case 'error':
-
                 $this->command->error($message);
                 break;
             default:
-
                 $this->command->line($message);
                 break;
         }

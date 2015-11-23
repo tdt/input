@@ -86,7 +86,8 @@ class Csv extends Type
                     'description' => 'The type of encoding of the data. If no value is provided, the data encoding will default to UTF-8.',
                     'type' => 'list',
                     'list' => 'api/encodings',
-                    'name' => 'Encoding'
+                    'name' => 'Encoding',
+                    'default_value' => 'UTF-8',
                 ),
         );
     }

@@ -82,7 +82,6 @@
                                     <div class='row'>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">
-
                                                 {{ $param_options->name }}
                                             </label>
                                             <div class="col-sm-10">
@@ -98,7 +97,7 @@
                                                     <select id="{{ $param }}" name="{{ $param }}">
 
                                                     @foreach ($param_options->list as $value)
-                                                        @if ($value == 'UTF-8')
+                                                        @if ($value == $param_options->default_value)
                                                         <option value="{{ $value }}" selected>{{ $value }}</option>
                                                         @else
                                                         <option value="{{ $value }}">{{ $value }}</option>

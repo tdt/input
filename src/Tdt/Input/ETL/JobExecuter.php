@@ -54,23 +54,26 @@ class JobExecuter
         $this->log("Started executing the job identified by $id at $timestamp.");
 
         // While the extractor reads objects, keep executing the eml sequence
-        $count_objects = 0;
         $loaded_objects = 0;
 
         while ($extractor->hasNext()) {
             $chunk = $extractor->pop();
 
-            $count_objects++;
+            $success = $loader->execute($chunk);
 
-            $loader->execute($chunk);
+            if ($success) {
+                $loaded_objects++;
+            }
         }
 
-        // Clean up after loader execution
-        $loader->cleanUp();
+        // Clean up after loader execution unless no new objects were loaded
+        if ($loaded_objects == 0) {
+            $loader->cleanUp();
+        }
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Extracted and loaded a total of $count_objects objects from the data source in " . $duration . " seconds.");
+        $this->log("Extracted and loaded a total of $loaded_objects objects from the data source in " . $duration . " seconds.");
 
         // Execute the publisher if present ( optional )
         if (!empty($publisher)) {

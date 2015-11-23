@@ -68,15 +68,18 @@ class Shp extends Type
                     'required' => false,
                     'description' => 'The EPSG code of the SHP file.',
                     'default_value' => 4326,
-                    'type' => 'string',
-                    'name' => 'EPSG',
+                    'name' => "EPSG",
+                    'type' => 'list',
+                    'list' => 'api/geoprojections',
+                    'list_option' => 'epsg',
                 ),
                 'encoding' => array(
                     'required' => false,
                     'description' => 'The type of encoding of the data. If no value is provided, the data encoding will default to UTF-8.',
                     'type' => 'list',
                     'list' => 'api/encodings',
-                    'name' => 'Encoding'
+                    'name' => 'Encoding',
+                    'default_value' => 'UTF-8',
                 ),
         );
     }

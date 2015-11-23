@@ -13,6 +13,9 @@ namespace Tdt\Input\ETL\Extract;
  */
 
 use muka\ShapeReader\ShapeReader;
+use proj4php\Proj;
+use proj4php\Proj4php;
+use proj4php\Point;
 
 class SHP extends AExtractor
 {
@@ -23,10 +26,15 @@ class SHP extends AExtractor
     private $EPSG = "";
 
     private $RECORD_TYPES = [
-        1 => 'point',
-        3 => 'polyline',
-        5 => 'polygon',
-        8 => 'multipoint',
+        0 => "Null Shape",
+        1 => "Point",
+        3 => "PolyLine",
+        5 => "Polygon",
+        8 => "MultiPoint",
+        11 => "PointZ",
+        13 => "PolyLineZ",
+        15 => "PolygonZ",
+        18 => "MultiPointZ"
     ];
 
     protected function open()
@@ -85,14 +93,14 @@ class SHP extends AExtractor
             $shape_type = $this->RECORD_TYPES[$record->getTypeCode()];
 
             // Prepare the projection class
-            $this->proj4 = new \Proj4php();
+            $this->proj4 = new Proj4php();
 
-            $this->projSrc = new \Proj4phpProj('EPSG:'. $this->EPSG, $this->proj4);
-            $this->projDest = new \Proj4phpProj('EPSG:4326', $this->proj4);
+            $this->projSrc = new Proj('EPSG:'. $this->EPSG, $this->proj4);
+            $this->projDest = new Proj('EPSG:4326', $this->proj4);
 
             $geometry = [];
 
-            switch ($shape_type) {
+            switch (strtolower($shape_type)) {
                 case 'point':
                     $geometry = $this->parsePoint($shp_data);
                     break;
@@ -104,6 +112,18 @@ class SHP extends AExtractor
                     break;
                 case 'multipoint':
                     $geometry = $this->parseMultipoint($shp_data);
+                    break;
+                case 'pointz':
+                    $geometry = $this->parsePointZ($shp_data);
+                    break;
+                case 'polylinez':
+                    $geometry = $this->parsePolylineZ($shp_data);
+                    break;
+                case 'polygonz':
+                    $geometry = $this->parsePolygonZ($shp_data);
+                    break;
+                case 'multipointz':
+                    $geometry = $this->parseMultipointZ($shp_data);
                     break;
             }
 
@@ -123,7 +143,7 @@ class SHP extends AExtractor
         $y = $shp_data['y'];
 
         if ($this->EPSG != "") {
-            $pointSrc = new \proj4phpPoint($x, $y);
+            $pointSrc = new Point($x, $y);
             $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
             $x = $pointDest->x;
             $y = $pointDest->y;
@@ -131,6 +151,26 @@ class SHP extends AExtractor
 
         return [
             'coordinates' => [$x, $y],
+            'type' => 'point'
+        ];
+    }
+
+    private function parsePointZ($shp_data)
+    {
+        $x = $shp_data['x'];
+        $y = $shp_data['y'];
+        $z = $shp_data['z'];
+
+        if ($this->EPSG != "" && $this->EPSG != 4326) {
+            $pointSrc = new Point($x, $y, $z);
+            $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+            $x = $pointDest->x;
+            $y = $pointDest->y;
+            $z = $pointDest->z;
+        }
+
+        return [
+            'coordinates' => [$x, $y, $z],
             'type' => 'point'
         ];
     }
@@ -146,18 +186,48 @@ class SHP extends AExtractor
                 $y = $point['y'];
 
                 if ($this->EPSG != "" || true) {
-                    $pointSrc = new \proj4phpPoint($x, $y);
+                    $pointSrc = new Point($x, $y);
 
                     $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
                     $x = $pointDest->x;
                     $y = $pointDest->y;
                 }
 
-                $points[] = [$x . ',' . $y];
+                $points[] = [$x, $y];
             }
             array_push($parts, $points);
         }
 
+        return [
+            'coordinates' => $parts,
+            'type' => 'multilinestring'
+        ];
+    }
+
+    private function parsePolylineZ($shp_data)
+    {
+        $parts = [];
+        $points = [];
+
+        foreach ($shp_data['parts'] as $part) {
+            foreach ($part['points'] as $point) {
+                $x = $point['x'];
+                $y = $point['y'];
+                $z = $point['z'];
+
+                if ($this->EPSG != "" && $this->EPSG != 4326) {
+                    $pointSrc = new Point($x, $y, $z);
+
+                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                    $x = $pointDest->x;
+                    $y = $pointDest->y;
+                    $z = $pointDest->z;
+                }
+
+                $points[] = [$x, $y, $z];
+            }
+            array_push($parts, $points);
+        }
 
         return [
             'coordinates' => $parts,
@@ -176,18 +246,48 @@ class SHP extends AExtractor
                 $y = $point['y'];
 
                 if ($this->EPSG != "" || true) {
-                    $pointSrc = new \proj4phpPoint($x, $y);
+                    $pointSrc = new Point($x, $y);
 
                     $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
                     $x = $pointDest->x;
                     $y = $pointDest->y;
                 }
 
-                $points[] = [$x . ',' . $y];
+                $points[] = [$x, $y];
             }
             array_push($parts, $points);
         }
 
+        return [
+            'coordinates' => $parts,
+            'type' => 'polygon'
+        ];
+    }
+
+    private function parsePolygonZ($shp_data)
+    {
+        $parts = [];
+        $points = [];
+
+        foreach ($shp_data['parts'] as $part) {
+            foreach ($part['points'] as $point) {
+                $x = $point['x'];
+                $y = $point['y'];
+                $z = $point['z'];
+
+                if ($this->EPSG != "" && $this->EPSG != 4326) {
+                    $pointSrc = new Point($x, $y, $z);
+
+                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                    $x = $pointDest->x;
+                    $y = $pointDest->y;
+                    $z = $pointDest->z;
+                }
+
+                $points[] = [$x, $y, $z];
+            }
+            array_push($parts, $points);
+        }
 
         return [
             'coordinates' => $parts,
@@ -197,30 +297,52 @@ class SHP extends AExtractor
 
     private function parseMultipoint($shp_data)
     {
-        $parts = [];
         $points = [];
 
-        foreach ($shp_data['parts'] as $part) {
-            foreach ($part['points'] as $point) {
-                $x = $point['x'];
-                $y = $point['y'];
+        foreach ($shp_data['points'] as $point) {
+            $x = $point['x'];
+            $y = $point['y'];
 
-                if ($this->EPSG != "" || true) {
-                    $pointSrc = new \proj4phpPoint($x, $y);
+            if ($this->EPSG != "" || true) {
+                $pointSrc = new Point($x, $y);
 
-                    $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
-                    $x = $pointDest->x;
-                    $y = $pointDest->y;
-                }
-
-                $points[] = $x . ',' . $y;
+                $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                $x = $pointDest->x;
+                $y = $pointDest->y;
             }
-            array_push($parts, $points);
+
+            $points[] = [$x, $y];
         }
 
+        return [
+            'coordinates' => $points,
+            'type' => 'multipoint'
+        ];
+    }
+
+    private function parseMultipointZ($shp_data)
+    {
+        $points = [];
+
+        foreach ($shp_data['points'] as $point) {
+            $x = $point['x'];
+            $y = $point['y'];
+            $z = $point['z'];
+
+            if ($this->EPSG != "" && $this->EPSG != 4326) {
+                $pointSrc = new Point($x, $y, $z);
+
+                $pointDest = $this->proj4->transform($this->projSrc, $this->projDest, $pointSrc);
+                $x = $pointDest->x;
+                $y = $pointDest->y;
+                $z = $pointDest->z;
+            }
+
+            $points[] = [$x, $y, $z];
+        }
 
         return [
-            'coordinates' => $parts,
+            'coordinates' => $points,
             'type' => 'multipoint'
         ];
     }

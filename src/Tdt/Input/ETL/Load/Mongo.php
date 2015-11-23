@@ -36,12 +36,6 @@ class Mongo extends ALoader
         $this->mongoCollection = $client->selectCollection($this->loader['database'], $this->loader['collection']);
 
         $this->mongoCollection->remove([]);
-
-        // Remove old data
-        //$this->log('info', "Removing old data from the mongo collection with job name: " . $jobName);
-
-        //$this->mongoCollection->remove(['__jobName' => $jobName]);
-
     }
 
     public function cleanUp()
@@ -57,6 +51,18 @@ class Mongo extends ALoader
      */
     public function execute($chunk)
     {
-        $this->mongoCollection->save($chunk);
+        try {
+            $this->mongoCollection->save($chunk);
+        } catch (\Exception $ex) {
+            $this->log($ex->getMessage());
+
+            return false;
+        } catch (\MongoException $ex) {
+            $this->log($ex->getMessage());
+
+            return false;
+        }
+
+        return true;
     }
 }

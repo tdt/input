@@ -114,8 +114,6 @@ class UiController extends \Controller
             unset($etl_config->$etl_part);
 
             foreach ($etl_part_config->parameters as $params) {
-                //$el_type_config = $el_config->parameters->type;
-
                 $el_config = [];
 
                 foreach ($params as $type => $config) {
@@ -126,7 +124,20 @@ class UiController extends \Controller
                             if (strpos($parameter->list, '|')) {
                                 $parameter->list = explode('|', $parameter->list);
                             } else {
-                                $parameter->list = json_decode($this->getDocument($parameter->list));
+                                $list = json_decode($this->getDocument($parameter->list));
+
+                                if (!empty($parameter->list_option)) {
+                                    $filtered_list = [];
+
+                                    foreach ($list as $object) {
+                                        $object = (array) $object;
+                                        $filtered_list[] = $object[$parameter->list_option];
+                                    }
+
+                                    $parameter->list = $filtered_list;
+                                } else {
+                                    $parameter->list = $list;
+                                }
                             }
                         }
 
@@ -186,7 +197,20 @@ class UiController extends \Controller
                 if (strpos($parameter->list, '|')) {
                     $parameter->list = explode('|', $parameter->list);
                 } else {
-                    $parameter->list = json_decode($this->getDocument($parameter->list));
+                    $list = json_decode($this->getDocument($parameter->list));
+
+                    if (!empty($parameter->list_option)) {
+                        $filtered_list = [];
+
+                        foreach ($list as $object) {
+                            $object = (array) $object;
+                            $filtered_list[] = $object[$parameter->list_option];
+                        }
+
+                        $parameter->list = $filtered_list;
+                    } else {
+                        $parameter->list = $list;
+                    }
                 }
             }
         }
@@ -197,7 +221,20 @@ class UiController extends \Controller
                 if (strpos($parameter->list, '|')) {
                     $parameter->list = explode('|', $parameter->list);
                 } else {
-                    $parameter->list = json_decode($this->getDocument($parameter->list));
+                    $list = json_decode($this->getDocument($parameter->list));
+
+                    if (!empty($parameter->list_option)) {
+                        $filtered_list = [];
+
+                        foreach ($list as $object) {
+                            $object = (array) $object;
+                            $filtered_list[] = $object[$parameter->list_option];
+                        }
+
+                        $parameter->list = $filtered_list;
+                    } else {
+                        $parameter->list = $list;
+                    }
                 }
             }
         }

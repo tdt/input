@@ -134,7 +134,7 @@ class Elasticsearch extends ALoader
      * Perform the load.
      *
      * @param mixed $chunk
-     * @return void
+     * @return bool
      */
     public function execute($chunk)
     {
@@ -148,9 +148,12 @@ class Elasticsearch extends ALoader
             ]);
 
             $this->log("Added the datachunk, returned id was " . $response['_id']);
+            return true;
 
         } catch (\Exception $ex) {
             $this->log("Could not add the data, something went wrong: " . $ex->getMessage());
+
+            return false;
         }
     }
 }
