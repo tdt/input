@@ -43,7 +43,7 @@ class Elasticsearch extends ALoader
         $this->type = $this->loader['es_type'];
         $this->index = $this->loader['es_index'];
 
-        $this->log('info', "The ElasticSearch client is configured to write to the index " . $this->loader['index'] . " with the ". $this->loader['type'] . " type.");
+        $this->log("The ElasticSearch client is configured to write to the index " . $this->loader['index'] . " with the ". $this->loader['type'] . " type.", 'info');
 
         $indexParams = [];
         $indexParams['index']  = $this->index;

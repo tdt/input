@@ -19,19 +19,23 @@ class Mongo extends ALoader
         // Initiate the timestamp
         $this->timestamp = time();
 
-        $prefix = '';
+        $auth = [];
 
         if (!empty($this->loader['username'])) {
-            $prefix = $this->loader['username'] . $this->loader['password'];
+            $auth['username'] = $this->loader['username'];
+
+            if (!empty($this->loader['password'])) {
+                $auth['password'] = $this->loader['password'];
+            }
         }
 
-        $connString = 'mongodb://' . $prefix . $this->loader['host'] . ':' . $this->loader['port'];
+        $connString = 'mongodb://' . $this->loader['host'] . ':' . $this->loader['port'];
 
-        $this->log('info', "Creating mongo client with connection string: " . $connString);
+        $this->log("Creating mongo client with connection string: " . $connString, 'info');
 
-        $client = new MongoClient($connString);
+        $client = new MongoClient($connString, $auth);
 
-        $this->log('info', "Connecting with the " . $this->loader['database'] . " and the ". $this->loader['collection'] . " collection.");
+        $this->log("Connecting with the " . $this->loader['database'] . " and the ". $this->loader['collection'] . " collection.", 'info');
 
         $this->mongoCollection = $client->selectCollection($this->loader['database'], $this->loader['collection']);
 
@@ -40,7 +44,6 @@ class Mongo extends ALoader
 
     public function cleanUp()
     {
-
     }
 
     /**

@@ -54,6 +54,8 @@ abstract class AExtractor
 
     /**
      * Log something to the output
+     * Always log to the CLI, but take into account
+     * to log into database systems if configured
      */
     protected function log($message, $type = 'info')
     {
@@ -73,6 +75,12 @@ abstract class AExtractor
             default:
                 $this->command->line($message);
                 break;
+        }
+
+        $log_system = \Config::get('input::joblog.system');
+
+        if ($log_system != 'cli') {
+            \Log::info($message);
         }
     }
 }

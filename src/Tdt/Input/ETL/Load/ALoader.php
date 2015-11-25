@@ -10,7 +10,6 @@ abstract class ALoader
 
     public function __construct($loader, $command)
     {
-
         $this->loader = $loader;
         $this->command = $command;
     }
@@ -61,6 +60,12 @@ abstract class ALoader
             default:
                 $this->command->line($message);
                 break;
+        }
+
+        $log_system = \Config::get('input::joblog.system');
+
+        if ($log_system != 'cli') {
+            \Log::info($message);
         }
     }
 }

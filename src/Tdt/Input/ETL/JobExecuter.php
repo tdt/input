@@ -134,5 +134,11 @@ class JobExecuter
         $class = end($class);
 
         $this->command->info("JobExecuter: " . $message);
+
+        $log_system = \Config::get('input::joblog.system');
+
+        if ($log_system != 'cli') {
+            \Log::info($message);
+        }
     }
 }
