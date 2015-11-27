@@ -2,15 +2,30 @@
     "name": "tdt/input",
     "description": "",
     "require": {
-        "php": ">=5.3.0",
-        "illuminate/support": "4.1.*",
-        "tdt/streamingrdfmapper": "dev-master",
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
         "tdt/json" : "dev-master",
-        "semsol/arc2" : "dev-master"
+        "neitanod/forceutf8": "dev-master",
+        "coreation/gisconverter" : "dev-master",
+        "muka/shape-reader" : "dev-master",
+        "proj4php/proj4php" : "dev-inline-projections#89722067010a4c88b7c4c79a7ee187bb2ddb1b61",
+        "nesbot/carbon": "~1.14",
+        "pda/pheanstalk" : "2.1.0",
+        "ruflin/elastica": ">=0.90 <3.0"
     },
     "require-dev": {
         "mockery/mockery" : "dev-master",
-        "phpunit/phpunit" : "4.0.*"
+        "phpunit/phpunit" : "4.0.*",
+        "doctrine/dbal": "~2.3",
+        "illuminate/support": "4.2.*",
+        "tdt/json" : "dev-master",
+        "neitanod/forceutf8": "dev-master",
+        "coreation/gisconverter" : "dev-master",
+        "muka/shape-reader" : "dev-master",
+        "proj4php/proj4php" : "dev-inline-projections#89722067010a4c88b7c4c79a7ee187bb2ddb1b61",
+        "nesbot/carbon": "~1.14",
+        "pda/pheanstalk" : "2.1.0",
+        "orchestra/testbench" : "2.2.*"
     },
     "autoload": {
         "classmap": [
@@ -21,5 +36,18 @@
             "Tdt\\Input": "src/"
         }
     },
-    "minimum-stability": "stable"
+    "scripts": {
+        "pre-update-cmd": [
+            "php artisan clear-compiled"
+        ],
+        "post-install-cmd": [
+            "php artisan optimize",
+            "php artisan asset:publish tdt/input"
+        ],
+        "post-update-cmd": [
+            "php artisan optimize",
+            "php artisan asset:publish tdt/input"
+        ]
+    },
+    "minimum-stability": "dev"
 }

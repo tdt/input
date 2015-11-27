@@ -8,11 +8,10 @@
  */
 class Job extends Eloquent
 {
-
     protected $table = 'input_job';
 
     // These properties will be derived from the uri
-    protected $fillable = array('name', 'collection_uri');
+    protected $fillable = array('name', 'collection_uri', 'schedule', 'status', 'date_executed', 'added_to_queue');
 
     /**
      * Relationship with an extractor
@@ -51,9 +50,14 @@ class Job extends Eloquent
      */
     public static function getCreateProperties()
     {
-
         return array(
-
+            'schedule' => array(
+                'required' => true,
+                'description' => 'How often does the data need to be updated?',
+                'type' => 'list',
+                'list' => 'once|half-daily|daily|weekly|monthly',
+                'name' => 'Schedule time'
+             ),
         );
     }
 
@@ -73,7 +77,6 @@ class Job extends Eloquent
      */
     public function getAllProperties()
     {
-
         // Put all of the properties in an array
         $properties = array();
 
@@ -101,7 +104,6 @@ class Job extends Eloquent
 
         // Add all the properties that are mass assignable
         foreach ($relations as $key => $relation) {
-
             // Get the type out of the classname
             $class_names = explode('\\', get_class($relation));
             $type = end($class_names);
@@ -124,8 +126,7 @@ class Job extends Eloquent
      */
     public function delete()
     {
-
-        // Fill in the relationships in empl order
+        // Fill in the relationships in etl order
         $relations = array('extract' => $this->extractor()->first());
 
         // Don't fetch null relationships
