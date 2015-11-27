@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Tests the CSV extractor and emlp sequence
  *
  */
-class CsvTest extends PHPUnit_Framework_TestCase
+class CsvTest extends \Orchestra\Testbench\TestCase
 {
     private $test_extraction_cases = array(
         'regios' => array(
@@ -61,7 +61,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
             // Extractor Csv model - mock
             Mockery::mock('Eloquent');
 
-            $extract_model = Mockery::mock('Extract\Csv');
+            $extract_model = new stdClass;
 
             // Mock the command object
             $command = $this->getMockedCommand();
@@ -96,7 +96,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testETL()
     {
         foreach ($this->test_emlp_cases as $config) {
-            $extract_model = Mockery::mock('Extract\Csv');
+            $extract_model = new stdClass;
 
             $command = $this->getMockedCommand();
 

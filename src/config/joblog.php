@@ -19,7 +19,7 @@ return array (
             'database'        => 'logs',
             'collection'      => 'jobs',
             'username'        => 'root',
-            'password'        => '',
+            'password'        => 'admin',
             'port'            => 27017,
             'time_zone'       => 'UTC',
             'datetime_format' => 'Y-m-d H:i:s',

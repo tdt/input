@@ -24,7 +24,8 @@
         "muka/shape-reader" : "dev-master",
         "proj4php/proj4php" : "dev-inline-projections#89722067010a4c88b7c4c79a7ee187bb2ddb1b61",
         "nesbot/carbon": "~1.14",
-        "pda/pheanstalk" : "2.1.0"
+        "pda/pheanstalk" : "2.1.0",
+        "orchestra/testbench" : "2.2.*"
     },
     "autoload": {
         "classmap": [

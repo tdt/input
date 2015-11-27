@@ -61,7 +61,7 @@ class ExecuteJob extends Command
                 exit();
             }
 
-            $this->line('The job has been found.');
+            $this->info('The job has been found.');
 
             // Configure a log handler if configured
             $this->addLogHandler();
@@ -140,7 +140,7 @@ class ExecuteJob extends Command
                 }
             }
 
-            $connString = 'mongodb://' . $mongo_config['host'] . ':' . $mongo_config['port'];
+            $connString = 'mongodb://' . $mongo_config['host'] . ':' . $mongo_config['port'] . '/logs';
 
             $mongoHandler = new MongoDBHandler(
                 new MongoClient($connString, $auth),

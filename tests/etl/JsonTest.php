@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * NOTE: The JSON extractor extracts elements from the first JSON array it encounters in the JSON document.
  */
-class JsonTest extends PHPUnit_Framework_TestCase
+class JsonTest extends \Orchestra\Testbench\TestCase
 {
     private $test_extraction_cases = array(
         'routes' => array(
@@ -17,7 +17,7 @@ class JsonTest extends PHPUnit_Framework_TestCase
     );
 
     private $test_emlp_cases = array(
-         array(
+        array(
             'extract' => array(
                 'file' => 'json/hotels.json',
                 'verify' => 'json/serialized_hotels.json',
@@ -52,11 +52,10 @@ class JsonTest extends PHPUnit_Framework_TestCase
     {
 
         foreach ($this->test_extraction_cases as $test_case_name => $config) {
-
             // Extractor Json model - mock
             Mockery::mock('Eloquent');
 
-            $extract_model = Mockery::mock('extract\Json');
+            $extract_model = new stdClass;
 
             // Mock the command object
             $command = $this->getMockedCommand();
@@ -68,7 +67,6 @@ class JsonTest extends PHPUnit_Framework_TestCase
             $obj_count = 0;
 
             while ($json_extractor->hasNext()) {
-
                 $obj =$json_extractor->pop();
 
                 // The pop() can return a NULL value for it streams data and creates objects.
@@ -88,9 +86,8 @@ class JsonTest extends PHPUnit_Framework_TestCase
     public function testETL()
     {
         foreach ($this->test_emlp_cases as $config) {
-
             Mockery::mock('Eloquent');
-            $extract_model = Mockery::mock('extract\Json');
+            $extract_model = new stdClass;
 
             $command = $this->getMockedCommand();
 
@@ -103,7 +100,6 @@ class JsonTest extends PHPUnit_Framework_TestCase
             $this->assertTrue($json_extractor->hasNext());
 
             if ($json_extractor->hasNext()) {
-
                 $chunk = $json_extractor->pop();
 
                 // Serialize the object to make comparing object easy

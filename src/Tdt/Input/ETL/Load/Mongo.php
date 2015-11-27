@@ -29,7 +29,7 @@ class Mongo extends ALoader
             }
         }
 
-        $connString = 'mongodb://' . $this->loader['host'] . ':' . $this->loader['port'];
+        $connString = 'mongodb://' . $this->loader['host'] . ':' . $this->loader['port'] . '/' . $this->loader['database'];
 
         $this->log("Creating mongo client with connection string: " . $connString, 'info');
 

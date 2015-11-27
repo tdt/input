@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * NOTE: The JSON extractor extracts elements from the first JSON array it encounters in the JSON document.
  */
-class XmlTest extends PHPUnit_Framework_TestCase
+class XmlTest extends \Orchestra\Testbench\TestCase
 {
     private $test_extraction_cases = array(
         'events' => array(
@@ -54,7 +54,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
             // Extractor Xml model - mock
             Mockery::mock('Eloquent');
 
-            $extract_model = Mockery::mock('Extract\Xml');
+            $extract_model = new stdClass;
 
             // Mock the command object
             $command = $this->getMockedCommand();
@@ -88,7 +88,7 @@ class XmlTest extends PHPUnit_Framework_TestCase
     {
         foreach ($this->test_emlp_cases as $config) {
             Mockery::mock('Eloquent');
-            $extract_model = Mockery::mock('Extract\Xml');
+            $extract_model = new stdClass;
 
             $command = $this->getMockedCommand();
 
