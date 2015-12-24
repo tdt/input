@@ -67,7 +67,7 @@ class JobExecuter
         }
 
         // Clean up after loader execution unless no new objects were loaded
-        if ($loaded_objects == 0) {
+        if ($loaded_objects > 0) {
             $loader->cleanUp();
         }
 
