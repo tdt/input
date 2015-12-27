@@ -101,7 +101,6 @@ $('.btn-edit-job').on('click', function(e){
 
     // Get the schedule
     data['schedule'] = $('#schedule option:checked').val();
-    console.log(data);
 
     // Ajax call
     $.ajax({
