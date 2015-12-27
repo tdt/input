@@ -32,7 +32,6 @@ $('.btn-add-job').on('click', function(e){
 
     // Get the schedule
     data['schedule'] = $('#schedule option:checked').val();
-    console.log(data);
 
     // Ajax call
     $.ajax({
@@ -99,6 +98,9 @@ $('.btn-edit-job').on('click', function(e){
 
         data[sequence] = object;
     });
+
+    // Get the schedule
+    data['schedule'] = $('#schedule option:checked').val();
 
     // Ajax call
     $.ajax({
