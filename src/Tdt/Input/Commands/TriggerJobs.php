@@ -50,10 +50,13 @@ class TriggerJobs extends Command
                 $job_exec_time = new Carbon($exec_time);
 
                 $push_to_q = false;
+                $diff_in_time_string = '';
 
                 switch ($job->schedule) {
                     case 'half-daily':
                         $diff = $now->diffInHours($job_exec_time);
+
+                        $diff_in_time_string = $diff . ' hours';
 
                         if ($diff >= 6) {
                             $push_to_q = true;
@@ -62,12 +65,16 @@ class TriggerJobs extends Command
                     case 'daily':
                         $diff = $now->diffInDays($job_exec_time);
 
+                        $diff_in_time_string = $diff . ' days';
+
                         if ($diff >= 1) {
                             $push_to_q = true;
                         }
                         break;
                     case 'weekly':
                         $diff = $now->diffInweeks($job_exec_time);
+
+                        $diff_in_time_string = $diff . ' weeks';
 
                         if ($diff >= 1) {
                             $push_to_q = true;
@@ -76,18 +83,27 @@ class TriggerJobs extends Command
                     case 'monthly':
                         $diff = $now->diffInMonths($job_exec_time);
 
+                        $diff_in_time_string = $diff . ' months';
+
                         if ($diff >= 1) {
                             $push_to_q = true;
                         }
                         break;
                 }
 
+                $job_name = $job->collection_uri . '/' . $job->name;
+
                 if ($push_to_q) {
                     $job->added_to_queue = true;
                     $job->save();
 
+                    $this->info("The job ($job_name) has been added to the queue.");
+
                     $this->executeCommand($job->collection_uri . '/' . $job->name);
+                } else {
+                    $this->info("The job $job_name has not been added to the queue, time difference was $diff_in_time_string");
                 }
+
             }
         }
     }
