@@ -7,6 +7,7 @@ use Tdt\Input\Commands\Import;
 use Tdt\Input\Commands\Export;
 use Tdt\Input\Commands\ExecuteJob;
 use Tdt\Input\Commands\TriggerJobs;
+use Tdt\Input\Commands\ClearBeanstalk;
 
 class InputServiceProvider extends ServiceProvider
 {
@@ -42,10 +43,16 @@ class InputServiceProvider extends ServiceProvider
             return new TriggerJobs();
         });
 
+        $this->app['input.clearqueue'] = $this->app->share(function ($app) {
+            return new ClearBeanstalk();
+        });
+
+
         $this->commands('input.export');
         $this->commands('input.execute');
         $this->commands('input.import');
         $this->commands('input.triggerjobs');
+        $this->commands('input.clearqueue');
 
         include __DIR__ . '/../../routes.php';
     }
