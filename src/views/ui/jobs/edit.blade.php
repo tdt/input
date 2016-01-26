@@ -160,5 +160,5 @@
             </div>
         </form>
     </div>
-    <script type="text/javascript" src="{{ URL::to('packages/input/jobs.min.js') }}"></script>
+    <script type="text/javascript" src="{{ URL::to('packages/tdt/input/jobs.min.js') }}"></script>
 @stop
