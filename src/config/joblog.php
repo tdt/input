@@ -11,7 +11,7 @@ return array (
      *
      * Note: CLI output will not be shown when a job is executed by a Queue
      */
-    'system' => 'mongodb',
+    'system' => 'cli',
 
     'databases' => array (
         'mongodb' => array (
