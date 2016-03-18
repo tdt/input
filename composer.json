@@ -3,7 +3,7 @@
     "description": "",
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "4.2.*",
+        "illuminate/support": "4.2.1",
         "tdt/json" : "dev-master",
         "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
@@ -16,8 +16,7 @@
     "require-dev": {
         "mockery/mockery" : "dev-master",
         "phpunit/phpunit" : "4.0.*",
-        "doctrine/dbal": "~2.3",
-        "illuminate/support": "4.2.*",
+        "illuminate/support": "4.2.1",
         "tdt/json" : "dev-master",
         "neitanod/forceutf8": "dev-master",
         "coreation/gisconverter" : "dev-master",
@@ -38,11 +37,10 @@
     },
     "scripts": {
         "pre-update-cmd": [
-            "php artisan clear-compiled"
+
         ],
         "post-install-cmd": [
-            "php artisan optimize",
-            "php artisan asset:publish tdt/input"
+
         ],
         "post-update-cmd": [
             "php artisan optimize",
