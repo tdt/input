@@ -3,8 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class RemoveIcal extends Migration
-{
+class IsoInspireHarvester extends Migration {
 
     /**
      * Run the migrations.
@@ -13,6 +12,11 @@ class RemoveIcal extends Migration
      */
     public function up()
     {
+        Schema::create('input_inspireextract', function ($table) {
+            $table->increments('id');
+            $table->string('uri', 255);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -22,5 +26,6 @@ class RemoveIcal extends Migration
      */
     public function down()
     {
+        Schema::drop('input_inspireextract');
     }
 }

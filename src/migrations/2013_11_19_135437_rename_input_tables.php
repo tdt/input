@@ -14,7 +14,6 @@ class RenameInputTables extends Migration {
 		// Rename the input tables to prefixed tables.
 		Schema::rename('csvextract', 'input_csvextract');
 		Schema::rename('xmlextract', 'input_xmlextract');
-		Schema::rename('icalextract', 'input_icalextract');
 		Schema::rename('jsonextract', 'input_jsonextract');
 		Schema::rename('shpextract', 'input_shpextract');
 
@@ -39,7 +38,6 @@ class RenameInputTables extends Migration {
 		// Undo the renaming of the tables
 		Schema::rename('input_csvextract', 'csvextract');
 		Schema::rename('input_xmlextract', 'xmlextract');
-		Schema::rename('input_icalextract', 'icalextract');
 		Schema::rename('input_jsonextract', 'jsonextract');
 		Schema::rename('input_shpextract', 'shpextract');
 

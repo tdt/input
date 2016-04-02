@@ -30,7 +30,7 @@ class ExtractorsAll extends Migration {
         });
 
 
-        // Add the json, shp xml and ical extractor
+        // Add the json, shp xml extractor
         Schema::create('jsonextract', function($table){
 
             $table->increments('id');
@@ -53,14 +53,6 @@ class ExtractorsAll extends Migration {
             $table->string('epsg', 32);
             $table->timestamps();
         });
-
-        Schema::create('icalextract', function($table){
-
-            $table->increments('id');
-            $table->string('uri', 255);
-            $table->timestamps();
-        });
-
     }
 
     /**
@@ -71,7 +63,6 @@ class ExtractorsAll extends Migration {
     public function down()
     {
         // Drop tables shpextract, xmlextract, icalextract, jsonextract, graphs, and remove hostname from sparqlload table
-        Schema::drop('icalextract');
         Schema::drop('shpextract');
         Schema::drop('jsonextract');
         Schema::drop('graphs');
