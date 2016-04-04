@@ -85,7 +85,7 @@ class Tdt extends ALoader
                     $label_values[] = $label->getValue();
                 }
 
-                $location['labels'] = $label_values;
+                $properties['label'] = $label_values;
 
                 $geometries = [];
 
@@ -106,10 +106,8 @@ class Tdt extends ALoader
                         }
                     }
 
-                    $location['geometries'] = $geometries;
+                    $properties['geometry'] = $geometries;
                 }
-
-                $properties['spatial'] = $location;
             }
 
             return $properties;
