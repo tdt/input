@@ -2,6 +2,8 @@
 
 namespace Tdt\Input\ETL\Load;
 
+use EasyRdf\Serialiser\Turtle;
+
 /**
  * The Sparql class loads triples into a triplestore.
  */
@@ -48,8 +50,8 @@ class Tdt extends ALoader
         if ($chunk->type() == "dcat:Dataset") {
             $properties = [];
 
-            // Parse normal dcat properties, a TDT instance can store
-            $properties_map = $this->getPropertiesMap();
+            // Parse normal single value dcat properties, a TDT instance can store
+            $properties_map = $this->getSinglePropertiesMap();
 
             $identifier = $chunk->getLiteral('dc:identifier')->getValue();
 
@@ -60,55 +62,7 @@ class Tdt extends ALoader
 
             $properties['collection_uri'] = rtrim($collection_uri, '/');
             $properties['type'] = $this->loader->definition_type;
-            $properties['dataset_uri'] = $chunk->getUri();
-
-            foreach ($properties_map as $key => $value) {
-                $literal = $chunk->getLiteral($value);
-
-                if (!empty($literal)) {
-                    $properties[$key] = $literal->getValue();
-                }
-            }
-
-            // Check for a spatial property
-            $location_resource = $chunk->getResource('dc:spatial');
-
-            if (!empty($location_resource)) {
-                $location = ['labels' => [], 'geometries' => []];
-
-                // Get the label(s)
-                $labels = $location_resource->allLiterals('skos:prefLabel');
-
-                $label_values = [];
-
-                foreach ($labels as $label) {
-                    $label_values[] = $label->getValue();
-                }
-
-                $properties['label'] = $label_values;
-
-                $geometries = [];
-
-                if (!empty($location_resource->allLiterals('locn:geometry'))) {
-                    foreach ($location_resource->allLiterals('locn:geometry') as $geometry_literal) {
-                        $geometry = [];
-
-                        $geometry['geometry'] = $geometry_literal->getValue();
-
-                        if ($geometry_literal->getDatatypeUri() == 'http://www.opengis.net/ont/geosparql#wktLiteral') {
-                            $geometry['type'] = 'wkt';
-                        } elseif ($geometry_literal->getDatatypeUri() == 'https://www.iana.org/assignments/media-types/application/vnd.geo+json') {
-                            $geometry['type'] = 'geojson';
-                        }
-
-                        if (!empty($geometry['type'])) {
-                            $geometries[] = $geometry;
-                        }
-                    }
-
-                    $properties['geometry'] = $geometries;
-                }
-            }
+            $properties['dcat'] = $chunk->getGraph()->serialise('ttl');
 
             return $properties;
         } else {
@@ -116,11 +70,10 @@ class Tdt extends ALoader
         }
     }
 
-    private function getPropertiesMap()
+    private function getSinglePropertiesMap()
     {
         return [
             'title' => 'dc:title',
-            'keywords' => 'dcat:keyword',
             'description' => 'dc:description',
             'theme' => 'dcat:theme',
             'contact_point' => 'dcat:contactPoint',
