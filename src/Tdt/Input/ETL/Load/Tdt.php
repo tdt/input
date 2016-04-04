@@ -36,7 +36,7 @@ class Tdt extends ALoader
 
             return $this->definitions->store($definition);
         } else {
-            $definition = $this->processRemoteDataset();
+            $definition = $this->processRemoteDataset($chunk);
 
             return $this->definitions->store($definition);
         }
