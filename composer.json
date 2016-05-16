@@ -11,7 +11,7 @@
         "proj4php/proj4php" : "dev-inline-projections#89722067010a4c88b7c4c79a7ee187bb2ddb1b61",
         "nesbot/carbon": "~1.14",
         "pda/pheanstalk" : "2.1.0",
-        "ruflin/elastica": ">=0.90 <3.0"
+        "ruflin/elastica" : "3.1.*"
     },
     "require-dev": {
         "mockery/mockery" : "dev-master",

@@ -17,8 +17,6 @@ class Virtuoso extends ALoader
 
     public function init()
     {
-        $this->store = new GraphStore($this->loader->endpoint . ':' . $this->loader->port);
-
         $this->deleteOldGraph();
 
         $this->bnode_replacements = [];
@@ -31,13 +29,11 @@ class Virtuoso extends ALoader
     /**
      * Perform the load.
      *
-     * @param EasyRdf\Resource $resource
+     * @param EasyRdf_Graph $graph
      * @return void
      */
-    public function execute($resource)
+    public function execute($graph)
     {
-        $graph = $resource->getGraph();
-
         $ntriples_serialiser = new NTriples();
 
         $ntriples = $ntriples_serialiser->serialise($graph, 'ntriples');
@@ -47,10 +43,6 @@ class Virtuoso extends ALoader
 
     private function performQuery($query, $method = "GET")
     {
-        $post = array(
-            "update" => $query
-        );
-
         $url = $this->loader->endpoint . "?query=" . urlencode($query);
 
         $defaults = array(
@@ -58,15 +50,12 @@ class Virtuoso extends ALoader
             CURLOPT_HEADER => 0,
             CURLOPT_URL => $url,
             CURLOPT_HTTPAUTH => CURLAUTH_ANY,
+            CURLOPT_USERPWD => $this->loader->username . ":" . $this->loader->password,
             CURLOPT_FRESH_CONNECT => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FORBID_REUSE => 1,
             CURLOPT_TIMEOUT => 4,
         );
-
-        if (!empty($this->loader->username) && !empty($this->loader->password)) {
-            $defaults[CURLOPT_USERPWD] = $this->loader->username . ":" . $this->loader->password;
-        }
 
         // Get curl handle and initiate the request
         $ch = curl_init();
@@ -76,13 +65,16 @@ class Virtuoso extends ALoader
         $response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $this->log("After executing the insertion query the endpoint responded with code: $response_code");
-        curl_close($ch);
 
-        if ($response_code >= 400) {
+        if ($response_code != 200) {
             $this->log("The query failed with code " . $response_code);
+
+            curl_close($ch);
             return false;
         } else {
             $this->log("The triples were succesfully inserted into the store.");
+
+            curl_close($ch);
             return true;
         }
     }
@@ -163,8 +155,18 @@ class Virtuoso extends ALoader
             $triples = str_replace($match, $bnode_uri, $triples);
         }
 
-        $serialized = $this->serialize($triples);
+        $triple_patterns = explode("\n", $triples);
 
-        $query = $this->createInsertQuery($serialized);
+        foreach ($triple_patterns as $pattern) {
+            $serialized = $this->serialize($pattern);
+
+            $query = $this->createInsertQuery($serialized);
+
+            if (!$this->performQuery($query, 'POST')) {
+                $this->log("This pattern was not succesfully loaded: " . $pattern, "eror");
+            } else {
+                $this->log("Succesfully added the pattern: " . $pattern);
+            }
+        }
     }
 }

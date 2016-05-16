@@ -14,6 +14,8 @@ class Inspire extends AExtractor
         // Perform XLST
         $xsl_url = "https://webgate.ec.europa.eu/CITnet/stash/projects/ODCKAN/repos/iso-19139-to-dcat-ap/browse/iso-19139-to-dcat-ap.xsl?raw";
 
+        $proc = null;
+
         try {
             $xml = new DOMDocument;
             $xml->load($this->extractor->uri);
@@ -26,6 +28,7 @@ class Inspire extends AExtractor
 
         } catch (\ErrorException $ex) {
             $this->log('Something went wrong: ' . $ex->getMessage());
+            die;
         }
 
         $dcat_document = $proc->transformToXML($xml);

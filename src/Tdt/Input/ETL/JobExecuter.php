@@ -73,7 +73,9 @@ class JobExecuter
 
         $duration = round(microtime(true) - $start, 2);
 
-        $this->log("Extracted and loaded a total of $loaded_objects objects from the data source in " . $duration . " seconds.");
+        if (get_class($loader) != 'Tdt\Input\ETL\Load\Virtuoso') {
+            $this->log("Extracted and loaded a total of $loaded_objects objects from the data source in " . $duration . " seconds.");
+        }
 
         // Execute the publisher if present ( optional )
         if (!empty($publisher)) {
@@ -91,7 +93,6 @@ class JobExecuter
      */
     private function getExecuter($model)
     {
-
         if (empty($model)) {
             return $model;
         }

@@ -9,14 +9,15 @@ class Rdfa extends AExtractor
 {
     protected function open()
     {
-        $graph = new Graph();
+        $this->graph = new Graph();
         $parser = new RdfaParser();
 
         $data = file_get_contents($this->extractor->uri);
 
-        $parser->parse($graph, $data, 'rdfa', 'http://foobar.com');
+        $parser->parse($this->graph, $data, 'rdfa', $this->extractor->base_uri);
 
-        $this->resources = $graph->resources();
+        // We only return the graph once as a full datastructure
+        $this->has_next = true;
     }
 
     /**
@@ -25,7 +26,7 @@ class Rdfa extends AExtractor
      */
     public function hasNext()
     {
-        return !empty($this->resources);
+        return $this->has_next;
     }
 
     /**
@@ -34,7 +35,9 @@ class Rdfa extends AExtractor
      */
     public function pop()
     {
-        return array_shift($this->resources);
+        $this->has_next = false;
+
+        return $this->graph;
     }
 
     /**

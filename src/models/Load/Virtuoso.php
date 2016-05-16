@@ -63,16 +63,9 @@ class Virtuoso extends Type
         return array(
                 'endpoint' => array(
                     'required' => true,
-                    'description' => 'The endpoint of the virtuoso',
+                    'description' => 'The sparql endpoint of the virtuoso, be sure that it has write permissions (e.g. sparql-auth)',
                     'type' => 'string',
                     'name' => 'Host',
-                ),
-                'port' => array(
-                    'required' => true,
-                    'description' => 'The port on which the virtuoso is listening.',
-                    'type' => 'integer',
-                    'name' => 'Port',
-                    'default_value' => 8890,
                 ),
                 'username' => array(
                     'required' => false,
