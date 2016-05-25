@@ -48,7 +48,6 @@ class Virtuoso extends Type
      */
     public static function getCreateValidators()
     {
-
         return array(
             'host' => 'required',
             'port' => 'required',

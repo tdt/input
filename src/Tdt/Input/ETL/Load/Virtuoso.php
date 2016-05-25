@@ -17,13 +17,23 @@ class Virtuoso extends ALoader
 
     public function init()
     {
-        $this->deleteOldGraph();
+        // Create a temp graph name to store the triples into temporarily
+        // After we filled the new graph, we clear the old graph and move
+        // the temp graph to the configured graph
+        $this->temp_graph_name = 'http://temp.bar/' . str_random(10);
 
         $this->bnode_replacements = [];
     }
 
     public function cleanUp()
     {
+        $this->log("Cleaning up, deleting the old contents of the graph and moving in the temporary graph.");
+
+        $this->deleteGraph($this->loader->graph);
+
+        if ($this->moveGraph($this->temp_graph_name, $this->loader->graph)) {
+            $this->deleteGraph($this->temp_graph_name);
+        }
     }
 
     /**
@@ -38,7 +48,7 @@ class Virtuoso extends ALoader
 
         $ntriples = $ntriples_serialiser->serialise($graph, 'ntriples');
 
-        $this->addTriples($ntriples);
+        return $this->addTriples($ntriples);
     }
 
     private function performQuery($query, $method = "GET")
@@ -68,6 +78,7 @@ class Virtuoso extends ALoader
 
         if ($response_code != 200) {
             $this->log("The query failed with code " . $response_code);
+            $this->log("The error response we retrieved is: " . curl_error($ch));
 
             curl_close($ch);
             return false;
@@ -79,12 +90,9 @@ class Virtuoso extends ALoader
         }
     }
 
-    private function deleteOldGraph()
+    private function deleteGraph($graph_name)
     {
-        $graph_name = $this->loader->graph;
-
         $this->log("Before attaching the new graph, detaching and removing the old one");
-
 
         $query = "CLEAR GRAPH <$graph_name>";
         $result = $this->performQuery($query);
@@ -98,6 +106,29 @@ class Virtuoso extends ALoader
     }
 
     /**
+     * Move a graph to a new one
+     *
+     * @param string $from
+     * @param string $to
+     *
+     * @return bool
+     */
+    private function moveGraph($from, $to)
+    {
+        $query = "MOVE <$from> TO <$to>";
+
+        $result = $this->performQuery($query);
+
+        if ($result !== false) {
+            $this->log("Succesfully moved the graph to the new one.");
+        } else {
+            $this->log("Something went wrong while moving the graph to the new one.", "error");
+        }
+
+        return $result;
+    }
+
+    /**
      * Create an insert SPARQL query based on the graph id
      * @param string $triples (need to be serialized == properly encoded)
      *
@@ -105,7 +136,7 @@ class Virtuoso extends ALoader
      */
     private function createInsertQuery($triples)
     {
-        $graph_name = $this->loader->graph;
+        $graph_name = $this->temp_graph_name;
         $query = "INSERT DATA INTO <$graph_name> {";
         $query .= $triples;
         $query .= ' }';
@@ -137,10 +168,12 @@ class Virtuoso extends ALoader
      *
      * @param string $triples
      *
-     * @return void
+     * @return bool
      */
     private function addTriples($triples)
     {
+        $added_triples = false;
+
         preg_match_all('/(_:genid.*?)\s/is', $triples, $matches);
 
         foreach ($matches[0] as $match) {
@@ -166,7 +199,10 @@ class Virtuoso extends ALoader
                 $this->log("This pattern was not succesfully loaded: " . $pattern, "eror");
             } else {
                 $this->log("Succesfully added the pattern: " . $pattern);
+                $added_triples = true;
             }
         }
+
+        return $added_triples;
     }
 }
