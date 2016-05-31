@@ -14,6 +14,9 @@ class Richsnippet extends AExtractor
         $rdfa_parser = new RdfaParser();
         $json_parser = new JsonLd();
 
+        \EasyRdf\RdfNamespace::set('dcat', 'http://www.w3.org/ns/dcat#');
+        \EasyRdf\RdfNamespace::set('lbld', 'http://decisions.data.vlaanderen.be/ns#');
+
         $data = file_get_contents($this->extractor->uri);
 
         // Assume we have an rdfa document to begin with
@@ -24,18 +27,20 @@ class Richsnippet extends AExtractor
 
         foreach ($this->graph->resources() as $resource) {
             foreach ($properties as $property) {
-                $object = $resource->get($property);
+                $resolve_resources = $resource->allResources($property);
 
-                if (is_a($object, "EasyRdf\Resource")) {
-                    $data = file_get_contents($object->getUri());
+                if (!empty($resolve_resources)) {
+                    foreach ($resolve_resources as $resolve_resource) {
+                        $data = file_get_contents($resolve_resource->getUri());
 
-                    // Parse any rdfa data in the document
-                    $rdfa_parser->parse($this->graph, $data, 'rdfa', $object->getUri());
+                        // Parse any rdfa data in the document into the existing graph
+                        $this->graph->parse($data, 'rdfa', $resolve_resource->getUri());
 
-                    $json = $this->parseJsonldSnippet($data);
+                        $json = $this->parseJsonldSnippet($data);
 
-                    if (!empty($json)) {
-                        $json_parser->parse($this->graph, $json, 'jsonld', $object->getUri());
+                        if (!empty($json)) {
+                            $this->graph->parse($json, 'jsonld', $resolve_resource->getUri());
+                        }
                     }
                 }
             }
@@ -84,7 +89,7 @@ class Richsnippet extends AExtractor
         $primer = preg_quote("<script application/ld+json>", '/');
         $end = preg_quote("</script>", '/');
 
-        preg_match("/.*\<script.*?application\/ld\+json.*?\>(.+)$end.*/", $html, $result);
+        preg_match("/.*\<script.*?application\/ld\+json.*?\>(.+?)$end.*/", $html, $result);
 
         if (!empty($result[1])) {
             return $result[1];
