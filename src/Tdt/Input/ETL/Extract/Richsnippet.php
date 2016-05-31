@@ -39,7 +39,11 @@ class Richsnippet extends AExtractor
                         $json = $this->parseJsonldSnippet($data);
 
                         if (!empty($json)) {
-                            $this->graph->parse($json, 'jsonld', $resolve_resource->getUri());
+                            try {
+                                $this->graph->parse($json, 'jsonld', $resolve_resource->getUri());
+                            } catch (\Exception $ex) {
+                                \Log::error("We could not parse json from the data, the data was:" . $json);
+                            }
                         }
                     }
                 }
