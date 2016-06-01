@@ -93,7 +93,7 @@ class Richsnippet extends AExtractor
         $primer = preg_quote("<script application/ld+json>", '/');
         $end = preg_quote("</script>", '/');
 
-        preg_match("/.*\<script.*?application\/ld\+json.*?\>(.+?)$end.*/", $html, $result);
+        preg_match("/.*\<script.*?application\/ld\+json.*?\>(.+?)$end.*/s", $html, $result);
 
         if (!empty($result[1])) {
             return $result[1];
