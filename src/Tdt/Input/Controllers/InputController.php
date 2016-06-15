@@ -9,7 +9,7 @@ class InputController extends \Controller
 {
     public function handle()
     {
-        // Propage the request based on the HTTPMethod of the request.
+        // Propagate the request based on the HTTPMethod of the request.
         $method = \Request::getMethod();
 
         switch ($method) {
@@ -105,12 +105,6 @@ class InputController extends \Controller
         $job->save();
 
         $job_name = $job->collection_uri . '/' . $job->name;
-
-        \Queue::push(function ($queued_job) use ($job_name) {
-            \Artisan::call('input:execute', ['jobname' => $job_name]);
-
-            $queued_job->delete();
-        });
 
         $response = \Response::make(null, 200);
         $response->header('Location', \Request::getHost() . '/' . $uri);
