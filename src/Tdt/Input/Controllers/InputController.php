@@ -46,7 +46,7 @@ class InputController extends \Controller
      * @return void
      */
     public function createJob($uri)
-    {
+    {   
         list($collection_uri, $name) = $this->getParts($uri);
 
         // Retrieve the parameters of the PUT requests (either a JSON document or a key=value string)
@@ -249,20 +249,6 @@ class InputController extends \Controller
         $job->loader_id = $loader->id;
         $job->loader_type = $this->getClass($loader);
         $job->save();
-
-        // If the job is scheduled once, push the job to the queue
-        if ($job->schedule == 'once') {
-            $job->date_executed = time();
-            $job->save();
-
-            $job_name = $job->collection_uri . '/' . $job->name;
-
-            \Queue::push(function ($queued_job) use ($job_name) {
-                \Artisan::call('input:execute', ['jobname' => $job_name]);
-
-                $queued_job->delete();
-            });
-        }
 
         $response = \Response::make(null, 200);
         $response->header('Location', \Request::getHost() . '/' . $uri);
