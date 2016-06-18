@@ -46,7 +46,9 @@ class TriggerJobs extends Command
             if (empty($job->added_to_queue) || !$job->added_to_queue) {
                 // Check if they are due
                 $now = Carbon::now();
+
                 $exec_time = date('Y-m-d', $job->date_executed);
+                
                 $job_exec_time = new Carbon($exec_time);
 
                 $push_to_q = false;

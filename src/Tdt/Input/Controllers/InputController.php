@@ -46,7 +46,7 @@ class InputController extends \Controller
      * @return void
      */
     public function createJob($uri)
-    {   
+    {
         list($collection_uri, $name) = $this->getParts($uri);
 
         // Retrieve the parameters of the PUT requests (either a JSON document or a key=value string)
@@ -61,7 +61,8 @@ class InputController extends \Controller
 
         // If we get empty params, then something went wrong
         if (empty($params)) {
-            \App::abort(400, "The parameters could not be parsed from the body or request URI, make sure parameters are provided and if they are correct (e.g. correct JSON).");
+            \App::abort(400,
+                "The parameters could not be parsed from the body or request URI, make sure parameters are provided and if they are correct (e.g. correct JSON).");
         }
 
         // Validate the job properties
@@ -105,6 +106,14 @@ class InputController extends \Controller
         $job->save();
 
         $job_name = $job->collection_uri . '/' . $job->name;
+
+        \Queue::push(function ($queued_job) use ($job_name) {
+            \Artisan::call('input:execute', [
+                'jobname' => $job_name
+            ]);
+
+            $queued_job->delete();
+        });
 
         $response = \Response::make(null, 200);
         $response->header('Location', \Request::getHost() . '/' . $uri);
@@ -153,7 +162,8 @@ class InputController extends \Controller
             if (!array_key_exists($key, $params)) {
                 if (!empty($info['required']) && $info['required']) {
                     if (strtolower($type) != 'job') {
-                        \App::abort(400, "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
+                        \App::abort(400,
+                            "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
                     } else {
                         \App::abort(400, "The parameter '$key' is required to create a job but was not passed.");
                     }
@@ -169,7 +179,8 @@ class InputController extends \Controller
                     );
 
                     if ($validator->fails()) {
-                        \App::abort(400, "The validation failed for parameter $key with value '$params[$key]', make sure the value is valid.");
+                        \App::abort(400,
+                            "The validation failed for parameter $key with value '$params[$key]', make sure the value is valid.");
                     }
                 }
 
@@ -250,19 +261,25 @@ class InputController extends \Controller
         $job->loader_type = $this->getClass($loader);
         $job->save();
 
+        // If the job is scheduled once, push the job to the queue
+        if ($job->schedule == 'once') {
+            $job->date_executed = time();
+            $job->save();
+
+            $job_name = $job->collection_uri . '/' . $job->name;
+
+            \Queue::push(function ($queued_job) use ($job_name) {
+                \Artisan::call('input:execute', ['jobname' => $job_name]);
+                
+                $queued_job->delete();
+            });
+        }
+
         $response = \Response::make(null, 200);
         $response->header('Location', \Request::getHost() . '/' . $uri);
 
         return $response;
 
-    }
-
-    /**
-     * Return the headers of a call made to the uri given.
-     */
-    private function headJob($uri)
-    {
-        \App::abort(500, "Method currently not implemented");
     }
 
     /**
@@ -304,7 +321,7 @@ class InputController extends \Controller
     public function get($uri)
     {
         return \Job::whereRaw("? like CONCAT(collection_uri, '/', name , '/', '%')", array($uri . '/'))
-                ->with('extractor', 'loader')->first();
+            ->with('extractor', 'loader')->first();
     }
 
     /**
@@ -367,7 +384,7 @@ class InputController extends \Controller
      */
     private function makeResponse($data)
     {
-         // Create response
+        // Create response
         $response = \Response::make($data, 200);
 
         // Set headers
