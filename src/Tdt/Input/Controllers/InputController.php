@@ -270,7 +270,7 @@ class InputController extends \Controller
 
             \Queue::push(function ($queued_job) use ($job_name) {
                 \Artisan::call('input:execute', ['jobname' => $job_name]);
-                
+
                 $queued_job->delete();
             });
         }
