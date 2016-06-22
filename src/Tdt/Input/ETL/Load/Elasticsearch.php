@@ -74,57 +74,6 @@ class Elasticsearch extends ALoader
 
     public function cleanUp()
     {
-        /*// Remove the old data
-        $params = array(
-            "search_type" => "scan",    // use search_type=scan
-            "scroll" => "1s",          // how long between scroll requests. should be small!
-            "size" => 100,               // how many results *per shard* you want back
-            "index" => $this->index,
-            "type" => $this->type,
-            "body" => array(
-                "query" => array(
-                    "range" => array(
-                        self::$ETL_TIMESTAMP => array(
-                            "lt" => $this->timestamp
-                        )
-                    )
-                )
-            )
-        );
-
-        // Count how many documents we delete
-        $counter = 0;
-
-        $docs = $this->client->search($params);   // Execute the search
-        $scroll_id = $docs['_scroll_id'];   // The response will contain no results, just a _scroll_id
-
-        // Now we loop until the scroll "cursors" are exhausted
-        $response = $this->client->scroll([
-            "scroll_id" => $scroll_id,
-            "scroll" => "1s"
-        ]);
-
-        // Check to see if we got any search hits from the scroll
-        while (count($response['hits']['hits']) > 0) {
-            foreach ($response['hits']['hits'] as $document) {
-                $this->client->delete([
-                    'index' => $this->index,
-                    'type' => $this->type,
-                    'id' => $document['_id']
-                ]);
-
-                $counter++;
-            }
-
-            // Refresh the scroll_id, it's subject to change
-            $scroll_id = $response['_scroll_id'];
-
-            $response = $this->client->scroll([
-                "scroll_id" => $scroll_id,
-                "scroll" => "1s"
-            ]);
-        }*/
-
         $dateRange = new Range();
         $dateRange->addField(self::$ETL_TIMESTAMP, array('lt' => $this->timestamp));
 
