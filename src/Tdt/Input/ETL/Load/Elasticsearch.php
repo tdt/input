@@ -2,12 +2,14 @@
 
 namespace Tdt\Input\ETL\Load;
 
-use Elasticsearch\Client;
 use Carbon\Carbon;
+use Elastica\Client;
+use Elastica\Query;
+use Elastica\Query\Range;
 
 class Elasticsearch extends ALoader
 {
-    private static $ETL_TIMESTAMP = 'tdt_etl_timestamp_';
+    private static $ETL_TIMESTAMP = '__tdt_etl_timestamp__';
 
     public function __construct($model, $command)
     {
@@ -37,46 +39,42 @@ class Elasticsearch extends ALoader
             }
         }
 
-        $hosts = ['hosts' => [$this->loader['host'] . ':' . $this->loader['port']]];
-        $this->client = new Client($hosts);
-
         $this->type = $this->loader['es_type'];
-        $this->index = $this->loader['es_index'];
 
-        $this->log("The ElasticSearch client is configured to write to the index " . $this->loader['index'] . " with the ". $this->loader['type'] . " type.", 'info');
+        $this->client = new Client(['host' => $this->loader['host'], 'port' => $this->loader['port']]);
+        $this->index = $this->client->getIndex($this->loader['es_index']);
 
-        $indexParams = [];
-        $indexParams['index']  = $this->index;
+        $this->log("The ElasticSearch client is configured to write to the index " . $this->loader['es_index'] . " with the " . $this->loader['es_type'] . " type.",
+            'info');
 
-        if (!$this->client->indices()->exists($indexParams)) {
-            $newIndexParams = [
-                'index' => $this->index,
-                'type' => $this->type,
-                'body' => [
-                    'settings' => [
-                        'number_of_shards' => 2,
-                        'number_of_replicas' => 0
-                    ],
-                    'mappings' => [
-                        $this->type => [
-                            'properties' => [
-                                '_timestamp' => [
-                                    'enabled' => true,
-                                    'path' => self::$ETL_TIMESTAMP
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            $this->client->create($newIndexParams);
+        try {
+            $this->index->create([
+                'number_of_shards' => 2,
+                'number_of_replicas' => 0
+            ]);
+        } catch (\Exception $ex) {
+            $this->log("An error occured while trying to create the index, this is probably because it exists already", 'warning');
+            $this->log("The message was: " . $ex->getMessage(), 'warning');
         }
+
+        $this->type = $this->index->getType($this->loader['es_type']);
+
+        // Define mapping
+        $mapping = new \Elastica\Type\Mapping();
+        $mapping->setType($this->type);
+
+        // Set mapping
+        $mapping->setProperties(array(
+            self::$ETL_TIMESTAMP => array('type' => 'date')
+        ));
+
+        // Send mapping to type
+        $mapping->send();
     }
 
     public function cleanUp()
     {
-        // Remove the old data
+        /*// Remove the old data
         $params = array(
             "search_type" => "scan",    // use search_type=scan
             "scroll" => "1s",          // how long between scroll requests. should be small!
@@ -88,10 +86,10 @@ class Elasticsearch extends ALoader
                     "range" => array(
                         self::$ETL_TIMESTAMP => array(
                             "lt" => $this->timestamp
-                            )
                         )
                     )
                 )
+            )
         );
 
         // Count how many documents we delete
@@ -102,9 +100,9 @@ class Elasticsearch extends ALoader
 
         // Now we loop until the scroll "cursors" are exhausted
         $response = $this->client->scroll([
-                    "scroll_id" => $scroll_id,
-                    "scroll" => "1s"
-                    ]);
+            "scroll_id" => $scroll_id,
+            "scroll" => "1s"
+        ]);
 
         // Check to see if we got any search hits from the scroll
         while (count($response['hits']['hits']) > 0) {
@@ -113,7 +111,7 @@ class Elasticsearch extends ALoader
                     'index' => $this->index,
                     'type' => $this->type,
                     'id' => $document['_id']
-                    ]);
+                ]);
 
                 $counter++;
             }
@@ -122,12 +120,20 @@ class Elasticsearch extends ALoader
             $scroll_id = $response['_scroll_id'];
 
             $response = $this->client->scroll([
-                    "scroll_id" => $scroll_id,
-                    "scroll" => "1s"
-                    ]);
-        }
+                "scroll_id" => $scroll_id,
+                "scroll" => "1s"
+            ]);
+        }*/
 
-        $this->log("Removed $counter documents that were outdated.");
+        $dateRange = new Range();
+        $dateRange->addField(self::$ETL_TIMESTAMP, array('lt' => $this->timestamp));
+
+        $query = new Query();
+        $query->setQuery($dateRange);
+
+        $this->type->deleteByQuery($query);
+
+        $this->log("Removed outdated documents that were outdated.");
     }
 
     /**
@@ -140,20 +146,17 @@ class Elasticsearch extends ALoader
     {
         $chunk[self::$ETL_TIMESTAMP] = $this->timestamp;
 
+        $tweetDocument = new \Elastica\Document('', $chunk);
+
         try {
-            $response = $this->client->index([
-                'index' => $this->index,
-                'type'  => $this->type,
-                'body' => $chunk
-            ]);
-
-            $this->log("Added the datachunk, returned id was " . $response['_id']);
-            return true;
-
+            $this->type->addDocument($tweetDocument);
+            $this->type->getIndex()->refresh();
         } catch (\Exception $ex) {
-            $this->log("Could not add the data, something went wrong: " . $ex->getMessage());
+            $this->log("Something went wrong while adding a document ( " . json_encode($chunk) . ")",  'error');
 
             return false;
         }
+
+        return true;
     }
 }
