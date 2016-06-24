@@ -68,9 +68,6 @@ class InputController extends \Controller
         // Validate the job properties
         $job_params = $this->validateParameters('Job', 'job', $params);
 
-        // Retrieve the collection uri and resource name
-        $matches = array();
-
         // Check which parts are set for validation purposes
         $extract = @$params['extract'];
         $load = @$params['load'];

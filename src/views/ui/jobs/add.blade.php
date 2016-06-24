@@ -121,5 +121,5 @@
         @endforeach
         </form>
     </div>
-    <script type="text/javascript" src="{{ URL::to('packages/tdt/input/jobs.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('packages/tdt/input/jobs.min.js', Config::get('app.ssl_enabled')) }}"></script>
 @stop

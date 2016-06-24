@@ -72,6 +72,11 @@ class Elasticsearch extends ALoader
         $mapping->send();
     }
 
+    /**
+     * Remove all outdated documents in the index of the configured type
+     *
+     * @return void
+     */
     public function cleanUp()
     {
         $dateRange = new Range();
