@@ -4,7 +4,7 @@
     <div class='row header'>
         <div class="col-sm-10">
             <h3>
-                <a href='{{ URL::to('api/admin/jobs', [], Config::get('app.ssl_enabled')) }}' class='back'>
+                <a href="{{ URL::to('api/admin/jobs', [], Config::get('app.ssl_enabled')) }}" class='back'>
                     <i class='fa fa-angle-left'></i>
                 </a>
                 {{ trans('input::admin.add_job') }}
