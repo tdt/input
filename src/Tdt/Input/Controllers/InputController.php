@@ -112,10 +112,7 @@ class InputController extends \Controller
             $queued_job->delete();
         });
 
-        $response = \Response::make(null, 200);
-        $response->header('Location', \Request::getHost() . '/' . $uri);
-
-        return $response;
+        return \Redirect::to('api/admin/jobs');
     }
 
     /**
@@ -272,11 +269,7 @@ class InputController extends \Controller
             });
         }
 
-        $response = \Response::make(null, 200);
-        $response->header('Location', \Request::getHost() . '/' . $uri);
-
-        return $response;
-
+        return \Redirect::to('api/admin/jobs');
     }
 
     /**
