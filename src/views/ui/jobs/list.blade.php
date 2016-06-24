@@ -7,7 +7,7 @@
             <h3>{{ trans('input::admin.manage_jobs') }}</h3>
         </div>
         <div class="col-sm-5 text-right">
-            <a href='{{ URL::to('api/admin/jobs/add', Config::get('app.ssl_enabled')) }}' class='btn btn-primary margin-left'
+            <a href='{{ URL::to('api/admin/jobs/add', [], Config::get('app.ssl_enabled')) }}' class='btn btn-primary margin-left'
                 data-step='1'
                 data-intro='Add a new job to the system.'
                 data-position="left">
