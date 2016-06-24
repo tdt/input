@@ -4,7 +4,7 @@
     <div class='row header'>
         <div class="col-sm-10">
             <h3>
-                <a href='{{ URL::to('api/admin/jobs') }}' class='back'>
+                <a href='{{ URL::to('api/admin/jobs', Config::get('app.ssl_enabled')) }}' class='back'>
                     <i class='fa fa-angle-left'></i>
                 </a>
                 {{ trans('input::admin.add_job') }}
@@ -35,7 +35,7 @@
             <div class="col-sm-8">
 
                 <div class="input-group">
-                    <span class="input-group-addon">{{ URL::to('api/input') }}/</span>
+                    <span class="input-group-addon">{{ URL::to('api/input', Config::get('app.ssl_enabled')) }}/</span>
                     <input type="text" class="form-control" id="input_identifier" name="collection" placeholder="">
                 </div>
 

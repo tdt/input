@@ -129,5 +129,4 @@ $('.btn-edit-job').on('click', function(e){
             }
         }
     })
-
 });

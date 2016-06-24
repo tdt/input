@@ -7,7 +7,7 @@
             <h3>{{ trans('input::admin.manage_jobs') }}</h3>
         </div>
         <div class="col-sm-5 text-right">
-            <a href='{{ URL::to('api/admin/jobs/add') }}' class='btn btn-primary margin-left'
+            <a href='{{ URL::to('api/admin/jobs/add', Config::get('app.ssl_enabled')) }}' class='btn btn-primary margin-left'
                 data-step='1'
                 data-intro='Add a new job to the system.'
                 data-position="left">
@@ -22,7 +22,7 @@
 
         @foreach($jobs as $job)
 
-            <div class="panel dataset dataset-link button-row panel-default clickable-row" data-href='{{ URL::to('api/admin/jobs/edit/' . $job->id) }}'>
+            <div class="panel dataset dataset-link button-row panel-default clickable-row" data-href='{{ URL::to('api/admin/jobs/edit/' . $job->id, Config::get('app.ssl_enabled')) }}'>
                 <div class="panel-body">
                     <div class='icon'>
                         <i class='fa fa-lg fa-file-code-o'></i>
@@ -46,13 +46,13 @@
                             <div class='col-sm-2 text-right'>
                                 <div class='btn-group'>
                                 @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.edit'))
-                                    <a href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name) }}' class='btn' title="{{ trans('input::admin.view_json_def') }}"
+                                    <a href='{{ URL::to('api/input/' . $job->collection_uri . '/' . $job->name, Config::get('app.ssl_enabled')) }}' class='btn' title="{{ trans('input::admin.view_json_def') }}"
 
                                         <i class='fa fa-external-link'></i> {{ trans('input::admin.view_json_def') }}
                                     </a>
                                 @endif
                                 @if(Tdt\Core\Auth\Auth::hasAccess('tdt.input.delete'))
-                                <a href='{{ URL::to('api/admin/jobs/delete/'. $job->id) }}' class='btn delete' title='Delete this dataset'>
+                                <a href='{{ URL::to('api/admin/jobs/delete/'. $job->id, Config::get('app.ssl_enabled')) }}' class='btn delete' title='Delete this dataset'>
                                     <i class='fa fa-times icon-only'></i>
                                 </a>
                                 @endif

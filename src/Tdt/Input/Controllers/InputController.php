@@ -112,7 +112,7 @@ class InputController extends \Controller
             $queued_job->delete();
         });
 
-        return \Redirect::to('api/admin/jobs');
+        return \Response([], 200);
     }
 
     /**
@@ -269,7 +269,7 @@ class InputController extends \Controller
             });
         }
 
-        return \Redirect::to('api/admin/jobs');
+        return \Response([], 200);
     }
 
     /**
