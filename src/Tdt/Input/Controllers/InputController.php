@@ -112,7 +112,7 @@ class InputController extends \Controller
             $queued_job->delete();
         });
 
-        return \Response([], 200);
+        return \Response::make([], 200);
     }
 
     /**
@@ -269,7 +269,7 @@ class InputController extends \Controller
             });
         }
 
-        return \Response([], 200);
+        return \Response::make([], 200);
     }
 
     /**
