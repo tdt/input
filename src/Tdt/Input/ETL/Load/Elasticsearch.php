@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Elastica\Client;
 use Elastica\Query;
 use Elastica\Query\Range;
+use Elastica\Index;
 
 class Elasticsearch extends ALoader
 {
@@ -42,10 +43,16 @@ class Elasticsearch extends ALoader
         $this->type = $this->loader['es_type'];
 
         $this->client = new Client(['host' => $this->loader['host'], 'port' => $this->loader['port']]);
-        $this->index = $this->client->getIndex($this->loader['es_index']);
+        $this->index = new Index($this->client, $this->loader['es_index']);
 
-        $this->log("The ElasticSearch client is configured to write to the index " . $this->loader['es_index'] . " with the " . $this->loader['es_type'] . " type.",
-            'info');
+        if (!$this->index->exists()) {
+            $this->index->create();
+        }
+
+        $this->log(
+            "The ElasticSearch client is configured to write to the index " . $this->loader['es_index'] . " with the " . $this->loader['es_type'] . " type.",
+            'info'
+        );
 
         try {
             $this->index->create([

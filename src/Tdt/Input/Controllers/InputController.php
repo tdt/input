@@ -156,8 +156,10 @@ class InputController extends \Controller
             if (!array_key_exists($key, $params)) {
                 if (!empty($info['required']) && $info['required']) {
                     if (strtolower($type) != 'job') {
-                        \App::abort(400,
-                            "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed.");
+                        \App::abort(
+                            400,
+                            "The parameter '$key' of the $short_name-part of the job configuration is required but was not passed."
+                        );
                     } else {
                         \App::abort(400, "The parameter '$key' is required to create a job but was not passed.");
                     }
@@ -173,8 +175,10 @@ class InputController extends \Controller
                     );
 
                     if ($validator->fails()) {
-                        \App::abort(400,
-                            "The validation failed for parameter $key with value '$params[$key]', make sure the value is valid.");
+                        \App::abort(
+                            400,
+                            "The validation failed for parameter $key with value '$params[$key]', make sure the value is valid."
+                        );
                     }
                 }
 
