@@ -54,16 +54,6 @@ class Elasticsearch extends ALoader
             'info'
         );
 
-        try {
-            $this->index->create([
-                'number_of_shards' => 2,
-                'number_of_replicas' => 0
-            ]);
-        } catch (\Exception $ex) {
-            $this->log("An error occured while trying to create the index, this is probably because it exists already", 'warning');
-            $this->log("The message was: " . $ex->getMessage(), 'warning');
-        }
-
         $this->type = $this->index->getType($this->loader['es_type']);
 
         // Define mapping

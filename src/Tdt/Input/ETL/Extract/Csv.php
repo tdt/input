@@ -22,7 +22,14 @@ class Csv extends AExtractor
         $this->row_index = 0;
 
         // Open a filehandle for the uri
-        $this->handle = fopen($uri, 'r');
+        $ssl_options = array(
+                            "ssl"=>array(
+                                "verify_peer"=>false,
+                                "verify_peer_name"=>false,
+                                ),
+                            );
+
+        $this->handle = fopen($uri, 'r', false, stream_context_create($ssl_options));
 
         if (!$this->handle) {
             $this->log("Could not open the file with location $uri.");
@@ -32,15 +39,15 @@ class Csv extends AExtractor
         $this->log("Opened the CSV file located at $uri");
 
         if ($this->extractor->has_header_row && ($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
-            $i=0;
+            $csvIndex = 0;
 
             foreach ($data as &$el) {
                 if ($this->encoding != 'UTF-8') {
                     $el = $this->convertToUtf8($el, $this->encoding);
                 }
 
-                $this->header[$i] = $this->fixUtf8($el);
-                $i++;
+                $this->header[$csvIndex] = $this->fixUtf8($el);
+                $csvIndex++;
             }
 
             $this->row_index++;
@@ -65,7 +72,7 @@ class Csv extends AExtractor
         $row = array();
 
         if (($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
-            $i=0;
+            $csvIndex = 0;
 
             foreach ($data as $el) {
                 if ($this->encoding != 'UTF-8') {
@@ -73,12 +80,12 @@ class Csv extends AExtractor
                 }
 
                 if ($this->extractor->has_header_row) {
-                    $row[$this->header[$i]] = $this->fixUtf8($el);
+                    $row[$this->header[$csvIndex]] = $this->fixUtf8($el);
                 } else {
-                    $row[$i] = $this->fixUtf8($el);
+                    $row[$csvIndex] = $this->fixUtf8($el);
                 }
 
-                $i++;
+                $csvIndex++;
             }
         }
 
