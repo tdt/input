@@ -260,10 +260,7 @@ class InputController extends \Controller
         $job->save();
 
         // If the job is scheduled once, push the job to the queue
-        if ($job->schedule == 'once') {
-            $job->date_executed = time();
-            $job->save();
-
+        if ($job->schedule == 'once' && !$job->added_to_queue) {
             $job_name = $job->collection_uri . '/' . $job->name;
 
             \Queue::push(function ($queued_job) use ($job_name) {
@@ -271,6 +268,9 @@ class InputController extends \Controller
 
                 $queued_job->delete();
             });
+
+            $job->added_to_queue = true;
+            $job->save();
         }
 
         return \Response::make([], 200);
