@@ -8,6 +8,7 @@ use Tdt\Input\Commands\Export;
 use Tdt\Input\Commands\ExecuteJob;
 use Tdt\Input\Commands\TriggerJobs;
 use Tdt\Input\Commands\ClearBeanstalk;
+use Illuminate\Queue\Queue;
 
 class InputServiceProvider extends ServiceProvider
 {

@@ -11,6 +11,7 @@ use Monolog\Handler\MongoDBHandler;
 use MongoClient;
 use Elastica\Client;
 use Monolog\Handler\ElasticSearchHandler;
+use Carbon\Carbon;
 
 /**
  * The ExecuteJob class holds the functionality to execute a job
@@ -66,14 +67,31 @@ class ExecuteJob extends Command
             // Configure a log handler if configured
             $this->addLogHandler();
 
-            \Log::info("Executing job $name");
+            $startDate = new Carbon();
+            $iso8601 = $startDate->toISo8601String();
 
-            $job_exec = new JobExecuter($job, $this);
-            $job_exec->execute();
+            \Log::info("Executing job $name at $iso8601");
 
-            $job->date_executed = time();
-            $job->added_to_queue = false;
-            $job->save();
+            try {
+                $job_exec = new JobExecuter($job, $this);
+                $job_exec->execute();
+            } catch (\Exception $ex) {
+                $endDate = new Carbon();
+                $iso8601 = $endDate->toISO8601String();
+
+                \Log::error("The job $job_name has failed at $iso8601");
+                \Log::error($ex->getMessage());
+                \Log::error($ex->getTraceAsString());
+            } finally {
+                $endDate = new Carbon();
+                $iso8601 = $endDate->toISO8601String();
+
+                $job->date_executed = time();
+                $job->added_to_queue = false;
+                $job->save();
+
+                \Log::info("The job has ended at $iso8601");
+            }
         } else {
             $jobs = \Job::all(['name', 'collection_uri'])->toArray();
 

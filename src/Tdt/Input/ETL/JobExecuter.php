@@ -43,9 +43,6 @@ class JobExecuter
         // Register the start of the execution
         $start = microtime(true);
 
-        // Keep track of the number of objects that were processed
-        $numberofobjects = 0;
-
         // Create the job id
         $id = $this->job->collection_uri . '/' . $this->job->name;
         $timestamp = date('d-m-Y H:i:s');
