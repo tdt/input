@@ -15,8 +15,9 @@ class Csv extends AExtractor
 
     protected function open()
     {
-        $uri = $this->extractor->uri;
+        $this->uri = $this->extractor->uri;
         $this->encoding = $this->extractor->encoding;
+        $this->is_uri_tmp_file = false;
 
         // Keep track at which row the Csv handler is
         $this->row_index = 0;
@@ -29,22 +30,23 @@ class Csv extends AExtractor
                                 ),
                             );
 
-        if (substr($uri, 0, 4) == "http") {
+        if (substr($this->uri, 0, 4) == "http") {
             $tmp_file = sys_get_temp_dir() . "/" . uniqid() . '.csv';
 
-            file_put_contents($tmp_file, file_get_contents($uri, false, stream_context_create($ssl_options)));
+            file_put_contents($tmp_file, file_get_contents($this->uri, false, stream_context_create($ssl_options)));
 
-            $uri = $tmp_file;
+            $this->uri = $tmp_file;
+            $this->is_uri_tmp_file = true;
         }
 
-        $this->handle = fopen($uri, 'r', false, stream_context_create($ssl_options));
+        $this->handle = fopen($this->uri, 'r', false, stream_context_create($ssl_options));
 
         if (!$this->handle) {
-            $this->log("Could not open the file with location $uri.");
+            $this->log("Could not open the file with location $this->uri.");
             die;
         }
 
-        $this->log("Opened the CSV file located at $uri");
+        $this->log("Opened the CSV file located at $this->uri");
 
         if ($this->extractor->has_header_row && ($data = fgetcsv($this->handle, 0, $this->extractor->delimiter)) !== false) {
             $csvIndex = 0;
@@ -109,5 +111,9 @@ class Csv extends AExtractor
     protected function close()
     {
         fclose($this->handle);
+
+        if ($this->is_uri_tmp_file) {
+            unlink($this->uri);
+        }
     }
 }
