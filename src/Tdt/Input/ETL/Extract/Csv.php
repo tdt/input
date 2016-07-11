@@ -29,6 +29,14 @@ class Csv extends AExtractor
                                 ),
                             );
 
+        if (substr($uri, 0, 4) == "http") {
+            $tmp_file = sys_get_temp_dir() . "/" . uniqid() . '.csv';
+
+            file_put_contents($tmp_file, file_get_contents($uri, false, stream_context_create($ssl_options)));
+
+            $uri = $tmp_file;
+        }
+
         $this->handle = fopen($uri, 'r', false, stream_context_create($ssl_options));
 
         if (!$this->handle) {
