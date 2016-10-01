@@ -15,13 +15,37 @@ class Json extends AExtractor
 
     protected function open()
     {
-
-        $uri = $this->extractor->uri;
+        $this->uri = $this->extractor->uri;
         $this->listener = new JsonProcessor();
-        $this->parser = new Parser($this->listener);
-        $this->parser = new \tdt\json\JSONCharInputReader($this->listener);
 
-        $this->handle = fopen($uri, 'r');
+        // Check if we have to download the file before processing it
+        $this->is_uri_tmp_file = false;
+
+        // Open a filehandle for the uri
+        $ssl_options = array(
+                            "ssl"=>array(
+                                "verify_peer"=>false,
+                                "verify_peer_name"=>false,
+                                ),
+                            );
+
+        if (substr($this->uri, 0, 4) == "http") {
+            $tmp_file = sys_get_temp_dir() . "/" . uniqid() . '.csv';
+
+            file_put_contents($tmp_file, file_get_contents($this->uri, false, stream_context_create($ssl_options)));
+
+            $this->uri = $tmp_file;
+            $this->is_uri_tmp_file = true;
+        }
+
+        $this->handle = fopen($this->uri, 'r', false, stream_context_create($ssl_options));
+
+        if (!$this->handle) {
+            $this->log("Could not open the file with location $this->uri.");
+            die;
+        }
+
+        $this->parser = new \tdt\json\JSONCharInputReader($this->listener);
     }
 
     /**
@@ -39,7 +63,6 @@ class Json extends AExtractor
      */
     public function pop()
     {
-
         while (!$this->listener->hasNew() && !feof($this->handle)) {
             $char = fread($this->handle, 1);
 
@@ -59,5 +82,9 @@ class Json extends AExtractor
     protected function close()
     {
         fclose($this->handle);
+
+        if ($this->is_uri_tmp_file) {
+            unlink($this->uri);
+        }
     }
 }
