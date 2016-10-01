@@ -87,6 +87,9 @@ class Job extends Eloquent
             }
         }
 
+        $properties['in_queue'] = $this->added_to_queue;
+        $properties['last_execution_time'] = $this->date_executed;
+
         // Fill in the relationships in empl order
         $relations = array('extract' => $this->extractor()->first());
 
