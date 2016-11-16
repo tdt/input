@@ -82,16 +82,16 @@ class ExecuteJob extends Command
                 \Log::error("The job $job_name has failed at $iso8601");
                 \Log::error($ex->getMessage());
                 \Log::error($ex->getTraceAsString());
-            } finally {
-                $endDate = new Carbon();
-                $iso8601 = $endDate->toISO8601String();
-
-                $job->date_executed = time();
-                $job->added_to_queue = false;
-                $job->save();
-
-                \Log::info("The job has ended at $iso8601");
             }
+
+            $endDate = new Carbon();
+            $iso8601 = $endDate->toISO8601String();
+
+            $job->date_executed = time();
+            $job->added_to_queue = false;
+            $job->save();
+
+            \Log::info("The job has ended at $iso8601");
         } else {
             $jobs = \Job::all(['name', 'collection_uri'])->toArray();
 

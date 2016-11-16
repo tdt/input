@@ -12,7 +12,7 @@ namespace Tdt\Input\ETL\Extract;
  * @license AGPLv3
  */
 
-use muka\ShapeReader\ShapeReader;
+use ShapeFile\ShapeFile;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use proj4php\Point;
@@ -22,7 +22,7 @@ class SHP extends AExtractor
     use Encoding;
 
     private $read_record;
-    private $shape_file_wrapper;
+    private $shape_file;
     private $EPSG = "";
 
     private $RECORD_TYPES = [
@@ -51,7 +51,6 @@ class SHP extends AExtractor
         }
 
         try {
-            $options = array('noparts' => false);
             $isUrl = (substr($uri, 0, 4) == "http");
 
             if ($isUrl) {
@@ -60,9 +59,9 @@ class SHP extends AExtractor
                 file_put_contents("tmp/" . $tmpFile . ".dbf", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".dbf"));
                 file_put_contents("tmp/" . $tmpFile . ".shx", file_get_contents(substr($uri, 0, strlen($uri) - 4) . ".shx"));
 
-                $this->shape_file_wrapper = new ShapeReader("tmp/" . $tmpFile . ".shp", $options);
+                $this->shape_file = new ShapeFile("tmp/" . $tmpFile . ".shp");
             } else {
-                $this->shape_file_wrapper = new ShapeReader($uri, $options);
+                $this->shape_file = new ShapeFile($uri);
             }
         } catch (\Exception $ex) {
             throw new \Exception("Something went wrong during the configuration of the SHP Loader: $ex->getMessage()");
@@ -71,10 +70,10 @@ class SHP extends AExtractor
 
     public function hasNext()
     {
-        if (($record = $this->shape_file_wrapper->getNext()) != false) {
+        if (($record = $this->shape_file->getRecord()) != false) {
             $rowobject =array();
 
-            $dbf_data = $record->getDbfData();
+            $dbf_data = $record['dbf'];
 
             foreach ($dbf_data as $property => $value) {
                 if ($this->encoding != 'UTF-8') {
@@ -89,8 +88,8 @@ class SHP extends AExtractor
                 $rowobject[$property] = trim($value);
             }
 
-            $shp_data = $record->getShpData();
-            $shape_type = $this->RECORD_TYPES[$record->getTypeCode()];
+            $shp_data = $record['shp'];
+            $shape_type = $this->RECORD_TYPES[$this->shape_file->getShapeType()];
 
             // Prepare the projection class
             $this->proj4 = new Proj4php();
@@ -241,7 +240,10 @@ class SHP extends AExtractor
         $points = [];
 
         foreach ($shp_data['parts'] as $part) {
-            foreach ($part['points'] as $point) {
+            // We don't support multi-ring polygon
+            $first_ring_points = array_shift($part['rings']);
+
+            foreach ($first_ring_points['points'] as $point) {
                 $x = $point['x'];
                 $y = $point['y'];
 
@@ -270,7 +272,10 @@ class SHP extends AExtractor
         $points = [];
 
         foreach ($shp_data['parts'] as $part) {
-            foreach ($part['points'] as $point) {
+            // We don't support multi-ring polygon
+            $first_ring_points = array_shift($part['rings']);
+
+            foreach ($first_ring_points['points'] as $point) {
                 $x = $point['x'];
                 $y = $point['y'];
                 $z = $point['z'];
