@@ -10,9 +10,6 @@ namespace Tdt\Input\ETL;
  * @author Pieter Colpaert <pieter@okfn.be>
  */
 
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-
 class JobExecuter
 {
     private $job;
@@ -71,11 +68,11 @@ class JobExecuter
         $duration = round(microtime(true) - $start, 2);
 
         if (get_class($loader) != 'Tdt\Input\ETL\Load\Virtuoso') {
-            $this->log("Extracted and loaded a total of $loaded_objects objects from the data source in " . $duration . " seconds.");
+            $this->log("Extracted and loaded a total of $loaded_objects objects from the data source in " . $duration . ' seconds.');
         }
 
         // Execute the publisher if present ( optional )
-        if (!empty($publisher)) {
+        if (! empty($publisher)) {
             $publisher->execute();
         }
 
@@ -109,7 +106,7 @@ class JobExecuter
 
         $executer = 'Tdt\\Input\\ETL\\' . $model_name;
 
-        if (!class_exists($executer)) {
+        if (! class_exists($executer)) {
             $model_class = get_class($model);
 
             // This error shouldn't occur when validation has returned true
@@ -131,7 +128,7 @@ class JobExecuter
         $class = explode('\\', get_called_class());
         $class = end($class);
 
-        $this->command->info("JobExecuter: " . $message);
+        $this->command->info('JobExecuter: ' . $message);
 
         $log_system = \Config::get('input::joblog.system');
 
