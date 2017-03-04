@@ -28,8 +28,8 @@ class Csv extends Type
      */
     public static function validate($params)
     {
-
         $csv_params = array_only($params, array_keys(self::getCreateProperties()));
+
         return parent::validate($csv_params);
     }
 
