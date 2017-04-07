@@ -50,6 +50,10 @@ class JobExecuter
         // While the extractor reads objects, keep executing the eml sequence
         $loaded_objects = 0;
 
+        if (empty($extractor)) {
+            return $this->log('No extractor found');
+        }
+
         while ($extractor->hasNext()) {
             $chunk = $extractor->pop();
 
