@@ -3,7 +3,7 @@
 namespace Tdt\Input\ETL\Extract;
 
 // Flexibility measure for MS-DOS, Mac line endings in a file.
-ini_set("auto_detect_line_endings", true);
+ini_set('auto_detect_line_endings', true);
 
 class Csv extends AExtractor
 {
@@ -23,17 +23,19 @@ class Csv extends AExtractor
         $this->row_index = 0;
 
         // Open a filehandle for the uri
+        // TODO: this can probably be removed
         $ssl_options = array(
-                            "ssl"=>array(
-                                "verify_peer"=>false,
-                                "verify_peer_name"=>false,
+                            'ssl' => array(
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
                                 ),
                             );
 
-        if (substr($this->uri, 0, 4) == "http") {
-            $tmp_file = sys_get_temp_dir() . "/" . uniqid() . '.csv';
+        // If the file is an only file, copy its contents to a temporary file first
+        if (substr($this->uri, 0, 4) == 'http') {
+            $tmp_file = sys_get_temp_dir() . '/' . uniqid() . '.csv';
 
-            file_put_contents($tmp_file, file_get_contents($this->uri, false, stream_context_create($ssl_options)));
+            $this->downloadFile($this->uri, $tmp_file);
 
             $this->uri = $tmp_file;
             $this->is_uri_tmp_file = true;
@@ -41,7 +43,7 @@ class Csv extends AExtractor
 
         $this->handle = fopen($this->uri, 'r', false, stream_context_create($ssl_options));
 
-        if (!$this->handle) {
+        if (! $this->handle) {
             $this->log("Could not open the file with location $this->uri.");
             die;
         }
@@ -65,12 +67,31 @@ class Csv extends AExtractor
     }
 
     /**
+     * Download a remote file to a local file
+     *
+     * @param  string $url
+     * @param  string $tmp_file
+     * @return void
+     */
+    private function downloadFile($url, $tmp_file)
+    {
+        $fp = fopen($tmp_file, 'w');
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_FILE, $fp);
+
+        $data = curl_exec($ch);
+
+        curl_close($ch);
+        fclose($fp);
+    }
+
+    /**
      * Tells us if there are more chunks to retrieve
      * @return a boolean whether the end of the file has been reached or not
      */
     public function hasNext()
     {
-        return !feof($this->handle);
+        return ! feof($this->handle);
     }
 
     /**

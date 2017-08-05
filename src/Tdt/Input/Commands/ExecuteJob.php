@@ -34,7 +34,7 @@ class ExecuteJob extends Command
      *
      * @var string
      */
-    protected $description = "Execute a defined ETL job.";
+    protected $description = 'Execute a defined ETL job.';
 
     /**
      * Execute the console command
@@ -47,7 +47,7 @@ class ExecuteJob extends Command
         $list = $this->option('list');
         $job_name = $this->argument('jobname');
 
-        if (empty($list) && !empty($job_name)) {
+        if (empty($list) && ! empty($job_name)) {
             $inputController = new InputController();
 
             list($collection_uri, $name) = $inputController->getParts($job_name);
@@ -59,6 +59,7 @@ class ExecuteJob extends Command
 
             if (empty($job)) {
                 $this->error("The job with identified by: $job_name could not be found.\n");
+
                 exit();
             }
 
@@ -95,14 +96,14 @@ class ExecuteJob extends Command
         } else {
             $jobs = \Job::all(['name', 'collection_uri'])->toArray();
 
-            if (!empty($jobs)) {
-                $this->info("=== Job names ===");
+            if (! empty($jobs)) {
+                $this->info('=== Job names ===');
 
                 foreach ($jobs as $job) {
                     $this->info($job['collection_uri'] . '/' . $job['name']);
                 }
             } else {
-                $this->info("No jobs found.");
+                $this->info('No jobs found.');
             }
         }
     }
@@ -148,12 +149,12 @@ class ExecuteJob extends Command
 
             $auth = [];
 
-            if (!empty($username)) {
+            if (! empty($username)) {
                 $auth['username'] = $username;
 
                 $password = $mongo_config['password'];
 
-                if (!empty($password)) {
+                if (! empty($password)) {
                     $auth['password'] = $password;
                 }
             }
@@ -174,7 +175,7 @@ class ExecuteJob extends Command
             $pw = $es_config['password'];
             $host = $es_config['host'];
 
-            if (!empty($username) && !empty($pw)) {
+            if (! empty($username) && ! empty($pw)) {
                 $auth_header_val = 'Basic ' . base64_encode($username . ':' . $pw);
                 $auth_header = array('Authorization' => $auth_header_val);
             }
